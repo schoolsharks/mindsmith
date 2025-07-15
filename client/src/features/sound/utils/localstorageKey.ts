@@ -1,0 +1,1 @@
+export const SOUND_ENABLED_KEY = 'sound_enabled';

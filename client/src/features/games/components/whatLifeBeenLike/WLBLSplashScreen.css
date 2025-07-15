@@ -1,0 +1,15 @@
+.expanding-effect {
+  animation: expandingEffect 1.5s ease-in-out infinite;
+}
+
+
+@keyframes expandingEffect {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
