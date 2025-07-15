@@ -23,7 +23,7 @@ const OutlinedButton: React.FC<OutlinedButtonProps> = ({
         color: "#000",
         borderRadius: "12px",
         textTransform: "none",
-        padding: "0px 12px",
+        padding: "5px 12px",
         "&.Mui-disabled": {
           border: `${border}60`,
           color: "#00000080",

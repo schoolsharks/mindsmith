@@ -1,17 +1,8 @@
-import { Game } from "../../../games/data/allGames";
 import { Typography, Box, Stack } from "@mui/material";
-import { Question } from "../../types/questionTypes";
+import { QuestionProps } from "../../types/questionTypes";
 import { useState } from "react";
 
-interface OptionsQuestionProps {
-  question: Question;
-  game?: Game;
-}
-
-const OptionsQuestion: React.FC<OptionsQuestionProps> = ({
-  game,
-  question,
-}) => {
+const OptionsQuestion: React.FC<QuestionProps> = ({ game, question }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   return (

@@ -17,7 +17,7 @@ const Welcome: React.FC<WelcomeProps> = ({handleNextPage}) => {
       <Box
         component="img"
         src={cloudGraphic2}
-        width={"143px"}
+        width={"110px"}
         marginTop={"40px"}
         position={"relative"}
       />

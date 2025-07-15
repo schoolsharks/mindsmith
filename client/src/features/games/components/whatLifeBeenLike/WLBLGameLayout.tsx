@@ -23,17 +23,30 @@ const WLBLGameLayout = () => {
     carouselRef.current?.previous();
   };
 
+  const handleEnded = () => {
+    navigate("/user/home");
+  };
+
   const handleNext = () => {
     if (
       carouselRef.current?.getCurrentIndex() ===
       whatLifeBeenLikeQuestions.length - 1
     ) {
-      navigate("/user/home");
+      handleEnded();
+      return;
     }
 
     carouselRef.current?.next();
   };
 
+  const handleCardChange = () => {
+    setTimeout(() => {
+      const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
+      if (currentIdx === whatLifeBeenLikeQuestions.length) {
+        handleEnded();
+      }
+    }, 0);
+  };
   return (
     <Page sx={{ padding: "20px" }}>
       <Box
@@ -68,6 +81,7 @@ const WLBLGameLayout = () => {
       <Box marginTop={"20px"} flex={1}>
         <HorizontalCarousel
           ref={carouselRef}
+          handleCardChange={handleCardChange}
           cardStyle={{
             border: `2px solid ${game?.theme.primary.main}`,
             bgcolor: game?.theme.secondary.main,
@@ -75,33 +89,34 @@ const WLBLGameLayout = () => {
           items={whatLifeBeenLikeQuestions.map((question, index) => (
             <Box key={index} padding={"18px"}>
               <QuestionRender question={question} game={game} />
+              <Stack
+                direction={"row"}
+                marginTop={"20px"}
+                justifyContent={"space-between"}
+                alignItems={"center"}
+                onClick={(e) => e.stopPropagation()} // Prevent event bubbling to carousel
+              >
+                <OutlinedButton
+                  border={`2px solid ${game?.theme.primary.main}`}
+                  sx={{ color: game?.theme.primary.main, padding: "3px 10px" }}
+                  onClick={handlePrevious}
+                >
+                  Previous
+                </OutlinedButton>
+                <ContainedButton
+                  sx={{
+                    bgcolor: game?.theme.primary.main,
+                    padding: "3px 30px",
+                  }}
+                  onClick={handleNext}
+                >
+                  Next
+                </ContainedButton>
+              </Stack>
             </Box>
           ))}
         />
       </Box>
-      <Stack
-        direction={"row"}
-        marginTop={"20px"}
-        justifyContent={"space-between"}
-        alignItems={"center"}
-      >
-        <OutlinedButton
-          border={`2px solid ${game?.theme.primary.main}`}
-          sx={{ color: game?.theme.primary.main, padding: "3px 10px" }}
-          onClick={handlePrevious}
-        >
-          Previous
-        </OutlinedButton>
-        <ContainedButton
-          sx={{
-            bgcolor: game?.theme.primary.main,
-            padding: "3px 30px",
-          }}
-          onClick={handleNext}
-        >
-          Next
-        </ContainedButton>
-      </Stack>
     </Page>
   );
 };

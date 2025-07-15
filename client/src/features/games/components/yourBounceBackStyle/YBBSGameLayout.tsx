@@ -1,6 +1,6 @@
-import { Box, LinearProgress, Stack, Typography } from "@mui/material";
-import { useRef, useState } from "react";
-import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/feel-your-feeling.webp";
+import { Box, Stack, Typography } from "@mui/material";
+import { useRef } from "react";
+import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/your-bounce-back-style.webp";
 import Page from "../../../../components/layout/Page";
 import { games } from "../../data/allGames";
 import QuestionRender from "../../../questions/components/QuestionRender";
@@ -12,10 +12,10 @@ import VerticalCarousel, {
   VerticalCarouselRef,
 } from "../../../../components/utility/VerticalCarousel";
 
-const FYFGameLayout = () => {
+const YBBSGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const game = games.find((game) => game.id === "feel-your-feelings");
+  //   const [currentIndex, setCurrentIndex] = useState(0);
+  const game = games.find((game) => game.id === "your-bounce-back-style");
   const navigate = useNavigateWithSound();
   const handlePrevious = () => {
     const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
@@ -41,7 +41,7 @@ const FYFGameLayout = () => {
   const handleCardChange = () => {
     setTimeout(() => {
       const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-      setCurrentIndex(currentIdx);
+      //   setCurrentIndex(currentIdx);
       if (currentIdx === feelYourFeelingsQuestions.length) {
         handleEnded();
       }
@@ -53,11 +53,11 @@ const FYFGameLayout = () => {
       <Box
         component={"img"}
         src={cornerGraphic}
-        width={"100px"}
+        width={"200px"}
         sx={{
           position: "absolute",
-          top: "10%",
-          right: "0",
+          top: "2%",
+          right: "-12%",
         }}
       />
       <Typography
@@ -67,19 +67,19 @@ const FYFGameLayout = () => {
         marginTop={"16px"}
         mb={"12px"}
       >
-        Feel Your
-        <br /> Feelings
+        Your Bounce
+        <br /> Back Style
       </Typography>
-      <LinearProgress
+      {/* <LinearProgress
         value={((currentIndex + 1) / feelYourFeelingsQuestions.length) * 100}
         variant="determinate"
         sx={{
           "& .MuiLinearProgress-bar": {
-            backgroundColor: "#8DD1FF",
+            backgroundColor: "#f5fd12",
           },
           backgroundColor: "#FFA1A2",
         }}
-      />
+      /> */}
       <Box marginTop={"20px"} id="game-questions-container">
         <VerticalCarousel
           ref={carouselRef}
@@ -89,45 +89,37 @@ const FYFGameLayout = () => {
             // bgcolor: `${game?.theme.secondary.main}60`,
           }}
           items={feelYourFeelingsQuestions.map((question, index) => (
-            <Stack
-              key={index}
-              padding={"18px"}
-              justifyContent={"space-between"}
-              flex={1}
-            >
+            <Box key={index} padding={"18px"}>
               <QuestionRender question={question} game={game} />
-              <Stack
-                direction={"row"}
-                marginTop={"20px"}
-                justifyContent={"space-between"}
-                alignItems={"center"}
-              >
-                <OutlinedButton
-                  border={`2px solid ${game?.theme.secondary.main}`}
-                  sx={{
-                    color: game?.theme.secondary.main,
-                    padding: "3px 10px",
-                  }}
-                  onClick={handlePrevious}
-                >
-                  Previous
-                </OutlinedButton>
-                <ContainedButton
-                  sx={{
-                    bgcolor: game?.theme.secondary.main,
-                    padding: "3px 30px",
-                  }}
-                  onClick={handleNext}
-                >
-                  Next
-                </ContainedButton>
-              </Stack>
-            </Stack>
+            </Box>
           ))}
         />
       </Box>
+      <Stack
+        direction={"row"}
+        marginTop={"20px"}
+        justifyContent={"space-between"}
+        alignItems={"center"}
+      >
+        <OutlinedButton
+          border={`2px solid ${game?.theme.primary.main}`}
+          sx={{ color: game?.theme.primary.main, padding: "3px 10px" }}
+          onClick={handlePrevious}
+        >
+          Previous
+        </OutlinedButton>
+        <ContainedButton
+          sx={{
+            bgcolor: game?.theme.primary.main,
+            padding: "3px 30px",
+          }}
+          onClick={handleNext}
+        >
+          Next
+        </ContainedButton>
+      </Stack>
     </Page>
   );
 };
 
-export default FYFGameLayout;
+export default YBBSGameLayout;

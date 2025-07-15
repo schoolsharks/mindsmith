@@ -1,6 +1,7 @@
 import React from "react";
-import { Checkbox, Stack, Typography } from "@mui/material";
+import { Box, Checkbox, Stack, Typography } from "@mui/material";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
+
 
 interface TermsAndConditionsInputProps {
   tncAccepted: boolean;
@@ -15,16 +16,17 @@ const TermsAndConditionsInput: React.FC<TermsAndConditionsInputProps> = ({
 }) => {
   const navigateWithSound = useNavigateWithSound();
   return (
-    <Stack direction="row" alignItems={"center"}>
+    <Stack direction="row" alignItems={"center"} position={"relative"}>
       <Checkbox
         checked={tncAccepted}
         onChange={() => setTncAccepted((prev) => !prev)}
       />
       <Typography fontWeight={"500"} fontSize={"14px"}>
         I agree to the
-        <span
+        <Box
+          component={"span"}
           onClick={() => navigateWithSound(tncPageRoute)}
-          style={{
+          sx={{
             cursor: "pointer",
             marginLeft: "4px",
             fontSize: "16px",
@@ -32,7 +34,7 @@ const TermsAndConditionsInput: React.FC<TermsAndConditionsInputProps> = ({
           }}
         >
           Terms & conditions{" "}
-        </span>
+        </Box>
       </Typography>
     </Stack>
   );

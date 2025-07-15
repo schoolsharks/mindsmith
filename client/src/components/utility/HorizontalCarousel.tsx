@@ -19,6 +19,7 @@ interface HorizontalCarouselProps {
   autoplay?: boolean;
   autoplaySpeed?: number;
   speed?: number;
+  handleCardChange: () => void;
 }
 
 export interface HorizontalCarouselRef {
@@ -41,6 +42,7 @@ const HorizontalCarousel = forwardRef<
       autoplay = false,
       autoplaySpeed = 3000,
       speed = 500,
+      handleCardChange,
     },
     ref
   ) => {
@@ -49,9 +51,8 @@ const HorizontalCarousel = forwardRef<
 
     const goToNext = () => {
       if (sliderRef.current) {
-        console.log("Next button clicked - current index:", currentIndex);
-        console.log("Total items:", items.length);
         sliderRef.current.slickNext();
+        handleCardChange();
       }
     };
 
@@ -60,6 +61,7 @@ const HorizontalCarousel = forwardRef<
         console.log("Previous button clicked - current index:", currentIndex);
         console.log("Total items:", items.length);
         sliderRef.current.slickPrev();
+        handleCardChange();
       }
     };
 
@@ -67,6 +69,7 @@ const HorizontalCarousel = forwardRef<
       if (sliderRef.current) {
         console.log("Going to slide:", index);
         sliderRef.current.slickGoTo(index);
+        handleCardChange();
       }
     };
 
@@ -94,9 +97,6 @@ const HorizontalCarousel = forwardRef<
       afterChange: (current: number) => {
         console.log("After change - current index:", current);
         setCurrentIndex(current);
-      },
-      beforeChange: (_current: number, next: number) => {
-        console.log("Before change - from:", _current, "to:", next);
       },
       responsive: [
         {

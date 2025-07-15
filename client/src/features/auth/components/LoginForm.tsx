@@ -7,7 +7,7 @@ import OutlinedButton from "../../../components/ui/OutlinedButton";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
 
 const LoginForm = () => {
-  const navigate = useNavigateWithSound()
+  const navigate = useNavigateWithSound();
   const [formValues, setFormValues] = useState({
     name: "",
     email: "",
@@ -54,7 +54,9 @@ const LoginForm = () => {
         />
       </Box>
       <BottomElement>
-        <OutlinedButton onClick={()=>navigate("/user/home")}>Pay Now</OutlinedButton>
+        <OutlinedButton onClick={() => navigate("/user/home")}>
+          Pay Now
+        </OutlinedButton>
       </BottomElement>
     </Stack>
   );
