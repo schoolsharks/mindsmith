@@ -13,7 +13,7 @@ import cookieParser from "cookie-parser";
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-connectDB();
+// connectDB();
 
 const app = express();
 
