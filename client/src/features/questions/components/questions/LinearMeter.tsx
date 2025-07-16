@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { QuestionProps } from "../../types/questionTypes";
 import LinearMeterChart from "../../../../components/ui/LinearMeterChart";
 import { useState } from "react";
@@ -15,11 +15,13 @@ const LinearMeter: React.FC<QuestionProps> = ({ question }) => {
       <Typography fontSize={"18px"} fontWeight={"500"}>
         {question.question}
       </Typography>
-      <LinearMeterChart 
-        labels={question.options} 
-        selectedIndex={selectedIndex}
-        onChange={handleChange}
-      />
+      <Stack alignItems={"center"}>
+        <LinearMeterChart
+          labels={question.options}
+          selectedIndex={selectedIndex}
+          onChange={handleChange}
+        />
+      </Stack>
     </Box>
   );
 };

@@ -31,7 +31,7 @@ const FYFGameLayout = () => {
   const handleNext = () => {
     const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
     if (currentIdx === feelYourFeelingsQuestions.length - 1) {
-      handleEnded;
+      handleEnded();
       return;
     }
 
@@ -108,7 +108,10 @@ const FYFGameLayout = () => {
                     color: game?.theme.secondary.main,
                     padding: "3px 10px",
                   }}
-                  onClick={handlePrevious}
+                  onClick={(e) => {
+                    e?.stopPropagation();
+                    handlePrevious();
+                  }}
                 >
                   Previous
                 </OutlinedButton>
@@ -117,7 +120,10 @@ const FYFGameLayout = () => {
                     bgcolor: game?.theme.secondary.main,
                     padding: "3px 30px",
                   }}
-                  onClick={handleNext}
+                  onClick={(e) => {
+                    e?.stopPropagation();
+                    handleNext();
+                  }}
                 >
                   Next
                 </ContainedButton>

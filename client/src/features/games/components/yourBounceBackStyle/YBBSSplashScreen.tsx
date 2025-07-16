@@ -14,7 +14,7 @@ const YBBSSplashScreen = () => {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <Page sx={{padding:"20px"}}>
+    <Page sx={{padding:"40px"}}>
       <Typography fontSize={"30px"} fontWeight={"600"} lineHeight={"35px"} marginTop={"20px"}>Release expectations.</Typography>
       <Typography fontSize={"20px"} fontWeight={"500"} marginTop={"8px"}>Let your heart be light by being present with each moment.</Typography>
       <Box

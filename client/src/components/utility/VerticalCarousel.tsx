@@ -194,6 +194,12 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
 
       // Mouse and Touch start handlers
       const handleStart = (event: MouseEvent | TouchEvent) => {
+        // Check if the event target is an interactive element (button, input, etc.)
+        const target = event.target as HTMLElement;
+        if (target.closest('button') || target.closest('input') || target.closest('a') || target.closest('[role="button"]')) {
+          return; // Don't start drag on interactive elements
+        }
+
         dragStateRef.current.isDragging = true;
         dragStateRef.current.startY = getYCoordinate(event);
         dragStateRef.current.totalDeltaY = 0;
@@ -220,8 +226,8 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
         const deltaY = currentY - dragStateRef.current.startY;
         dragStateRef.current.totalDeltaY = deltaY;
 
-        // Prevent default touch behavior
-        if (event.type.startsWith("touch")) {
+        // Only prevent default for touch events during active drag
+        if (event.type.startsWith("touch") && dragStateRef.current.isDragging) {
           event.preventDefault();
         }
       };
@@ -308,7 +314,7 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
         <Box
           sx={{
             position: "relative",
-            width: "90%",
+            width: "100%",
             height: cardHeight,
           }}
         >

@@ -1,10 +1,11 @@
 import { Button, SxProps } from "@mui/material";
+import { MouseEvent } from "react";
 
 interface ContainedButtonProps {
   sx?: SxProps;
   disabled?: boolean;
   children?: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e?: MouseEvent<HTMLButtonElement>) => void;
 }
 const ContainedButton: React.FC<ContainedButtonProps> = ({
   sx,

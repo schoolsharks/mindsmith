@@ -31,7 +31,7 @@ const BBGameLayout = () => {
   const handleNext = () => {
     const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
     if (currentIdx === feelYourFeelingsQuestions.length - 1) {
-      handleEnded;
+      handleEnded();
       return;
     }
 
@@ -67,8 +67,7 @@ const BBGameLayout = () => {
         marginTop={"16px"}
         mb={"12px"}
       >
-        Your Bounce
-        <br /> Back Style
+        The Brainy Bits
       </Typography>
       {/* <LinearProgress
         value={((currentIndex + 1) / feelYourFeelingsQuestions.length) * 100}
@@ -85,39 +84,39 @@ const BBGameLayout = () => {
           ref={carouselRef}
           handleCardChange={handleCardChange}
           cardStyle={{
-            border: `2px solid ${game?.theme.secondary.main}`,
+            border: `2px solid ${game?.theme.primary.main}`,
             // bgcolor: `${game?.theme.secondary.main}60`,
           }}
           items={feelYourFeelingsQuestions.map((question, index) => (
-            <Box key={index} padding={"18px"}>
+            <Stack key={index} padding={"18px"} justifyContent={"space-between"} flex={1}>
               <QuestionRender question={question} game={game} />
-            </Box>
+              <Stack
+                direction={"row"}
+                marginTop={"20px"}
+                justifyContent={"space-between"}
+                alignItems={"center"}
+              >
+                <OutlinedButton
+                  border={`2px solid ${game?.theme.primary.main}`}
+                  sx={{ color: game?.theme.primary.main, padding: "3px 10px" }}
+                  onClick={handlePrevious}
+                >
+                  Previous
+                </OutlinedButton>
+                <ContainedButton
+                  sx={{
+                    bgcolor: game?.theme.primary.main,
+                    padding: "3px 30px",
+                  }}
+                  onClick={handleNext}
+                >
+                  Next
+                </ContainedButton>
+              </Stack>
+            </Stack>
           ))}
         />
       </Box>
-      <Stack
-        direction={"row"}
-        marginTop={"20px"}
-        justifyContent={"space-between"}
-        alignItems={"center"}
-      >
-        <OutlinedButton
-          border={`2px solid ${game?.theme.primary.main}`}
-          sx={{ color: game?.theme.primary.main, padding: "3px 10px" }}
-          onClick={handlePrevious}
-        >
-          Previous
-        </OutlinedButton>
-        <ContainedButton
-          sx={{
-            bgcolor: game?.theme.primary.main,
-            padding: "3px 30px",
-          }}
-          onClick={handleNext}
-        >
-          Next
-        </ContainedButton>
-      </Stack>
     </Page>
   );
 };

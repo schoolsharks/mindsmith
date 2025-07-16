@@ -27,6 +27,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({ game, question }) => {
               opacity: selectedOption === option ? 1 : 0.7,
               minHeight: "70px",
               alignItems: "center",
+              transition: "all 0.3s ease",
             }}
           >
             <Stack

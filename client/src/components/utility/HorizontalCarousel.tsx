@@ -4,12 +4,10 @@ import {
   forwardRef,
   ReactNode,
   useRef,
+  useEffect,
 } from "react";
 import { Box, IconButton, Stack, SxProps, Theme } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 
 interface HorizontalCarouselProps {
   items: ReactNode[];
@@ -47,29 +45,259 @@ const HorizontalCarousel = forwardRef<
     ref
   ) => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const sliderRef = useRef<Slider>(null);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const autoplayRef = useRef<NodeJS.Timeout | null>(null);
+    
+    // Touch/swipe state
+    const [touchStart, setTouchStart] = useState<number | null>(null);
+    const [touchEnd, setTouchEnd] = useState<number | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startTime, setStartTime] = useState<number | null>(null);
+
+    // Get card position and properties by index
+    const getCardProperties = (index: number) => {
+      const isCenter = index === currentIndex;
+      const isLeft = index === currentIndex - 1;
+      const isRight = index === currentIndex + 1;
+      
+      let transform = "translateX(0px) scale(0.8)";
+      let opacity = 0.6;
+      let zIndex = 1;
+      
+      // Add drag offset if dragging
+      let dragOffset = 0;
+      if (isDragging && touchStart && touchEnd) {
+        dragOffset = (touchEnd - touchStart) * 0.3; // Reduced sensitivity
+      }
+      
+      if (isCenter) {
+        transform = `translateX(${dragOffset}px) scale(1)`;
+        opacity = 1;
+        zIndex = 3;
+      } else if (isLeft) {
+        transform = `translateX(${-60 + dragOffset}px) scale(0.8) rotate(-5deg)`;
+        opacity = 0.6;
+        zIndex = 2;
+      } else if (isRight) {
+        transform = `translateX(${60 + dragOffset}px) scale(0.8) rotate(5deg)`;
+        opacity = 0.6;
+        zIndex = 2;
+      } else {
+        // Cards further away are hidden
+        opacity = 0;
+        zIndex = 0;
+      }
+      
+      return {
+        transform,
+        opacity,
+        zIndex,
+        isCenter,
+        isVisible: isCenter || isLeft || isRight,
+      };
+    };
 
     const goToNext = () => {
-      if (sliderRef.current) {
-        sliderRef.current.slickNext();
+      if (isTransitioning || currentIndex >= items.length - 1) return;
+      
+      setIsTransitioning(true);
+      setCurrentIndex(prev => prev + 1);
+      
+      setTimeout(() => {
+        setIsTransitioning(false);
         handleCardChange();
-      }
+      }, speed);
     };
 
     const goToPrevious = () => {
-      if (sliderRef.current) {
-        console.log("Previous button clicked - current index:", currentIndex);
-        console.log("Total items:", items.length);
-        sliderRef.current.slickPrev();
+      if (isTransitioning || currentIndex <= 0) return;
+      
+      console.log("Previous button clicked - current index:", currentIndex);
+      console.log("Total items:", items.length);
+      
+      setIsTransitioning(true);
+      setCurrentIndex(prev => prev - 1);
+      
+      setTimeout(() => {
+        setIsTransitioning(false);
         handleCardChange();
-      }
+      }, speed);
     };
 
     const goToSlide = (index: number) => {
-      if (sliderRef.current) {
-        console.log("Going to slide:", index);
-        sliderRef.current.slickGoTo(index);
+      if (isTransitioning || index === currentIndex || index < 0 || index >= items.length) return;
+      
+      console.log("Going to slide:", index);
+      
+      setIsTransitioning(true);
+      setCurrentIndex(index);
+      
+      setTimeout(() => {
+        setIsTransitioning(false);
         handleCardChange();
+      }, speed);
+    };
+
+    // Swipe/touch handlers
+    const handleTouchStart = (e: React.TouchEvent) => {
+      setTouchEnd(null);
+      setTouchStart(e.targetTouches[0].clientX);
+      setStartTime(Date.now());
+      setIsDragging(true);
+      
+      // Pause autoplay during touch
+      if (autoplayRef.current) {
+        clearInterval(autoplayRef.current);
+      }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+      if (!isDragging) return;
+      setTouchEnd(e.targetTouches[0].clientX);
+      // Prevent default scrolling behavior
+      e.preventDefault();
+    };
+
+    const handleTouchEnd = () => {
+      if (!touchStart || !touchEnd || !isDragging || !startTime) {
+        setIsDragging(false);
+        setStartTime(null);
+        // Resume autoplay
+        if (autoplay && items.length > 1) {
+          autoplayRef.current = setInterval(() => {
+            setCurrentIndex(prev => (prev + 1) % items.length);
+            handleCardChange();
+          }, autoplaySpeed);
+        }
+        return;
+      }
+      
+      const distance = touchStart - touchEnd;
+      const timeDiff = Date.now() - startTime;
+      const velocity = Math.abs(distance) / timeDiff;
+      
+      // Adjust thresholds based on velocity for more natural feel
+      const minSwipeDistance = velocity > 0.5 ? 30 : 50;
+      
+      if (distance > minSwipeDistance) {
+        // Swiped left - go to next
+        goToNext();
+      } else if (distance < -minSwipeDistance) {
+        // Swiped right - go to previous
+        goToPrevious();
+      }
+      
+      setIsDragging(false);
+      setTouchStart(null);
+      setTouchEnd(null);
+      setStartTime(null);
+      
+      // Resume autoplay
+      if (autoplay && items.length > 1) {
+        autoplayRef.current = setInterval(() => {
+          setCurrentIndex(prev => (prev + 1) % items.length);
+          handleCardChange();
+        }, autoplaySpeed);
+      }
+    };
+
+    // Mouse drag handlers (for desktop)
+    const handleMouseDown = (e: React.MouseEvent) => {
+      setTouchEnd(null);
+      setTouchStart(e.clientX);
+      setStartTime(Date.now());
+      setIsDragging(true);
+      
+      // Pause autoplay during drag
+      if (autoplayRef.current) {
+        clearInterval(autoplayRef.current);
+      }
+      
+      // Prevent default to avoid text selection
+      e.preventDefault();
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+      if (!isDragging) return;
+      setTouchEnd(e.clientX);
+    };
+
+    const handleMouseUp = () => {
+      if (!touchStart || !touchEnd || !isDragging || !startTime) {
+        setIsDragging(false);
+        setStartTime(null);
+        // Resume autoplay
+        if (autoplay && items.length > 1) {
+          autoplayRef.current = setInterval(() => {
+            setCurrentIndex(prev => (prev + 1) % items.length);
+            handleCardChange();
+          }, autoplaySpeed);
+        }
+        return;
+      }
+      
+      const distance = touchStart - touchEnd;
+      const timeDiff = Date.now() - startTime;
+      const velocity = Math.abs(distance) / timeDiff;
+      
+      // Adjust thresholds based on velocity for more natural feel
+      const minSwipeDistance = velocity > 0.5 ? 30 : 50;
+      
+      if (distance > minSwipeDistance) {
+        // Dragged left - go to next
+        goToNext();
+      } else if (distance < -minSwipeDistance) {
+        // Dragged right - go to previous
+        goToPrevious();
+      }
+      
+      setIsDragging(false);
+      setTouchStart(null);
+      setTouchEnd(null);
+      setStartTime(null);
+      
+      // Resume autoplay
+      if (autoplay && items.length > 1) {
+        autoplayRef.current = setInterval(() => {
+          setCurrentIndex(prev => (prev + 1) % items.length);
+          handleCardChange();
+        }, autoplaySpeed);
+      }
+    };
+
+    // Autoplay functionality
+    useEffect(() => {
+      if (!autoplay || items.length <= 1) return;
+
+      const startAutoplay = () => {
+        autoplayRef.current = setInterval(() => {
+          setCurrentIndex(prev => (prev + 1) % items.length);
+          handleCardChange();
+        }, autoplaySpeed);
+      };
+
+      startAutoplay();
+
+      return () => {
+        if (autoplayRef.current) {
+          clearInterval(autoplayRef.current);
+        }
+      };
+    }, [autoplay, autoplaySpeed, items.length, handleCardChange]);
+
+    // Pause autoplay on hover
+    const handleMouseEnter = () => {
+      if (autoplayRef.current) {
+        clearInterval(autoplayRef.current);
+      }
+    };
+
+    const handleMouseLeave = () => {
+      if (autoplay && items.length > 1) {
+        autoplayRef.current = setInterval(() => {
+          setCurrentIndex(prev => (prev + 1) % items.length);
+          handleCardChange();
+        }, autoplaySpeed);
       }
     };
 
@@ -80,112 +308,90 @@ const HorizontalCarousel = forwardRef<
       getCurrentIndex: () => currentIndex,
     }));
 
-    const settings = {
-      dots: false,
-      //   infinite: items.length > 2,
-      infinite: false,
-      speed: speed,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-      centerMode: true,
-      centerPadding: "5%",
-      focusOnSelect: true,
-      autoplay: autoplay,
-      autoplaySpeed: autoplaySpeed,
-      pauseOnHover: true,
-      arrows: false,
-      afterChange: (current: number) => {
-        console.log("After change - current index:", current);
-        setCurrentIndex(current);
-      },
-      responsive: [
-        {
-          breakpoint: 768,
-          settings: {
-            slidesToShow: 1,
-            centerMode: true,
-            centerPadding: "5%",
-          },
-        },
-      ],
-    };
-
     return (
-      <Box
+      <Stack
         sx={{
           position: "relative",
           width: "100%",
-          //   minHeight: "900px",
+          height: "100%",
           overflow: "visible",
-          display: "flex",
+          // display: "flex",
+          flex:"1",
           alignItems: "center",
           justifyContent: "center",
+          userSelect: "none", // Prevent text selection during drag
+          cursor: isDragging ? "grabbing" : "grab",
+          touchAction: "pan-y", // Allow vertical scrolling but handle horizontal
           ...containerStyle,
-          // Custom styles for react-slick
-          "& .slick-slider": {
-            width: "100%",
-            height: "100%",
-          },
-          "& .slick-list": {
-            height: "100%",
-            overflow: "visible",
-          },
-          "& .slick-track": {
-            display: "flex",
-            alignItems: "center",
-            height: "100%",
-          },
-          "& .slick-slide": {
-            transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-            "& > div": {
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              perspective: "1000px",
-            },
-          },
-          "& .slick-slide:not(.slick-center)": {
-            transform: "scale(0.8)",
-            opacity: 0.6,
-          },
-          "& .slick-slide.slick-center": {
-            transform: "scale(1)",
-            opacity: 1,
-            zIndex: 3,
-            "& .carousel-card": {
-              transform: "rotateZ(0deg)",
-            },
-          },
-          "& .slick-slide:not(.slick-center) .carousel-card": {
-            cursor: "pointer",
-          },
+        }}
+        onMouseEnter={handleMouseEnter}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={() => {
+          handleMouseLeave();
+          // Also handle mouse up when leaving the component
+          if (isDragging) {
+            handleMouseUp();
+          }
         }}
       >
-        <Slider ref={sliderRef} {...settings}>
-          {items.map((item, index) => (
-            <Stack key={index}>
+        <Stack
+          sx={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flex:1,
+            alignItems: "center",
+            justifyContent: "center",
+            perspective: "1000px",
+          }}
+        >
+          {items.map((item, index) => {
+            const cardProps = getCardProperties(index);
+            
+            if (!cardProps.isVisible) return null;
+            
+            return (
               <Box
+                key={index}
                 className="carousel-card"
                 sx={{
-                  flex: 1,
+                  position: "absolute",
                   minHeight: "420px",
                   width: "100%",
-                  height: "100%",
+                  maxWidth: "350px",
+                  // height: "100%",
                   borderRadius: "12px",
                   backgroundColor: "#fff",
                   boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-                  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                  transition: isDragging ? "none" : `all ${speed}ms cubic-bezier(0.4, 0, 0.2, 1)`,
                   display: "flex",
                   transformStyle: "preserve-3d",
                   backfaceVisibility: "hidden",
+                  transform: cardProps.transform,
+                  opacity: cardProps.opacity,
+                  zIndex: cardProps.zIndex,
+                  cursor: isDragging ? "grabbing" : (cardProps.isCenter ? "default" : "pointer"),
+                  touchAction: "none", // Prevent default touch behaviors
                   ...cardStyle,
                   "&:hover": {
-                    transform: "translateY(-4px) rotateZ(0deg)",
-                    boxShadow: "0 12px 48px rgba(0,0,0,0.18)",
+                    transform: cardProps.isCenter 
+                      ? `${cardProps.transform} translateY(-4px)`
+                      : cardProps.transform,
+                    boxShadow: cardProps.isCenter 
+                      ? "0 12px 48px rgba(0,0,0,0.18)"
+                      : "0 8px 32px rgba(0,0,0,0.12)",
                   },
                 }}
                 onClick={() => {
+                  // Prevent click during dragging
+                  if (isDragging) return;
+                  
                   if (index !== currentIndex) {
                     goToSlide(index);
                   }
@@ -193,15 +399,16 @@ const HorizontalCarousel = forwardRef<
               >
                 {item}
               </Box>
-            </Stack>
-          ))}
-        </Slider>
+            );
+          })}
+        </Stack>
 
         {/* Optional Controls */}
         {showControls && (
           <>
             <IconButton
               onClick={goToPrevious}
+              disabled={currentIndex === 0 || isTransitioning}
               sx={{
                 position: "absolute",
                 left: "10px",
@@ -213,6 +420,10 @@ const HorizontalCarousel = forwardRef<
                   backgroundColor: "rgba(255,255,255,1)",
                   transform: "scale(1.1)",
                 },
+                "&:disabled": {
+                  opacity: 0.5,
+                  cursor: "not-allowed",
+                },
               }}
             >
               <ChevronLeft />
@@ -220,6 +431,7 @@ const HorizontalCarousel = forwardRef<
 
             <IconButton
               onClick={goToNext}
+              disabled={currentIndex === items.length - 1 || isTransitioning}
               sx={{
                 position: "absolute",
                 right: "10px",
@@ -231,13 +443,17 @@ const HorizontalCarousel = forwardRef<
                   backgroundColor: "rgba(255,255,255,1)",
                   transform: "scale(1.1)",
                 },
+                "&:disabled": {
+                  opacity: 0.5,
+                  cursor: "not-allowed",
+                },
               }}
             >
               <ChevronRight />
             </IconButton>
           </>
         )}
-      </Box>
+      </Stack>
     );
   }
 );

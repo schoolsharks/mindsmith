@@ -1,11 +1,12 @@
 import { Button, SxProps } from "@mui/material";
+import { MouseEvent } from "react";
 
 interface OutlinedButtonProps {
   sx?: SxProps;
   disabled?: boolean;
   border?: string;
   children?: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e?: MouseEvent<HTMLButtonElement>) => void;
 }
 const OutlinedButton: React.FC<OutlinedButtonProps> = ({
   sx,

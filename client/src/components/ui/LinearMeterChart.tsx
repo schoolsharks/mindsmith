@@ -23,6 +23,7 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(selectedIndex);
   const [totalLines, setTotalLines] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const colors = ["#ff4444", "#ff8800", "#ffcc00", "#88cc00", "#44aa44"];
@@ -36,30 +37,110 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
     return colors[colorIndex] || colors[colors.length - 1];
   };
 
+  const getIndexFromPosition = (clientX: number) => {
+    if (!containerRef.current) return currentIndex;
+    
+    const rect = containerRef.current.getBoundingClientRect();
+    const relativeX = clientX - rect.left;
+    const containerWidth = rect.width;
+    
+    // Calculate percentage of position (0 to 1)
+    const percentage = Math.max(0, Math.min(1, relativeX / containerWidth));
+    
+    // Map percentage to label index
+    const exactIndex = percentage * (labels.length - 1);
+    const newIndex = Math.round(exactIndex);
+    
+    return Math.max(0, Math.min(newIndex, labels.length - 1));
+  };
+
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const newIndex = getIndexFromPosition(clientX);
+    setCurrentIndex(newIndex);
+    if (onChange) {
+      onChange(newIndex);
+    }
+  };
+
+  const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging) return;
+    
+    e.preventDefault();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const newIndex = getIndexFromPosition(clientX);
+    setCurrentIndex(newIndex);
+    if (onChange) {
+      onChange(newIndex);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
   useEffect(() => {
     const availableWidth = width - 32;
-    const linesCount = Math.floor(availableWidth / (lineWidth + lineGap));
-    setTotalLines(linesCount);
-  }, [width, lineWidth, lineGap]);
+    // Calculate lines per section to ensure equal distribution
+    const linesPerSection = Math.floor(availableWidth / (labels.length * (lineWidth + lineGap)));
+    const totalLinesCount = linesPerSection * labels.length;
+    setTotalLines(totalLinesCount);
+  }, [width, lineWidth, lineGap, labels.length]);
 
   useEffect(() => {
     setCurrentIndex(selectedIndex);
   }, [selectedIndex]);
 
+  // Add global event listeners for drag
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      e.preventDefault();
+      handleDragMove(e as any);
+    };
+    const handleMouseUp = () => handleDragEnd();
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      handleDragMove(e as any);
+    };
+    const handleTouchEnd = () => handleDragEnd();
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDragging]);
+
   const getNeedlePosition = () => {
-    if (totalLines === 0) return 16;
-    const sectionSize = totalLines / labels.length;
-    const sectionCenter = sectionSize / 2;
-    const linePosition = currentIndex * sectionSize + sectionCenter;
-    const pixelPosition =
-      16 + linePosition * (lineWidth + lineGap) - lineGap / 2;
-    return pixelPosition;
+    if (!containerRef.current) return 16;
+    
+    const containerWidth = containerRef.current.offsetWidth;
+    const sectionWidth = containerWidth / labels.length;
+    const sectionCenter = sectionWidth / 2;
+    
+    // Position needle at center of current section
+    const needlePosition = 3 + (currentIndex * sectionWidth) + sectionCenter;
+    
+    return needlePosition;
   };
 
   const handleLineClick = (lineIndex: number) => {
-    const sectionSize = totalLines / labels.length;
-    const newIndex = Math.floor(lineIndex / sectionSize);
-    const clampedIndex = Math.min(newIndex, labels.length - 1);
+    if (!containerRef.current) return;
+    
+    const linesPerSection = totalLines / labels.length;
+    const sectionIndex = Math.floor(lineIndex / linesPerSection);
+    const clampedIndex = Math.min(sectionIndex, labels.length - 1);
+    
     setCurrentIndex(clampedIndex);
     if (onChange) {
       onChange(clampedIndex);
@@ -74,7 +155,7 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
   };
 
   return (
-    <Box sx={{ width, height, position: "relative", p: 2 }}>
+    <Box sx={{ width, height, position: "relative", }}>
       {/* Needle */}
       <Box
         component={"img"}
@@ -102,18 +183,22 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
           height: "60px",
           mt: 4,
           position: "relative",
+          cursor: isDragging ? "grabbing" : "grab",
         }}
+        onMouseDown={handleDragStart}
+        onTouchStart={handleDragStart}
       >
         {Array.from({ length: totalLines }, (_, index) => {
-          const sectionSize = totalLines / labels.length;
-          const sectionIndex = Math.floor(index / sectionSize);
+          const linesPerSection = totalLines / labels.length;
+          const sectionIndex = Math.floor(index / linesPerSection);
           const color = getColorForIndex(sectionIndex, labels.length);
 
           return (
             <Box
               key={index}
               sx={{
-                width: `${lineWidth}px`,
+                flex:"1",
+                minWidth: `${lineWidth}px`,
                 height: "40px",
                 bgcolor: color,
                 borderRadius: "4px",
@@ -121,14 +206,19 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
                 cursor: "pointer",
                 transition: "opacity 0.2s ease",
                 opacity: 1,
+                pointerEvents: isDragging ? "none" : "auto",
               }}
-              onClick={() => handleLineClick(index)}
-              onTouchStart={() => handleLineClick(index)}
+              onClick={() => !isDragging && handleLineClick(index)}
+              onTouchStart={() => !isDragging && handleLineClick(index)}
               onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                (e.target as HTMLDivElement).style.opacity = "0.8";
+                if (!isDragging) {
+                  (e.target as HTMLDivElement).style.opacity = "0.8";
+                }
               }}
               onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                (e.target as HTMLDivElement).style.opacity = "1";
+                if (!isDragging) {
+                  (e.target as HTMLDivElement).style.opacity = "1";
+                }
               }}
             >
               {/* Empty line div */}

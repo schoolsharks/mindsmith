@@ -1,5 +1,5 @@
 import { Box, LinearProgress, Stack, Typography } from "@mui/material";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/what-life-been-like.webp";
 import Page from "../../../../components/layout/Page";
 import HorizontalCarousel, {
@@ -14,6 +14,8 @@ import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 
 const WLBLGameLayout = () => {
   const carouselRef = useRef<HorizontalCarouselRef>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   const game = games.find((game) => game.id === "what-life-been-like");
   const navigate = useNavigateWithSound();
   const handlePrevious = () => {
@@ -42,6 +44,7 @@ const WLBLGameLayout = () => {
   const handleCardChange = () => {
     setTimeout(() => {
       const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
+      setCurrentIndex(currentIdx);
       if (currentIdx === whatLifeBeenLikeQuestions.length) {
         handleEnded();
       }
@@ -69,7 +72,7 @@ const WLBLGameLayout = () => {
         Like?
       </Typography>
       <LinearProgress
-        value={20}
+        value={((currentIndex + 1) / whatLifeBeenLikeQuestions.length) * 100}
         variant="determinate"
         sx={{
           "& .MuiLinearProgress-bar": {
@@ -78,7 +81,7 @@ const WLBLGameLayout = () => {
           backgroundColor: "#FECA2A",
         }}
       />
-      <Box marginTop={"20px"} flex={1}>
+      <Stack marginTop={"20px"} flex={1}>
         <HorizontalCarousel
           ref={carouselRef}
           handleCardChange={handleCardChange}
@@ -94,7 +97,7 @@ const WLBLGameLayout = () => {
                 marginTop={"20px"}
                 justifyContent={"space-between"}
                 alignItems={"center"}
-                onClick={(e) => e.stopPropagation()} // Prevent event bubbling to carousel
+                onClick={(e) => e.stopPropagation()}
               >
                 <OutlinedButton
                   border={`2px solid ${game?.theme.primary.main}`}
@@ -116,7 +119,7 @@ const WLBLGameLayout = () => {
             </Box>
           ))}
         />
-      </Box>
+      </Stack>
     </Page>
   );
 };

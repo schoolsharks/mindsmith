@@ -14,7 +14,7 @@ const BBSplashScreen = () => {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <Page sx={{ padding: "20px" }}>
+    <Page sx={{ padding: "36px" }}>
       <Typography
         fontSize={"30px"}
         fontWeight={"600"}
@@ -23,7 +23,7 @@ const BBSplashScreen = () => {
       >
         Gratitude
       </Typography>
-      <Box component={"img"} src={mainGraphic} width={"85%"} m={"40px auto"}/>
+      <Box component={"img"} src={mainGraphic} width={"100%"} m={"40px auto"}/>
       <Typography fontSize={"20px"} fontWeight={"500"} marginTop={"8px"}>
         Even when it’s hard, be grateful for every moment of your life.
       </Typography>
