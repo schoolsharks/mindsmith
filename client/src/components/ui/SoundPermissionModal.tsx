@@ -51,7 +51,7 @@ const SoundPermissionModal: React.FC<SoundPermissionModalProps> = ({
           Sound On
         </Typography>
         <Typography color={"#000"} fontSize={"18px"} fontWeight={"400"}>
-          We use light background sounds to enhance your game experience.Would
+          We use light background sounds to enhance your game experience. Would
           you like to enable sound?
         </Typography>
         <Stack
