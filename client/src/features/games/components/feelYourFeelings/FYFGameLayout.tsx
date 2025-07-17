@@ -26,7 +26,7 @@ const FYFGameLayout = () => {
   };
 
   const handleEnded = () => {
-    navigate("/user/home");
+    navigate("/user/do-you-know");
   };
   const handleNext = () => {
     const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;

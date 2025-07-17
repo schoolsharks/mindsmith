@@ -9,6 +9,7 @@ import Games from "./Games";
 import { useEffect, useRef } from "react";
 import useSound from "../../features/sound/hooks/useSound";
 import SoundPermissionModal from "../../components/ui/SoundPermissionModal";
+import DoYouKnow from "./DoYouKnow";
 
 const UserMain = () => {
   const location = useLocation();
@@ -98,6 +99,14 @@ const UserMain = () => {
             element={
               <AnimatedPage>
                 <Games />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="/do-you-know"
+            element={
+              <AnimatedPage>
+                <DoYouKnow />
               </AnimatedPage>
             }
           />

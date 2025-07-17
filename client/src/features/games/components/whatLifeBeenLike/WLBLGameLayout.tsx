@@ -26,7 +26,7 @@ const WLBLGameLayout = () => {
   };
 
   const handleEnded = () => {
-    navigate("/user/home");
+    navigate("/user/do-you-know");
   };
 
   const handleNext = () => {
