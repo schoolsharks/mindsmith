@@ -51,7 +51,7 @@ const AllGames = () => {
                 bgcolor: game.theme.primary.light,
                 padding: "10px",
                 borderRadius: "50%",
-                aspectRatio: "1",
+                // aspectRatio: "1",
               }}
             >
               <Box component={"img"} src={game.icon} />
