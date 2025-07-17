@@ -8,7 +8,6 @@ interface PendingSound {
   loop: boolean;
 }
 
-// Global state manager for audio across all hook instances
 class GlobalAudioManager {
   private static instance: GlobalAudioManager;
   private currentLoopAudio: HTMLAudioElement | null = null;
@@ -90,6 +89,58 @@ const useSound = () => {
   const [pendingSound, setPendingSound] = useState<PendingSound | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentSound, setCurrentSound] = useState<SoundKey | null>(null);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+
+  // Initialize permission state on mount
+  useEffect(() => {
+    const initializePermissions = async () => {
+      console.log("🔊 Initializing sound permissions...");
+      const savedPermission = localStorage.getItem(SOUND_ENABLED_KEY);
+      console.log("🔊 Saved permission:", savedPermission);
+      
+      if (savedPermission === "false") {
+        // User previously denied permission
+        console.log("🔊 User previously denied permission");
+        setNeedsPermission(false);
+        setHasUserInteracted(true);
+        setIsInitialized(true);
+        return;
+      }
+      
+      if (savedPermission === "true") {
+        // User previously granted permission, check if autoplay still works
+        console.log("🔊 User previously granted permission, checking autoplay...");
+        const canAutoplay = await checkAutoplaySupport();
+        if (canAutoplay) {
+          console.log("🔊 Autoplay works, no permission needed");
+          setNeedsPermission(false);
+          setHasUserInteracted(true);
+        } else {
+          console.log("🔊 Autoplay blocked, permission needed again");
+          setNeedsPermission(true);
+          setHasUserInteracted(false);
+        }
+      } else {
+        // No previous permission, check if autoplay is supported
+        console.log("🔊 No previous permission, checking autoplay...");
+        const canAutoplay = await checkAutoplaySupport();
+        if (canAutoplay) {
+          console.log("🔊 Autoplay works, no permission needed");
+          setNeedsPermission(false);
+          setHasUserInteracted(true);
+        } else {
+          console.log("🔊 Autoplay blocked, permission needed");
+          setNeedsPermission(true);
+          setHasUserInteracted(false);
+        }
+      }
+      
+      setIsInitialized(true);
+      console.log("🔊 Sound initialization complete");
+    };
+
+    initializePermissions();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -104,30 +155,35 @@ const useSound = () => {
 
   const checkAutoplaySupport = useCallback(async (): Promise<boolean> => {
     try {
-      const audio = new Audio();
-      audio.volume = 0.01;
-      audio.muted = true;
-
-      const audioContext = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
-      const buffer = audioContext.createBuffer(1, 1, 22050);
-      const source = audioContext.createBufferSource();
-      source.buffer = buffer;
-
-      const testSound = getSound("BGM_1" as SoundKey);
-      const testAudio = new Audio(testSound);
-      testAudio.volume = 0;
-
+      // Create a minimal test audio
+      const testAudio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScEJHfH8N2QQAoUXrTp66hVFApGn+DyvmAeByOLzvLNfScE");
+      testAudio.volume = 0.01;
+      
       const playPromise = testAudio.play();
       if (playPromise !== undefined) {
         await playPromise;
         testAudio.pause();
         testAudio.currentTime = 0;
+        console.log("Autoplay test: SUCCESS - autoplay is allowed");
         return true;
       }
+      console.log("Autoplay test: FAILED - no play promise");
       return false;
-    } catch (error) {
-      console.log("Autoplay test failed:", error);
+    } catch (error: any) {
+      console.log("Autoplay test: FAILED - error:", error);
+      
+      // Check for specific autoplay-related errors
+      if (
+        error.name === "NotAllowedError" ||
+        error.name === "AbortError" ||
+        error.message.includes("user interaction") ||
+        error.message.includes("autoplay") ||
+        error.message.includes("gesture")
+      ) {
+        return false;
+      }
+      
+      // For other errors, assume autoplay is not supported
       return false;
     }
   }, []);
@@ -279,9 +335,20 @@ const useSound = () => {
     console.log("User denied audio permission");
     localStorage.setItem(SOUND_ENABLED_KEY, "false");
     setNeedsPermission(false);
-    setPendingSound(null);
     setHasUserInteracted(true);
+    setPendingSound(null);
+    // Don't play any pending sounds when permission is denied
   }, []);
+
+  // Function to start background music (can be called after permission is granted)
+  const startBackgroundMusic = useCallback((soundKey: SoundKey = "BGM_1", volume: number = 0.5) => {
+    if (hasUserInteracted && !needsPermission) {
+      console.log(`Starting background music: ${soundKey}`);
+      playInLoop(soundKey, volume);
+    } else {
+      console.log("Cannot start background music - permission not granted or user hasn't interacted");
+    }
+  }, [hasUserInteracted, needsPermission, playInLoop]);
 
   // Function to retry playing sounds manually
   const retryPendingSound = useCallback(() => {
@@ -296,6 +363,7 @@ const useSound = () => {
     pendingSound,
     isPlaying,
     currentSound,
+    isInitialized,
     playInLoop,
     playOnce,
     stop,
@@ -303,6 +371,7 @@ const useSound = () => {
     handlePermissionDenied,
     retryPendingSound,
     checkAutoplaySupport,
+    startBackgroundMusic,
   };
 };
 

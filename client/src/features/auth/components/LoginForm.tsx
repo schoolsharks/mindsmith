@@ -40,17 +40,17 @@ const LoginForm = () => {
       </Typography>
       <Stack gap="12px" marginTop={"12px"}>
         <OutlinedTextInput
-          name="Name"
+          name="Name*"
           value={formValues.name}
           handleChange={(event) => handleChange("name")(event)}
         />
         <OutlinedTextInput
-          name="Email"
+          name="Email*"
           value={formValues.email}
           handleChange={(event) => handleChange("email")(event)}
         />
         <OutlinedTextInput
-          name="Contact"
+          name="Contact*"
           value={formValues.contact}
           handleChange={(event) => handleChange("contact")(event)}
         />
