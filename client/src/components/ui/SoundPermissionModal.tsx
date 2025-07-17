@@ -32,23 +32,25 @@ const SoundPermissionModal: React.FC<SoundPermissionModalProps> = ({
         alignItems: "center",
         justifyContent: "center",
         padding: "20px",
-        maxWidth:"480px",
+        maxWidth: "480px",
         margin: "0 auto",
+        background:
+          "radial-gradient(98.1% 98.1% at 97.18% 1.13%, #FFE4E5 41.83%, #FFFCE5 100%)",
       }}
     >
       <Stack
         padding="32px 20px"
-        border={"2px solid #ffffff"}
+        border={"2px solid #000"}
         width={"100%"}
         alignItems={"center"}
-        color={"#fff"}
+        color={"#000"}
         borderRadius={"10px"}
       >
-        <Volume2 color={"#fff"} strokeWidth={1} size={48} />
-        <Typography color={"#fff"} fontSize={"40px"} fontWeight={"600"}>
+        <Volume2 color={"#000"} strokeWidth={1} size={48} />
+        <Typography color={"#000"} fontSize={"40px"} fontWeight={"600"}>
           Sound On
         </Typography>
-        <Typography color={"#fff"} fontSize={"18px"} fontWeight={"400"}>
+        <Typography color={"#000"} fontSize={"18px"} fontWeight={"400"}>
           We use light background sounds to enhance your game experience.Would
           you like to enable sound?
         </Typography>
@@ -62,8 +64,8 @@ const SoundPermissionModal: React.FC<SoundPermissionModalProps> = ({
             onClick={handleGrantPermission}
             sx={{
               bgcolor: "transparent",
-              color: "#ffffff",
-              border: "2px solid #ffffff",
+              color: "#000",
+              border: "2px solid #000",
               opacity: 1,
               "&:hover": { bgcolor: theme.palette.primary.main, opacity: 1 },
             }}
@@ -74,8 +76,8 @@ const SoundPermissionModal: React.FC<SoundPermissionModalProps> = ({
             onClick={handleDeny}
             sx={{
               bgcolor: "transparent",
-              color: "#ffffff",
-              border: "2px solid #ffffff",
+              color: "#000",
+              border: "2px solid #000",
               opacity: 0.26,
               "&:hover": { bgcolor: theme.palette.primary.main, opacity: 1 },
             }}
