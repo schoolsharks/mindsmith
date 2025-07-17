@@ -1,20 +1,67 @@
 import { Box, Stack, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import OutlinedTextInput from "../../../components/ui/OutlinedTextInput/OutlinedTextInput";
 import TermsAndConditionsInput from "./TermsAndConditionsInput";
 import BottomElement from "../../../components/ui/BottomElement";
 import OutlinedButton from "../../../components/ui/OutlinedButton";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
 
+const FORM_STORAGE_KEY = "loginFormData";
+
 const LoginForm = () => {
   const navigate = useNavigateWithSound();
+  
+  // Load initial form data from sessionStorage
+  const loadFormData = () => {
+    const savedData = sessionStorage.getItem(FORM_STORAGE_KEY);
+    if (savedData) {
+      try {
+        return JSON.parse(savedData);
+      } catch (error) {
+        console.error("Error parsing saved form data:", error);
+        return {
+          name: "",
+          email: "",
+          contact: "",
+          tncAccepted: false,
+        };
+      }
+    }
+    return {
+      name: "",
+      email: "",
+      contact: "",
+      tncAccepted: false,
+    };
+  };
+
+  const initialFormData = loadFormData();
   const [formValues, setFormValues] = useState({
-    name: "",
-    email: "",
-    contact: "",
+    name: initialFormData.name,
+    email: initialFormData.email,
+    contact: initialFormData.contact,
   });
-  const [tncAccepted, setTncAccepted] = useState(false);
+  const [tncAccepted, setTncAccepted] = useState(initialFormData.tncAccepted);
   const tncPageRoute = "/user/terms-and-conditions";
+
+  // Save form data to sessionStorage whenever it changes
+  useEffect(() => {
+    const formData = {
+      name: formValues.name,
+      email: formValues.email,
+      contact: formValues.contact,
+      tncAccepted: tncAccepted,
+    };
+    sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
+  }, [formValues, tncAccepted]);
+
+  // Clear form data when component unmounts (optional - remove if you want to persist across sessions)
+  useEffect(() => {
+    return () => {
+      // Uncomment the line below if you want to clear data when component unmounts
+      // sessionStorage.removeItem(FORM_STORAGE_KEY);
+    };
+  }, []);
 
   const handleChange =
     (name: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,6 +78,14 @@ const LoginForm = () => {
       formValues.contact.trim() !== "" &&
       tncAccepted
     );
+  };
+
+  const handleSubmit = () => {
+    if (isFormValid()) {
+      // Clear the saved form data on successful submission
+      sessionStorage.removeItem(FORM_STORAGE_KEY);
+      navigate("/user/home");
+    }
   };
 
   return (
@@ -64,7 +119,7 @@ const LoginForm = () => {
       </Box>
       <BottomElement>
         <OutlinedButton 
-          onClick={() => navigate("/user/home")}
+          onClick={handleSubmit}
           disabled={!isFormValid()}
         >
           Pay Now
