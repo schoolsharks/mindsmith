@@ -13,7 +13,7 @@ interface WelcomeProps {
 const Welcome: React.FC<WelcomeProps> = ({handleNextPage}) => {
   return (
     <Page sx={{ padding: "40px" }}>
-      <BgDiamonds positions={positions1} />
+      <BgDiamonds positions={positions1} animation />
       <Box
         component="img"
         src={cloudGraphic2}

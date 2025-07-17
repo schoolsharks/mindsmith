@@ -24,6 +24,15 @@ const LoginForm = () => {
       });
     };
 
+  const isFormValid = () => {
+    return (
+      formValues.name.trim() !== "" &&
+      formValues.email.trim() !== "" &&
+      formValues.contact.trim() !== "" &&
+      tncAccepted
+    );
+  };
+
   return (
     <Stack padding={"20px 40px"} flex={1}>
       <Typography fontSize={"30px"} fontWeight={"700"}>
@@ -54,7 +63,10 @@ const LoginForm = () => {
         />
       </Box>
       <BottomElement>
-        <OutlinedButton onClick={() => navigate("/user/home")}>
+        <OutlinedButton 
+          onClick={() => navigate("/user/home")}
+          disabled={!isFormValid()}
+        >
           Pay Now
         </OutlinedButton>
       </BottomElement>

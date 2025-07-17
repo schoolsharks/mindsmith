@@ -46,6 +46,7 @@ const AllGames = () => {
                 justifyContent: "center",
                 position: "absolute",
                 width: "28px",
+                height: "28px",
                 transform: "translateX(-160%)",
                 bgcolor: game.theme.primary.light,
                 padding: "10px",

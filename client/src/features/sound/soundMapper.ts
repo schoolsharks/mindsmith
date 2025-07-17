@@ -1,4 +1,4 @@
-import bgm1 from "../../assets/sounds/bgm/energetic-bgm-242515.mp3";
+import bgm1 from "../../assets/sounds/bgm/mindsmith-bgm.aac";
 // import bgm2 from "../../assets/sounds/bgm/pixel-dreams-259187.mp3";
 // import bgm3 from "../../assets/sounds/bgm/puzzle-game-bright-casual-video-game-music-249202.mp3";
 import transition1 from "../../assets/sounds/sfx/transition-coat-121423.mp3";

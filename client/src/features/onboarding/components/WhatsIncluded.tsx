@@ -18,7 +18,7 @@ const points = [
 const WhatsIncluded: React.FC<WhatsIncludedProps> = ({ handleNextPage }) => {
   return (
     <Page sx={{ padding: "40px" }}>
-      <BgDiamonds positions={positions1} />
+      <BgDiamonds positions={positions1} animation />
       <Box
         component="img"
         src={cloudGraphic1}

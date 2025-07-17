@@ -49,6 +49,7 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
       startY: 0,
       totalDeltaY: 0,
       dragStarted: false,
+      startTime: 0,
     });
 
     const goToNext = () => {
@@ -172,6 +173,7 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
     useEffect(() => {
       const DRAG_THRESHOLD = 30; // Minimum distance to trigger a slide change
       const DRAG_COOLDOWN = 100; // Cooldown period between drags in ms
+      const MAX_SWIPE_DURATION = 300; // Maximum duration for a swipe to be considered "quick" (in ms)
 
       let lastDragTime = 0;
       const container = containerRef.current;
@@ -204,6 +206,7 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
         dragStateRef.current.startY = getYCoordinate(event);
         dragStateRef.current.totalDeltaY = 0;
         dragStateRef.current.dragStarted = true;
+        dragStateRef.current.startTime = Date.now();
 
         // Prevent text selection while dragging
         document.body.style.userSelect = "none";
@@ -242,11 +245,13 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
 
         const now = Date.now();
         const timeSinceLastDrag = now - lastDragTime;
+        const dragDuration = now - dragStateRef.current.startTime;
 
-        // Only process drag if enough time has passed since last drag and threshold is met
+        // Only process drag if enough time has passed since last drag, threshold is met, and it's a quick swipe
         if (
           timeSinceLastDrag >= DRAG_COOLDOWN &&
-          Math.abs(dragStateRef.current.totalDeltaY) >= DRAG_THRESHOLD
+          Math.abs(dragStateRef.current.totalDeltaY) >= DRAG_THRESHOLD &&
+          dragDuration <= MAX_SWIPE_DURATION
         ) {
           if (dragStateRef.current.totalDeltaY < -DRAG_THRESHOLD) {
             // Dragged up - go to next
@@ -264,6 +269,7 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
         dragStateRef.current.startY = 0;
         dragStateRef.current.totalDeltaY = 0;
         dragStateRef.current.dragStarted = false;
+        dragStateRef.current.startTime = 0;
 
         // Restore text selection
         document.body.style.userSelect = "";

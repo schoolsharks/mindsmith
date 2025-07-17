@@ -6,10 +6,45 @@ import { AnimatePresence } from "framer-motion";
 import AnimatedPage from "../../components/layout/AnimatedPage";
 import Home from "./Home";
 import Games from "./Games";
+import { useEffect, useRef } from "react";
+import useSound from "../../features/sound/hooks/useSound";
+import SoundPermissionModal from "../../components/ui/SoundPermissionModal";
 
 const UserMain = () => {
   const location = useLocation();
+  const hasInitializedRef = useRef(false);
+  const {
+    playInLoop,
+    stop,
+    needsPermission,
+    handlePermissionGranted,
+    handlePermissionDenied,
+  } = useSound();
 
+  useEffect(() => {
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+
+      console.log("Initializing background music");
+      playInLoop("BGM_1", 0.5);
+    }
+
+    // Cleanup function
+    return () => {
+      console.log("Cleaning up audio on unmount");
+      stop();
+    };
+  }, [playInLoop, stop]);
+
+  if (needsPermission) {
+    return (
+      <SoundPermissionModal
+        needsPermission={needsPermission}
+        onPermissionGranted={handlePermissionGranted}
+        onPermissionDenied={handlePermissionDenied}
+      />
+    );
+  }
   return (
     <div
       style={{

@@ -53,6 +53,7 @@ const SemicircleMeterChart = ({
 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(true);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -67,6 +68,8 @@ const SemicircleMeterChart = ({
     if (!isDragging) return;
     
     e.preventDefault();
+    e.stopPropagation();
+
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     const newIndex = getIndexFromAngle(clientX, clientY);

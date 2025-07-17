@@ -20,7 +20,7 @@ const WLBLSplashScreen = () => {
   return (
     <Page sx={{ alignItems: "center" }}>
       <Box position={"relative"} marginTop={"100px"}>
-        <BgDiamonds positions={positions2} />
+        <BgDiamonds positions={positions2} animation/>
         <Box
           component={"img"}
           className="expanding-effect"

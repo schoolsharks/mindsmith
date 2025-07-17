@@ -51,7 +51,7 @@ const WLBLGameLayout = () => {
     }, 0);
   };
   return (
-    <Page sx={{ padding: "20px" }}>
+    <Page sx={{ padding: "20px 28px" }}>
       <Box
         component={"img"}
         src={cornerGraphic}
