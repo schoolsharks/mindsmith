@@ -1,0 +1,29 @@
+import { Box, Stack } from "@mui/material";
+import Page from "../../components/layout/Page";
+import ScrollToTop from "../../components/utility/ScrollToTop";
+import BgDiamonds from "../../components/ui/BgDiamonds/BgDiamonds";
+import { positions1 } from "../../components/ui/BgDiamonds/diamondsPositions";
+import cloudGraphic1 from "../../assets/images/cloud-graphic-1.webp";
+import RegisterForm from "../../features/auth/components/RegisterForm";
+const RegisterPage = () => {
+  // const navigateWithSound = useNavigateWithSound();
+  return (
+    <Page sx={{ backgroundSize: "contain" }}>
+      <BgDiamonds positions={positions1} />
+      <ScrollToTop behavior="instant" />
+      <Box
+        component="img"
+        src={cloudGraphic1}
+        width={"143px"}
+        marginTop={"40px"}
+        marginLeft={"20px"}
+        position={"relative"}
+      />
+      <Stack mt={"20px"} flex={"1"}>
+        <RegisterForm />
+      </Stack>
+    </Page>
+  );
+};
+
+export default RegisterPage;

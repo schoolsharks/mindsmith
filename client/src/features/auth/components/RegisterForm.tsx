@@ -8,9 +8,9 @@ import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
 
 const FORM_STORAGE_KEY = "loginFormData";
 
-const LoginForm = () => {
-  const navigate = useNavigateWithSound();
-  
+const RegisterForm = () => {
+  const navigateWithSound = useNavigateWithSound();
+
   // Load initial form data from sessionStorage
   const loadFormData = () => {
     const savedData = sessionStorage.getItem(FORM_STORAGE_KEY);
@@ -80,23 +80,23 @@ const LoginForm = () => {
     );
   };
 
-  const handleRegisterRedirect = (e: React.MouseEvent) => {
+  const handleLoginRedirect = (e: React.MouseEvent) => {
     e.preventDefault();
-    navigate("/user/register");
+    navigateWithSound("/user/login");
   };
 
   const handleSubmit = () => {
     if (isFormValid()) {
       // Clear the saved form data on successful submission
       sessionStorage.removeItem(FORM_STORAGE_KEY);
-      navigate("/user/home");
+      navigateWithSound("/user/home");
     }
   };
 
   return (
     <Stack padding={"20px 40px"} flex={1}>
       <Typography fontSize={"30px"} fontWeight={"700"}>
-        Login
+        Register
       </Typography>
       <Stack gap="12px" marginTop={"12px"}>
         <OutlinedTextInput
@@ -123,11 +123,11 @@ const LoginForm = () => {
         />
         <Box marginTop={"8px"} textAlign="center">
           <Typography variant="body2" component="span">
-            New User?{" "}
+            Existing User?{" "}
             <Link
               component="button"
               variant="body2"
-              onClick={handleRegisterRedirect}
+              onClick={handleLoginRedirect}
               sx={{
                 color: "primary.main",
                 cursor: "pointer",
@@ -138,21 +138,18 @@ const LoginForm = () => {
                 font: "inherit",
               }}
             >
-              Register
+              Login
             </Link>
           </Typography>
         </Box>
       </Box>
       <BottomElement>
-        <OutlinedButton 
-          onClick={handleSubmit}
-          disabled={!isFormValid()}
-        >
-          Log In
+        <OutlinedButton onClick={handleSubmit} disabled={!isFormValid()}>
+          Pay Now
         </OutlinedButton>
       </BottomElement>
     </Stack>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

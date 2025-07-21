@@ -10,7 +10,7 @@ export const pageMapper = (page: number) => {
     if (page < 3) {
       navigateWithSound(`/user/onboarding/${page + 1}`);
     } else {
-      navigateWithSound("/user/login");
+      navigateWithSound("/user/register");
     }
   };
 

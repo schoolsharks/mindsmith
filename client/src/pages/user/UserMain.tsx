@@ -1,10 +1,11 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import OnboardingPage from "./OnboardingPage";
 import LoginPage from "./LoginPage";
+import RegisterPage from "./RegisterPage";
 import TermsAndConditions from "./TermsAndConditionsPage";
 import { AnimatePresence } from "framer-motion";
 import AnimatedPage from "../../components/layout/AnimatedPage";
-import Home from "./Home";
+import Home from "./Home";    
 import Games from "./Games";
 import { useEffect, useRef } from "react";
 import useSound from "../../features/sound/hooks/useSound";
@@ -69,7 +70,14 @@ const UserMain = () => {
         stop();
       }
     };
-  }, [startBackgroundMusic, stop, isOnSoundExemptPage, needsPermission, hasUserInteracted, isInitialized]);
+  }, [
+    startBackgroundMusic,
+    stop,
+    isOnSoundExemptPage,
+    needsPermission,
+    hasUserInteracted,
+    isInitialized,
+  ]);
 
   // Reset initialization flag when moving to/from sound exempt pages
   useEffect(() => {
@@ -134,6 +142,14 @@ const UserMain = () => {
             element={
               <AnimatedPage>
                 <OnboardingPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <AnimatedPage>
+                <RegisterPage />
               </AnimatedPage>
             }
           />
