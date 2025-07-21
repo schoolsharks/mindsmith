@@ -5,13 +5,14 @@ import TermsAndConditionsInput from "./TermsAndConditionsInput";
 import BottomElement from "../../../components/ui/BottomElement";
 import OutlinedButton from "../../../components/ui/OutlinedButton";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
+import axios from 'axios';
+import { loadRazorpay } from '../../../services/paymentService';
 
 const FORM_STORAGE_KEY = "loginFormData";
 
 const RegisterForm = () => {
   const navigateWithSound = useNavigateWithSound();
 
-  // Load initial form data from sessionStorage
   const loadFormData = () => {
     const savedData = sessionStorage.getItem(FORM_STORAGE_KEY);
     if (savedData) {
@@ -42,9 +43,9 @@ const RegisterForm = () => {
     contact: initialFormData.contact,
   });
   const [tncAccepted, setTncAccepted] = useState(initialFormData.tncAccepted);
+  const [isProcessing, setIsProcessing] = useState(false);
   const tncPageRoute = "/user/terms-and-conditions";
 
-  // Save form data to sessionStorage whenever it changes
   useEffect(() => {
     const formData = {
       name: formValues.name,
@@ -54,14 +55,6 @@ const RegisterForm = () => {
     };
     sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
   }, [formValues, tncAccepted]);
-
-  // Clear form data when component unmounts (optional - remove if you want to persist across sessions)
-  useEffect(() => {
-    return () => {
-      // Uncomment the line below if you want to clear data when component unmounts
-      // sessionStorage.removeItem(FORM_STORAGE_KEY);
-    };
-  }, []);
 
   const handleChange =
     (name: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,11 +78,71 @@ const RegisterForm = () => {
     navigateWithSound("/user/login");
   };
 
-  const handleSubmit = () => {
-    if (isFormValid()) {
-      // Clear the saved form data on successful submission
-      sessionStorage.removeItem(FORM_STORAGE_KEY);
-      navigateWithSound("/user/home");
+  const handleSubmit = async () => {
+    if (!isFormValid()) return;
+    
+    setIsProcessing(true);
+    try {
+      // 1. First create the user (without payment)
+      const userResponse = await axios.post('/api/v1/auth/register', {
+        name: formValues.name,
+        email: formValues.email,
+        contact: formValues.contact
+      });
+      console.log("user createtd");
+
+      // 2. Initialize Razorpay payment
+      const orderResponse = await axios.post('/api/v1/payment/create-order', {
+        amount: 2500 * 100, // in paise
+        currency: 'INR',
+        userId: userResponse.data.user._id
+      });
+
+      // 3. Load Razorpay script and show payment modal
+      await loadRazorpay();
+
+      const options = {
+        key: "rzp_test_zPx6C3jYARmFmh",
+        amount: orderResponse.data.amount,
+        currency: orderResponse.data.currency,
+        name: "Mental Health Assessment",
+        description: "Payment for diagnostic test",
+        order_id: orderResponse.data.id,
+        handler: async function(response: any) {
+          try {
+            // Verify payment on server
+            await axios.post('/api/v1/payment/verify', {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              userId: userResponse.data.user._id
+            });
+            
+            // Clear form data and redirect
+            sessionStorage.removeItem(FORM_STORAGE_KEY);
+            navigateWithSound("/user/home");
+          } catch (error) {
+            console.error("Payment verification failed:", error);
+            alert("Payment verification failed. Please contact support.");
+          }
+        },
+        prefill: {
+          name: formValues.name,
+          email: formValues.email,
+          contact: formValues.contact
+        },
+        theme: {
+          color: "#3399cc"
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error("Registration/Payment error:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -144,8 +197,11 @@ const RegisterForm = () => {
         </Box>
       </Box>
       <BottomElement>
-        <OutlinedButton onClick={handleSubmit} disabled={!isFormValid()}>
-          Pay Now
+      <OutlinedButton 
+          onClick={handleSubmit} 
+          disabled={!isFormValid() || isProcessing}
+        >
+          {isProcessing ? "Processing..." : "Pay Now (₹2500)"}
         </OutlinedButton>
       </BottomElement>
     </Stack>

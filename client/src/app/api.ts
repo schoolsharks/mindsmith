@@ -3,7 +3,7 @@ import { BaseQueryFn, FetchArgs } from '@reduxjs/toolkit/query';
 
 // Create the base query with auth headers and credentials
 const baseQuery = fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_BACKEND_BASE_URL,     
+    baseUrl: "import.meta.env.VITE_BACKEND_BASE_URL",     
     credentials: 'include', // Include credentials for cross-origin requests
 });
 
