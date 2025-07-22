@@ -27,8 +27,16 @@ export interface IUser extends Document {
 const userSchema = new mongoose.Schema<IUser>(
   {
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    contact: { type: String, required: true },
+    email: { 
+      type: String, 
+      required: true,
+      index: true
+    },
+    contact: { 
+      type: String, 
+      required: true,
+      index: true
+    },
     password: { type: String },
     paymentStatus: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },
     paymentId: { type: String },
@@ -49,6 +57,23 @@ const userSchema = new mongoose.Schema<IUser>(
     }]
   },
   { timestamps: true }
+);
+
+// Add partial indexes for unique email/contact only when payment is completed
+userSchema.index(
+  { email: 1 },
+  { 
+    unique: true, 
+    partialFilterExpression: { paymentStatus: 'completed' } 
+  }
+);
+
+userSchema.index(
+  { contact: 1 },
+  { 
+    unique: true, 
+    partialFilterExpression: { paymentStatus: 'completed' } 
+  }
 );
 
 // Hash password before saving

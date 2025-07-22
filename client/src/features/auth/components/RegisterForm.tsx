@@ -151,7 +151,17 @@ const RegisterForm = () => {
       rzp.open();
     } catch (error) {
       console.error("Registration/Payment error:", error);
-      alert("An error occurred. Please try again.");
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "An error occurred. Please try again.";
+
+      // Handle duplicate email/contact specifically
+      if (error.response?.status === httpStatus.CONFLICT) {
+        alert(errorMessage);
+      } else {
+        alert("An error occurred. Please try again.");
+      }
     } finally {
       setIsProcessing(false);
     }
