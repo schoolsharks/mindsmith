@@ -1,4 +1,5 @@
 import { User } from '../modules/user/user.model';
+import httpStatus from 'http-status-codes';
 
 export const checkPaymentStatus = async (req, res, next) => {
   try {

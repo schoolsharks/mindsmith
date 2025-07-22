@@ -118,3 +118,9 @@ export const verifyPayment = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getRazorpayConfig = (req: Request, res: Response) => {
+  res.status(200).json({
+    razorpayKey: process.env.RAZORPAY_KEY_ID
+  });
+};

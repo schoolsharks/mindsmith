@@ -6,7 +6,7 @@ import BottomElement from "../../../components/ui/BottomElement";
 import OutlinedButton from "../../../components/ui/OutlinedButton";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
 import axios from "axios";
-import { loadRazorpay } from "../../../services/paymentService";
+import { getRazorpayKey, loadRazorpay } from "../../../services/paymentService";
 
 const FORM_STORAGE_KEY = "loginFormData";
 
@@ -98,11 +98,14 @@ const RegisterForm = () => {
         userId: userResponse.data.user._id,
       });
 
-      // 3. Load Razorpay script and show payment modal
+      // 3. Get Razorpay key from backend
+      const razorpayKey = await getRazorpayKey();
+
+      // 4. Load Razorpay script and show payment modal
       await loadRazorpay();
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: razorpayKey,
         amount: orderResponse.data.amount,
         currency: orderResponse.data.currency,
         name: "Mental Health Assessment",

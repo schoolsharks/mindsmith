@@ -1,6 +1,8 @@
+import axios from "axios";
+
 export const loadRazorpay = (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    if ((window as any).Razorpay) {
+    if (window.Razorpay) {
       return resolve();
     }
 
@@ -11,4 +13,15 @@ export const loadRazorpay = (): Promise<void> => {
     script.onerror = () => reject(new Error("Failed to load Razorpay script"));
     document.body.appendChild(script);
   });
+};
+
+// Add this new function to fetch Razorpay key from backend
+export const getRazorpayKey = async (): Promise<string> => {
+  try {
+    const response = await axios.get('/api/v1/payment/config');
+    return response.data.razorpayKey;
+  } catch (error) {
+    console.error("Failed to fetch Razorpay key:", error);
+    throw new Error("Payment configuration failed");
+  }
 };
