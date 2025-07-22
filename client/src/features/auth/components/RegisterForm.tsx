@@ -89,12 +89,11 @@ const RegisterForm = () => {
         email: formValues.email,
         contact: formValues.contact,
       });
-      console.log("user createtd");
 
       // 2. Initialize Razorpay payment
       const orderResponse = await axios.post("/api/v1/payment/create-order", {
-        amount: 2500 * 100, // in paise
-        currency: "INR",
+        // amount: 2500 * 100, // in paise
+        // currency: "INR",
         userId: userResponse.data.user._id,
       });
 

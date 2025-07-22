@@ -4,19 +4,27 @@ import crypto from 'crypto';
 import { User } from '../user/user.model';
 import { PaymentDetails } from './payment.model';
 import razorpay from '../../config/razorpay';
+import mongoose from "mongoose";
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const { amount, currency, userId } = req.body;
+    const { userId } = req.body;
+    const fixedAmount = 2500 * 100; // ₹2500 in paise
+
+    // Validate userId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID format' });
+    }
 
     const options = {
-      amount,
-      currency,
-      receipt: `receipt_${userId}`,
+      amount: fixedAmount,
+      currency: 'INR',
+      receipt: `msm_${userId}`, // msm = Mind Smith
       payment_capture: 1
     };
 
     const order = await razorpay.orders.create(options);
+    // console.log(order);
 
     res.status(httpStatus.CREATED).json({
       id: order.id,
@@ -24,10 +32,11 @@ export const createOrder = async (req: Request, res: Response) => {
       amount: order.amount,
       userId
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Order creation failed:', error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       message: 'Error creating payment order',
-      // error: error.message
+      error: error.message || 'Unknown error'
     });
   }
 };
