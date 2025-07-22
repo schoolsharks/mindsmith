@@ -36,7 +36,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
   try {
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature, userId } = req.body;
 
-    // Verify signature
+    // Verify signature first
     const generatedSignature = crypto
       .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -48,14 +48,27 @@ export const verifyPayment = async (req: Request, res: Response) => {
       });
     }
 
+    // Check if payment was already processed by another request
+    const existingPayment = await PaymentDetails.findOne({ razorpayPaymentId: razorpay_payment_id });
+    if (existingPayment) {
+      return res.status(httpStatus.CONFLICT).json({
+        message: 'Payment was already processed'
+      });
+    }
+
     // Fetch payment details from Razorpay
     const payment = await razorpay.payments.fetch(razorpay_payment_id);
     
-    // Get user details
-    const user = await User.findById(userId);
+    // Get user with lock to prevent race conditions
+    const user = await User.findOneAndUpdate(
+      { _id: userId, paymentStatus: { $ne: 'completed' } },
+      { $set: { paymentStatus: 'processing' } },
+      { new: true }
+    );
+
     if (!user) {
-      return res.status(httpStatus.NOT_FOUND).json({
-        message: 'User not found'
+      return res.status(httpStatus.CONFLICT).json({
+        message: 'Payment already completed or user not found'
       });
     }
 
@@ -79,10 +92,10 @@ export const verifyPayment = async (req: Request, res: Response) => {
       tax: payment.tax
     });
 
-    // Update user payment status
+    // Finalize user update
     user.paymentStatus = 'completed';
     user.paymentId = razorpay_payment_id;
-    if (!user.payments) user.payments = []; // Initialize if using payments array
+    user.payments = user.payments || [];
     user.payments.push(paymentRecord._id);
     await user.save();
 
@@ -91,7 +104,7 @@ export const verifyPayment = async (req: Request, res: Response) => {
       paymentId: razorpay_payment_id,
       paymentDetails: {
         id: paymentRecord._id,
-        amount: paymentRecord.amount / 100, // Convert to rupees
+        amount: paymentRecord.amount / 100,
         currency: paymentRecord.currency,
         method: paymentRecord.method,
         status: paymentRecord.status,

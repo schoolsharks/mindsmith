@@ -102,7 +102,7 @@ const RegisterForm = () => {
       await loadRazorpay();
 
       const options = {
-        key: "rzp_test_zPx6C3jYARmFmh",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: orderResponse.data.amount,
         currency: orderResponse.data.currency,
         name: "Mental Health Assessment",
@@ -110,7 +110,7 @@ const RegisterForm = () => {
         order_id: orderResponse.data.id,
         handler: async function (response: any) {
           try {
-            // Verify payment on server and save details
+            // Verify payment on server and save details else remove it, only start from await
             const verificationResponse = await axios.post(
               "/api/v1/payment/verify",
               {
