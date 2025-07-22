@@ -8,6 +8,7 @@ export interface IUser extends Document {
   password?: string;
   paymentStatus: 'pending' | 'completed' | 'failed';
   paymentId?: string;
+  payments?: mongoose.Types.ObjectId[]; // Array of payment references
   quizProgress?: {
     completed: boolean;
     currentSection?: number;
@@ -41,7 +42,11 @@ const userSchema = new mongoose.Schema<IUser>(
       generated: { type: Boolean, default: false },
       data: { type: Object },
       pdfUrl: { type: String }
-    }
+    },
+    payments: [{ 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'PaymentDetails' 
+    }]
   },
   { timestamps: true }
 );
