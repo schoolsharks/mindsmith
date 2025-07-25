@@ -9,7 +9,7 @@ const MeterOuterValue: React.FC<QuestionProps> = ({ question }) => {
         {question.text}
       </Typography>
       <Stack alignItems={"center"}>
-        <SemicircleMeterChart labels={question.options} />
+        <SemicircleMeterChart labels={question.options.map(option => option.text)} />
       </Stack>
     </Box>
   );

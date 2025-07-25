@@ -1,11 +1,12 @@
-// src/features/questions/components/questions/OptionsQuestion.tsx
 import { Typography, Box, Stack } from "@mui/material";
-import { QuestionProps } from "../../types/questionTypes";
 import { useState } from "react";
+import { Game } from "../../../games/data/allGames";
+import { Question } from "../../types/questionTypes";
 
 interface QuestionProps {
   game?: Game;
   question: Question & { onSelect?: (option: string) => void };
+  onSelect?: (option: string) => void;
 }
 
 const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) => {
@@ -27,7 +28,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) 
           <Stack
             direction={"row"}
             key={index}
-            onClick={() => handleOptionSelect(option)}
+            onClick={() => handleOptionSelect(option.text)}
             sx={{
               flex: 1,
               border: `1px solid ${game?.theme.primary.main}`,
@@ -36,7 +37,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) 
               padding: "10px",
               marginTop: "10px",
               cursor: "pointer",
-              opacity: selectedOption === option ? 1 : 0.7,
+              opacity: selectedOption === option.text ? 1 : 0.7,
               minHeight: "70px",
               alignItems: "center",
               transition: "all 0.3s ease",
@@ -52,7 +53,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) 
                 marginRight: "10px",
               }}
             >
-              {selectedOption === option && (
+              {selectedOption === option.text && (
                 <Box
                   width={"100%"}
                   height={"100%"}
@@ -66,7 +67,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) 
               )}
             </Stack>
             <Typography fontSize={"16px"} fontWeight={"500"}>
-              {option}
+              {option.text}
             </Typography>
           </Stack>
         ))}

@@ -13,11 +13,11 @@ const LinearMeter: React.FC<QuestionProps> = ({ question }) => {
   return (
     <Box>
       <Typography fontSize={"18px"} fontWeight={"500"}>
-        {question.question}
+        {question.text}
       </Typography>
       <Stack alignItems={"center"}>
         <LinearMeterChart
-          labels={question.options}
+          labels={question.options.map(option => option.text)}
           selectedIndex={selectedIndex}
           onChange={handleChange}
         />

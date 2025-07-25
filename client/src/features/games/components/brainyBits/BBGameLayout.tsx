@@ -50,7 +50,7 @@ const BBGameLayout = () => {
 
         // Initialize answers with default values
         const initialAnswers: AnswerRecord = {};
-        transformedQuestions.forEach(q => {
+        transformedQuestions.forEach((q: any) => {
           initialAnswers[q._id] = q.defaultAnswer;
         });
         setAnswers(initialAnswers);

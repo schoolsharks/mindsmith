@@ -52,7 +52,7 @@ const SemicircleMeterChart = ({
             dataKey="value"
             labelLine={false}
             activeIndex={undefined} // This prevents the highlight effect
-            activeShape={null} // This removes any special rendering for active segments
+            activeShape={undefined} // This removes any special rendering for active segments
           >
             {labels.map((_, index) => (
               <Cell

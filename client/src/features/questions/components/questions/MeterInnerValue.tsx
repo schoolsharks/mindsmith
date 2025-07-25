@@ -6,7 +6,7 @@ const MeterInnerValue: React.FC<QuestionProps> = ({ question }) => {
   return (
     <Box>
       <Typography fontSize={"18px"} fontWeight={"500"}>
-        {question.question}
+        {question.text}
       </Typography>
       <SemicircleMeter />
     </Box>

@@ -7,6 +7,7 @@ import OutlinedButton from "../../../components/ui/OutlinedButton";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
 import axios from "axios";
 import { getRazorpayKey, loadRazorpay } from "../../../services/paymentService";
+import httpStatus from "http-status-codes"
 
 const FORM_STORAGE_KEY = "loginFormData";
 
@@ -113,7 +114,7 @@ const RegisterForm = () => {
         handler: async function (response: any) {
           try {
             // Verify payment on server and save details else remove it, only start from await
-            const verificationResponse = await axios.post(
+            await axios.post(
               "/api/v1/payment/verify",
               {
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -149,7 +150,7 @@ const RegisterForm = () => {
 
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration/Payment error:", error);
       const errorMessage =
         error.response?.data?.message ||

@@ -131,7 +131,7 @@ const FYFGameLayout = () => {
           cardStyle={{
             border: `2px solid ${game?.theme.secondary.main}`,
           }}
-          items={questions.map((question, index) => (
+          items={questions.map((question) => (
             <Stack
               key={question._id}
               padding={"18px"}

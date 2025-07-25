@@ -25,6 +25,9 @@ const YBBSGameLayout = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Temporary 
+  answers;
+
   const game = games.find((game) => game.id === "your-best-bouncing-self");
   const navigate = useNavigateWithSound();
 
@@ -50,7 +53,7 @@ const YBBSGameLayout = () => {
 
         // Initialize answers with default values
         const initialAnswers: AnswerRecord = {};
-        transformedQuestions.forEach(q => {
+        transformedQuestions.forEach((q: any) => {
           initialAnswers[q._id] = q.defaultAnswer;
         });
         setAnswers(initialAnswers);
