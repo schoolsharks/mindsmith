@@ -1,5 +1,5 @@
-import { Box, Stack, Typography } from "@mui/material";
-import { useRef } from "react";
+import { Box, LinearProgress, Stack, Typography } from "@mui/material";
+import { useRef, useState, useEffect } from "react";
 import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/the-brainy-bits.webp";
 import Page from "../../../../components/layout/Page";
 import { games } from "../../data/allGames";
@@ -7,49 +7,95 @@ import QuestionRender from "../../../questions/components/QuestionRender";
 import OutlinedButton from "../../../../components/ui/OutlinedButton";
 import ContainedButton from "../../../../components/ui/ContainedTextInput";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
-import { feelYourFeelingsQuestions } from "../../../questions/data/feelYourFeelingsData";
+import { fetchSectionQuestions } from "../../../../services/api/assessment";
+import { Question, QuestionType } from "../../../questions/types/questionTypes";
 import VerticalCarousel, {
   VerticalCarouselRef,
 } from "../../../../components/utility/VerticalCarousel";
 
+interface AnswerRecord {
+  [key: string]: number;
+}
+
 const BBGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
-  //   const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<AnswerRecord>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const game = games.find((game) => game.id === "the-brainy-bits");
   const navigate = useNavigateWithSound();
+
+  useEffect(() => {
+    const loadQuestions = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await fetchSectionQuestions("Comprehensive Brain Health Biomarkers");
+        
+        const transformedQuestions = response.map((q: any) => ({
+          _id: q._id,
+          text: q.text,
+          options: q.options.map((opt: any) => opt.text),
+          type: QuestionType.METER_OUTER_VALUE,
+          rawOptions: q.options,
+          onChange: (selectedIndex: number) => {
+            const score = q.options[selectedIndex].score;
+            setAnswers(prev => ({ ...prev, [q._id]: score }));
+          },
+          defaultAnswer: q.options[1].score // Middle option score
+        }));
+
+        // Initialize answers with default values
+        const initialAnswers: AnswerRecord = {};
+        transformedQuestions.forEach(q => {
+          initialAnswers[q._id] = q.defaultAnswer;
+        });
+        setAnswers(initialAnswers);
+        setQuestions(transformedQuestions);
+      } catch (err) {
+        console.error("Failed to load questions:", err);
+        setError("Failed to load questions. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadQuestions();
+  }, []);
+
   const handlePrevious = () => {
-    const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-    if (currentIdx === 0) {
-      return;
-    }
+    if (carouselRef.current?.getCurrentIndex() === 0) return;
     carouselRef.current?.previous();
   };
 
   const handleEnded = () => {
-    navigate("/user/do-you-know");
+    navigate("/user/do-you-know", { state: { answers } });
   };
+
   const handleNext = () => {
-    const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-    if (currentIdx === feelYourFeelingsQuestions.length - 1) {
+    if (currentIndex === questions.length - 1) {
       handleEnded();
       return;
     }
-
     carouselRef.current?.next();
   };
 
   const handleCardChange = () => {
     setTimeout(() => {
       const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-      //   setCurrentIndex(currentIdx);
-      if (currentIdx === feelYourFeelingsQuestions.length) {
-        handleEnded();
-      }
+      setCurrentIndex(currentIdx);
     }, 0);
   };
 
+  if (isLoading) return <div>Loading questions...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (questions.length === 0) return <div>No questions found</div>;
+
   return (
-    <Page sx={{ padding: "20px" }}>
+    <Page sx={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
       <Box
         component={"img"}
         src={cornerGraphic}
@@ -58,6 +104,7 @@ const BBGameLayout = () => {
           position: "absolute",
           top: "-12%",
           left: "50%",
+          transform: "translateX(-50%)",
         }}
       />
       <Typography
@@ -69,26 +116,26 @@ const BBGameLayout = () => {
       >
         The Brainy Bits
       </Typography>
-      {/* <LinearProgress
-        value={((currentIndex + 1) / feelYourFeelingsQuestions.length) * 100}
+      
+      <LinearProgress
+        value={((currentIndex + 1) / questions.length) * 100}
         variant="determinate"
         sx={{
-          "& .MuiLinearProgress-bar": {
-            backgroundColor: "#f5fd12",
-          },
+          "& .MuiLinearProgress-bar": { backgroundColor: "#f5fd12" },
           backgroundColor: "#FFA1A2",
         }}
-      /> */}
+      />
+      
       <Box marginTop={"20px"} id="game-questions-container">
         <VerticalCarousel
           ref={carouselRef}
           handleCardChange={handleCardChange}
           cardStyle={{
             border: `2px solid ${game?.theme.primary.main}`,
-            // bgcolor: `${game?.theme.secondary.main}60`,
+            bgcolor: game?.theme.secondary.main,
           }}
-          items={feelYourFeelingsQuestions.map((question, index) => (
-            <Stack key={index} padding={"18px"} justifyContent={"space-between"} flex={1}>
+          items={questions.map((question) => (
+            <Stack key={question._id} padding={"18px"} justifyContent={"space-between"} flex={1}>
               <QuestionRender question={question} game={game} />
               <Stack
                 direction={"row"}
@@ -98,7 +145,10 @@ const BBGameLayout = () => {
               >
                 <OutlinedButton
                   border={`2px solid ${game?.theme.primary.main}`}
-                  sx={{ color: game?.theme.primary.main, padding: "3px 10px" }}
+                  sx={{ 
+                    color: game?.theme.primary.main, 
+                    padding: "3px 10px",
+                  }}
                   onClick={handlePrevious}
                 >
                   Previous
@@ -110,7 +160,7 @@ const BBGameLayout = () => {
                   }}
                   onClick={handleNext}
                 >
-                  Next
+                  {currentIndex === questions.length - 1 ? "Finish" : "Next"}
                 </ContainedButton>
               </Stack>
             </Stack>
