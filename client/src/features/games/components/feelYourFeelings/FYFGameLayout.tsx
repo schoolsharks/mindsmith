@@ -1,5 +1,5 @@
 import { Box, LinearProgress, Stack, Typography } from "@mui/material";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/feel-your-feeling.webp";
 import Page from "../../../../components/layout/Page";
 import { games } from "../../data/allGames";
@@ -7,7 +7,8 @@ import QuestionRender from "../../../questions/components/QuestionRender";
 import OutlinedButton from "../../../../components/ui/OutlinedButton";
 import ContainedButton from "../../../../components/ui/ContainedTextInput";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
-import { feelYourFeelingsQuestions } from "../../../questions/data/feelYourFeelingsData";
+import { fetchSectionQuestions } from "../../../../services/api/assessment";
+import { Question, QuestionType } from "../../../questions/types/questionTypes";
 import VerticalCarousel, {
   VerticalCarouselRef,
 } from "../../../../components/utility/VerticalCarousel";
@@ -15,22 +16,64 @@ import VerticalCarousel, {
 const FYFGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const game = games.find((game) => game.id === "feel-your-feelings");
   const navigate = useNavigateWithSound();
+
+  useEffect(() => {
+    const loadQuestions = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await fetchSectionQuestions("Mental Health Screening");
+        
+        const transformedQuestions = response.map((q: any) => ({
+          _id: q._id,
+          text: q.text,
+          options: q.options.map((opt: any) => opt.text),
+          type: QuestionType.OPTIONS,
+          rawOptions: q.options,
+          onSelect: (optionText: string) => handleOptionSelect(q._id, optionText)
+        }));
+        
+        setQuestions(transformedQuestions);
+      } catch (err) {
+        console.error("Failed to load questions:", err);
+        setError("Failed to load questions. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadQuestions();
+  }, []);
+
+  const handleOptionSelect = (questionId: string, optionText: string) => {
+    setAnswers(prev => ({ ...prev, [questionId]: optionText }));
+  };
+
   const handlePrevious = () => {
-    const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-    if (currentIdx === 0) {
-      return;
-    }
+    if (carouselRef.current?.getCurrentIndex() === 0) return;
     carouselRef.current?.previous();
   };
 
   const handleEnded = () => {
     navigate("/user/do-you-know");
   };
+
   const handleNext = () => {
-    const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-    if (currentIdx === feelYourFeelingsQuestions.length - 1) {
+    const currentQuestionId = questions[currentIndex]?._id;
+    
+    if (!answers[currentQuestionId]) {
+      alert('Please select an option before proceeding');
+      return;
+    }
+
+    if (currentIndex === questions.length - 1) {
       handleEnded();
       return;
     }
@@ -42,11 +85,12 @@ const FYFGameLayout = () => {
     setTimeout(() => {
       const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
       setCurrentIndex(currentIdx);
-      if (currentIdx === feelYourFeelingsQuestions.length) {
-        handleEnded();
-      }
     }, 0);
   };
+
+  if (isLoading) return <div>Loading questions...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (questions.length === 0) return <div>No questions found</div>;
 
   return (
     <Page sx={{ padding: "20px" }}>
@@ -71,7 +115,7 @@ const FYFGameLayout = () => {
         <br /> Feelings
       </Typography>
       <LinearProgress
-        value={((currentIndex + 1) / feelYourFeelingsQuestions.length) * 100}
+        value={((currentIndex + 1) / questions.length) * 100}
         variant="determinate"
         sx={{
           "& .MuiLinearProgress-bar": {
@@ -86,11 +130,10 @@ const FYFGameLayout = () => {
           handleCardChange={handleCardChange}
           cardStyle={{
             border: `2px solid ${game?.theme.secondary.main}`,
-            // bgcolor: `${game?.theme.secondary.main}60`,
           }}
-          items={feelYourFeelingsQuestions.map((question, index) => (
+          items={questions.map((question, index) => (
             <Stack
-              key={index}
+              key={question._id}
               padding={"18px"}
               justifyContent={"space-between"}
               flex={1}
@@ -125,7 +168,7 @@ const FYFGameLayout = () => {
                     handleNext();
                   }}
                 >
-                  Next
+                  {currentIndex === questions.length - 1 ? "Finish" : "Next"}
                 </ContainedButton>
               </Stack>
             </Stack>
