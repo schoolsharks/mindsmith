@@ -1,16 +1,24 @@
 import { Box, Stack, Typography, Link } from "@mui/material";
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import OutlinedTextInput from "../../../components/ui/OutlinedTextInput/OutlinedTextInput";
 import TermsAndConditionsInput from "./TermsAndConditionsInput";
 import BottomElement from "../../../components/ui/BottomElement";
 import OutlinedButton from "../../../components/ui/OutlinedButton";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
+import { loginUser } from "../authSlice";
+import { RootState, AppDispatch } from "../../../app/store";
 
 const FORM_STORAGE_KEY = "loginFormData";
 
 const LoginForm = () => {
   const navigate = useNavigateWithSound();
-  
+  const dispatch = useDispatch<AppDispatch>();
+  const { isAuthenticated, loading } = useSelector(
+    (state: RootState) => state.auth
+  );
+
   // Load initial form data from sessionStorage
   const loadFormData = () => {
     const savedData = sessionStorage.getItem(FORM_STORAGE_KEY);
@@ -20,46 +28,36 @@ const LoginForm = () => {
       } catch (error) {
         console.error("Error parsing saved form data:", error);
         return {
-          name: "",
           email: "",
-          contact: "",
           tncAccepted: false,
         };
       }
     }
     return {
-      name: "",
       email: "",
-      contact: "",
       tncAccepted: false,
     };
   };
 
   const initialFormData = loadFormData();
   const [formValues, setFormValues] = useState({
-    name: initialFormData.name,
     email: initialFormData.email,
-    contact: initialFormData.contact,
   });
   const [tncAccepted, setTncAccepted] = useState(initialFormData.tncAccepted);
+  const [isProcessing, setIsProcessing] = useState(false);
   const tncPageRoute = "/user/terms-and-conditions";
 
-  // Save form data to sessionStorage whenever it changes
   useEffect(() => {
     const formData = {
-      name: formValues.name,
       email: formValues.email,
-      contact: formValues.contact,
       tncAccepted: tncAccepted,
     };
     sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
   }, [formValues, tncAccepted]);
 
-  // Clear form data when component unmounts (optional - remove if you want to persist across sessions)
   useEffect(() => {
     return () => {
-      // Uncomment the line below if you want to clear data when component unmounts
-      // sessionStorage.removeItem(FORM_STORAGE_KEY);
+      sessionStorage.removeItem(FORM_STORAGE_KEY);
     };
   }, []);
 
@@ -72,12 +70,7 @@ const LoginForm = () => {
     };
 
   const isFormValid = () => {
-    return (
-      formValues.name.trim() !== "" &&
-      formValues.email.trim() !== "" &&
-      formValues.contact.trim() !== "" &&
-      tncAccepted
-    );
+    return formValues.email.trim() !== "" && tncAccepted;
   };
 
   const handleRegisterRedirect = (e: React.MouseEvent) => {
@@ -85,13 +78,51 @@ const LoginForm = () => {
     navigate("/user/register");
   };
 
-  const handleSubmit = () => {
-    if (isFormValid()) {
-      // Clear the saved form data on successful submission
-      sessionStorage.removeItem(FORM_STORAGE_KEY);
-      navigate("/user/home");
+  const handleSubmit = async () => {
+    if (!isFormValid()) return;
+
+    setIsProcessing(true);
+    try {
+      // Call login thunk
+      const result = await dispatch(
+        loginUser({
+          email: formValues.email,
+        })
+      );
+
+      if (loginUser.fulfilled.match(result)) {
+        // Clear the saved form data on successful login
+        sessionStorage.removeItem(FORM_STORAGE_KEY);
+
+        // Navigate to home page
+        // navigate("/user/home");
+      } else {
+        // Handle login error
+        const errorMessage =
+          (result.payload as string) || "Login failed. Please try again.";
+
+        if (
+          errorMessage.includes("unauthorized") ||
+          errorMessage.includes("not found")
+        ) {
+          alert(
+            "Invalid email or user not found. Please check your email or register first."
+          );
+        } else {
+          alert(errorMessage);
+        }
+      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      alert("Login failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
+
+  if (isAuthenticated) {
+    return <Navigate to="/user/home" replace />;
+  }
 
   return (
     <Stack padding={"20px 40px"} flex={1}>
@@ -100,19 +131,9 @@ const LoginForm = () => {
       </Typography>
       <Stack gap="12px" marginTop={"12px"}>
         <OutlinedTextInput
-          name="Name*"
-          value={formValues.name}
-          handleChange={(event) => handleChange("name")(event)}
-        />
-        <OutlinedTextInput
           name="Email*"
           value={formValues.email}
           handleChange={(event) => handleChange("email")(event)}
-        />
-        <OutlinedTextInput
-          name="Contact*"
-          value={formValues.contact}
-          handleChange={(event) => handleChange("contact")(event)}
         />
       </Stack>
       <Box marginLeft={"-10px"} marginTop={"12px"}>
@@ -144,11 +165,11 @@ const LoginForm = () => {
         </Box>
       </Box>
       <BottomElement>
-        <OutlinedButton 
+        <OutlinedButton
           onClick={handleSubmit}
-          disabled={!isFormValid()}
+          disabled={!isFormValid() || isProcessing || loading}
         >
-          Log In
+          {isProcessing || loading ? "Logging in..." : "Log In"}
         </OutlinedButton>
       </BottomElement>
     </Stack>

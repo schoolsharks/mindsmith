@@ -1,10 +1,10 @@
+// assessment.ts
 import axios from "axios";
 
 export const fetchSectionQuestions = async (sectionId: string) => {
   try {
     const response = await axios.get(
       `/api/v1/assessment/${sectionId}/questions`
-      // Removed withCredentials and headers
     );
     return response.data;
   } catch (error) {
@@ -47,18 +47,18 @@ export const getUserProgress = async (sectionId: string) => {
 };
 
 // Legacy function - keeping for compatibility
-export const submitAnswer = async (
-  sectionId: string,
-  answerData: {
-    questionId: string;
-    optionIndex: number;
-    score: number;
-  }
-) => {
-  const response = await axios.post(
-    `/api/v1/assessment/${sectionId}/responses`,
-    answerData,
-    { withCredentials: true }
-  );
-  return response.data;
-};
+// export const submitAnswer = async (
+//   sectionId: string,
+//   answerData: {
+//     questionId: string;
+//     optionIndex: number;
+//     score: number;
+//   }
+// ) => {
+//   const response = await axios.post(
+//     `/api/v1/assessment/${sectionId}/responses`,
+//     answerData,
+//     { withCredentials: true }
+//   );
+//   return response.data;
+// };

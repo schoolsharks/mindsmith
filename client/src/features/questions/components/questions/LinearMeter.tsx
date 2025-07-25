@@ -3,11 +3,19 @@ import { QuestionProps } from "../../types/questionTypes";
 import LinearMeterChart from "../../../../components/ui/LinearMeterChart";
 import { useState } from "react";
 
-const LinearMeter: React.FC<QuestionProps> = ({ question }) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+const LinearMeter: React.FC<QuestionProps> = ({ 
+  question, 
+  selectedOptionIndex,
+  onSelectWithIndex
+}) => {
+  const [selectedOption, setSelectedOption] = useState<number | null>(
+    selectedOptionIndex ?? null
+  );
 
   const handleChange = (index: number) => {
-    setSelectedIndex(index);
+    setSelectedOption(index);
+    const optionText = question.options[index]?.text || "";
+    onSelectWithIndex?.(index, optionText);
   };
 
   return (
@@ -18,7 +26,7 @@ const LinearMeter: React.FC<QuestionProps> = ({ question }) => {
       <Stack alignItems={"center"}>
         <LinearMeterChart
           labels={question.options.map(option => option.text)}
-          selectedIndex={selectedIndex}
+          selectedIndex={selectedOption !== null ? selectedOption : undefined}
           onChange={handleChange}
         />
       </Stack>

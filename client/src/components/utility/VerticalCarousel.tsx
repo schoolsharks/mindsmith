@@ -44,13 +44,12 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const autoplayRef = useRef<NodeJS.Timeout | null>(null);
-    const dragStateRef = useRef({
-      isDragging: false,
-      startY: 0,
-      totalDeltaY: 0,
-      dragStarted: false,
-      startTime: 0,
-    });
+    
+    // Touch/swipe state
+    const [touchStart, setTouchStart] = useState<number | null>(null);
+    const [touchEnd, setTouchEnd] = useState<number | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startTime, setStartTime] = useState<number | null>(null);
 
     const goToNext = () => {
       if (isTransitioning) return;
@@ -105,27 +104,32 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
 
     // Autoplay functionality
     useEffect(() => {
-      if (autoplay) {
+      if (!autoplay || items.length <= 1) return;
+
+      const startAutoplay = () => {
         autoplayRef.current = setInterval(() => {
           goToNext();
         }, autoplaySpeed);
-      }
+      };
+
+      startAutoplay();
 
       return () => {
         if (autoplayRef.current) {
           clearInterval(autoplayRef.current);
         }
       };
-    }, [autoplay, autoplaySpeed, currentIndex]);
+    }, [autoplay, autoplaySpeed, items.length]);
 
-    const pauseAutoplay = () => {
+    // Pause autoplay on hover
+    const handleMouseEnter = () => {
       if (autoplayRef.current) {
         clearInterval(autoplayRef.current);
       }
     };
 
-    const resumeAutoplay = () => {
-      if (autoplay) {
+    const handleMouseLeave = () => {
+      if (autoplay && items.length > 1) {
         autoplayRef.current = setInterval(() => {
           goToNext();
         }, autoplaySpeed);
@@ -168,141 +172,132 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
       }
     };
 
-    const containerRef = useRef<HTMLDivElement>(null);
+    // Swipe/touch handlers
+    const handleTouchStart = (e: React.TouchEvent) => {
+      setTouchEnd(null);
+      setTouchStart(e.targetTouches[0].clientY);
+      setStartTime(Date.now());
+      setIsDragging(true);
+      
+      // Pause autoplay during touch
+      if (autoplayRef.current) {
+        clearInterval(autoplayRef.current);
+      }
+    };
 
-    useEffect(() => {
-      const DRAG_THRESHOLD = 30; // Minimum distance to trigger a slide change
-      const DRAG_COOLDOWN = 100; // Cooldown period between drags in ms
-      const MAX_SWIPE_DURATION = 300; // Maximum duration for a swipe to be considered "quick" (in ms)
+    const handleTouchMove = (e: React.TouchEvent) => {
+      if (!isDragging) return;
+      setTouchEnd(e.targetTouches[0].clientY);
+      // Prevent default scrolling behavior
+      e.preventDefault();
+    };
 
-      let lastDragTime = 0;
-      const container = containerRef.current;
-
-      if (!container) return;
-
-      // Get Y coordinate from either mouse or touch event
-      const getYCoordinate = (event: MouseEvent | TouchEvent): number => {
-        if (event.type.startsWith("touch")) {
-          const touchEvent = event as TouchEvent;
-          return (
-            touchEvent.touches[0]?.clientY ||
-            touchEvent.changedTouches[0]?.clientY ||
-            0
-          );
-        } else {
-          return (event as MouseEvent).clientY;
-        }
-      };
-
-      // Mouse and Touch start handlers
-      const handleStart = (event: MouseEvent | TouchEvent) => {
-        // Check if the event target is an interactive element (button, input, etc.)
-        const target = event.target as HTMLElement;
-        if (target.closest('button') || target.closest('input') || target.closest('a') || target.closest('[role="button"]')) {
-          return; // Don't start drag on interactive elements
-        }
-
-        dragStateRef.current.isDragging = true;
-        dragStateRef.current.startY = getYCoordinate(event);
-        dragStateRef.current.totalDeltaY = 0;
-        dragStateRef.current.dragStarted = true;
-        dragStateRef.current.startTime = Date.now();
-
-        // Prevent text selection while dragging
-        document.body.style.userSelect = "none";
-
-        // Prevent default touch behavior (like scrolling)
-        if (event.type.startsWith("touch")) {
-          event.preventDefault();
-        }
-      };
-
-      // Mouse and Touch move handlers
-      const handleMove = (event: MouseEvent | TouchEvent) => {
-        if (
-          !dragStateRef.current.isDragging ||
-          !dragStateRef.current.dragStarted
-        )
-          return;
-
-        const currentY = getYCoordinate(event);
-        const deltaY = currentY - dragStateRef.current.startY;
-        dragStateRef.current.totalDeltaY = deltaY;
-
-        // Only prevent default for touch events during active drag
-        if (event.type.startsWith("touch") && dragStateRef.current.isDragging) {
-          event.preventDefault();
-        }
-      };
-
-      // Mouse and Touch end handlers
-      const handleEnd = () => {
-        if (
-          !dragStateRef.current.isDragging ||
-          !dragStateRef.current.dragStarted
-        )
-          return;
-
-        const now = Date.now();
-        const timeSinceLastDrag = now - lastDragTime;
-        const dragDuration = now - dragStateRef.current.startTime;
-
-        // Only process drag if enough time has passed since last drag, threshold is met, and it's a quick swipe
-        if (
-          timeSinceLastDrag >= DRAG_COOLDOWN &&
-          Math.abs(dragStateRef.current.totalDeltaY) >= DRAG_THRESHOLD &&
-          dragDuration <= MAX_SWIPE_DURATION
-        ) {
-          if (dragStateRef.current.totalDeltaY < -DRAG_THRESHOLD) {
-            // Dragged up - go to next
+    const handleTouchEnd = () => {
+      if (!touchStart || !touchEnd || !isDragging || !startTime) {
+        setIsDragging(false);
+        setStartTime(null);
+        // Resume autoplay
+        if (autoplay && items.length > 1) {
+          autoplayRef.current = setInterval(() => {
             goToNext();
-            lastDragTime = now;
-          } else if (dragStateRef.current.totalDeltaY > DRAG_THRESHOLD) {
-            // Dragged down - go to previous
-            goToPrevious();
-            lastDragTime = now;
-          }
+          }, autoplaySpeed);
         }
+        return;
+      }
+      
+      const distance = touchStart - touchEnd;
+      const timeDiff = Date.now() - startTime;
+      const velocity = Math.abs(distance) / timeDiff;
+      
+      // Adjust thresholds based on velocity for more natural feel
+      const minSwipeDistance = velocity > 0.5 ? 30 : 50;
+      
+      if (distance > minSwipeDistance) {
+        // Swiped up - go to next
+        goToNext();
+      } else if (distance < -minSwipeDistance) {
+        // Swiped down - go to previous
+        goToPrevious();
+      }
+      
+      setIsDragging(false);
+      setTouchStart(null);
+      setTouchEnd(null);
+      setStartTime(null);
+      
+      // Resume autoplay
+      if (autoplay && items.length > 1) {
+        autoplayRef.current = setInterval(() => {
+          goToNext();
+        }, autoplaySpeed);
+      }
+    };
 
-        // Reset drag state
-        dragStateRef.current.isDragging = false;
-        dragStateRef.current.startY = 0;
-        dragStateRef.current.totalDeltaY = 0;
-        dragStateRef.current.dragStarted = false;
-        dragStateRef.current.startTime = 0;
+    // Mouse drag handlers (for desktop)
+    const handleMouseDown = (e: React.MouseEvent) => {
+      setTouchEnd(null);
+      setTouchStart(e.clientY);
+      setStartTime(Date.now());
+      setIsDragging(true);
+      
+      // Pause autoplay during drag
+      if (autoplayRef.current) {
+        clearInterval(autoplayRef.current);
+      }
+      
+      // Prevent default to avoid text selection
+      e.preventDefault();
+    };
 
-        // Restore text selection
-        document.body.style.userSelect = "";
-      };
+    const handleMouseMove = (e: React.MouseEvent) => {
+      if (!isDragging) return;
+      setTouchEnd(e.clientY);
+    };
 
-      // Add both mouse and touch event listeners to the container only
-      container.addEventListener("mousedown", handleStart);
-      document.addEventListener("mousemove", handleMove);
-      document.addEventListener("mouseup", handleEnd);
-
-      // Touch events for mobile
-      container.addEventListener("touchstart", handleStart, { passive: false });
-      document.addEventListener("touchmove", handleMove, { passive: false });
-      document.addEventListener("touchend", handleEnd);
-
-      return () => {
-        // Remove all event listeners
-        container.removeEventListener("mousedown", handleStart);
-        document.removeEventListener("mousemove", handleMove);
-        document.removeEventListener("mouseup", handleEnd);
-        container.removeEventListener("touchstart", handleStart);
-        document.removeEventListener("touchmove", handleMove);
-        document.removeEventListener("touchend", handleEnd);
-
-        // Cleanup on unmount
-        document.body.style.userSelect = "";
-      };
-    }, []);
+    const handleMouseUp = () => {
+      if (!touchStart || !touchEnd || !isDragging || !startTime) {
+        setIsDragging(false);
+        setStartTime(null);
+        // Resume autoplay
+        if (autoplay && items.length > 1) {
+          autoplayRef.current = setInterval(() => {
+            goToNext();
+          }, autoplaySpeed);
+        }
+        return;
+      }
+      
+      const distance = touchStart - touchEnd;
+      const timeDiff = Date.now() - startTime;
+      const velocity = Math.abs(distance) / timeDiff;
+      
+      // Adjust thresholds based on velocity for more natural feel
+      const minSwipeDistance = velocity > 0.5 ? 30 : 50;
+      
+      if (distance > minSwipeDistance) {
+        // Dragged up - go to next
+        goToNext();
+      } else if (distance < -minSwipeDistance) {
+        // Dragged down - go to previous
+        goToPrevious();
+      }
+      
+      setIsDragging(false);
+      setTouchStart(null);
+      setTouchEnd(null);
+      setStartTime(null);
+      
+      // Resume autoplay
+      if (autoplay && items.length > 1) {
+        autoplayRef.current = setInterval(() => {
+          goToNext();
+        }, autoplaySpeed);
+      }
+    };
     const cardHeight = 430;
 
     return (
       <Box
-        ref={containerRef}
         sx={{
           position: "relative",
           width: "100%",
@@ -311,10 +306,25 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
           display: "flex",
           alignItems: "flex-start",
           justifyContent: "center",
+          userSelect: "none", // Prevent text selection during drag
+          cursor: isDragging ? "grabbing" : "grab",
+          touchAction: "pan-x", // Allow horizontal scrolling but handle vertical
           ...containerStyle,
         }}
-        onMouseEnter={pauseAutoplay}
-        onMouseLeave={resumeAutoplay}
+        onMouseEnter={handleMouseEnter}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={() => {
+          handleMouseLeave();
+          // Also handle mouse up when leaving the component
+          if (isDragging) {
+            handleMouseUp();
+          }
+        }}
       >
         {/* Cards Container */}
         <Box
@@ -339,13 +349,21 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
                   left: 0,
                   right: 0,
                   height: cardHeight,
-                  transition: `all ${speed}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+                  transition: isDragging ? "none" : `all ${speed}ms cubic-bezier(0.4, 0, 0.2, 1)`,
                   transform: position.transform,
                   opacity: position.opacity,
                   zIndex: position.zIndex,
-                  cursor: isClickable ? "pointer" : "default",
+                  cursor: isDragging ? "grabbing" : (isClickable ? "pointer" : "default"),
+                  touchAction: "none", // Prevent default touch behaviors
                 }}
-                onClick={() => {
+                onClick={(e) => {
+                  // Prevent click during dragging
+                  if (isDragging) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  
                   if (isClickable) {
                     goToSlide(index);
                   }
@@ -361,6 +379,7 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
                     display: "flex",
                     ...cardStyle,
                   }}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   {item}
                 </Stack>

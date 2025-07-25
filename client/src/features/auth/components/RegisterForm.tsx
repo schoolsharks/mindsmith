@@ -1,18 +1,25 @@
 import { Box, Stack, Typography, Link } from "@mui/material";
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import OutlinedTextInput from "../../../components/ui/OutlinedTextInput/OutlinedTextInput";
 import TermsAndConditionsInput from "./TermsAndConditionsInput";
 import BottomElement from "../../../components/ui/BottomElement";
 import OutlinedButton from "../../../components/ui/OutlinedButton";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
-import axios from "axios";
 import { getRazorpayKey, loadRazorpay } from "../../../services/paymentService";
+import { authApi } from "../../../services/api/authApi";
+import { axiosBaseApi } from "../../../services/axiosBaseApi";
+import { setAuthenticated } from "../authSlice";
+import { RootState, AppDispatch } from "../../../app/store";
 import httpStatus from "http-status-codes";
 
 const FORM_STORAGE_KEY = "loginFormData";
 
 const RegisterForm = () => {
   const navigateWithSound = useNavigateWithSound();
+  const dispatch = useDispatch<AppDispatch>();
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const loadFormData = () => {
     const savedData = sessionStorage.getItem(FORM_STORAGE_KEY);
@@ -85,17 +92,17 @@ const RegisterForm = () => {
     setIsProcessing(true);
     try {
       // 1. First create the user (without payment)
-      const userResponse = await axios.post("/api/v1/auth/register", {
+      const userResponse = await authApi.register({
         name: formValues.name,
         email: formValues.email,
         contact: formValues.contact,
       });
 
       // 2. Initialize Razorpay payment
-      const orderResponse = await axios.post("/api/v1/payment/create-order", {
+      const orderResponse = await axiosBaseApi.post("/payment/create-order", {
         // amount: 2500 * 100, // in paise
         // currency: "INR",
-        userId: userResponse.data.user._id,
+        userId: userResponse.user._id,
       });
 
       // 3. Get Razorpay key from backend
@@ -114,16 +121,15 @@ const RegisterForm = () => {
         handler: async function (response: any) {
           try {
             // Verify payment on server and save details else remove it, only start from await
-            await axios.post(
-              "/api/v1/payment/verify",
-              {
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                userId: userResponse.data.user._id,
-              }
-            );
+            await axiosBaseApi.post("/payment/verify", {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              userId: userResponse.user._id,
+            });
 
+            // Set user as authenticated after successful payment verification
+            dispatch(setAuthenticated(true));
 
             // FOR CHECKING PAYMENT DETAILS ON BROWSER ->
             // console.log(
@@ -169,6 +175,9 @@ const RegisterForm = () => {
     }
   };
 
+  if (isAuthenticated) {
+    return <Navigate to="/user/home" replace />;
+  }
   return (
     <Stack padding={"20px 40px"} flex={1}>
       <Typography fontSize={"30px"} fontWeight={"700"}>

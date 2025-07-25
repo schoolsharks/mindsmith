@@ -8,9 +8,9 @@ export const calculateScores = async (userId: string) => {
     const totalScore = response.answers.reduce((sum, answer) => sum + answer.score, 0);
     
     return {
-      section: response.section.name,
+      section: (response.section as any).name,
       score: totalScore,
-      interpretation: getInterpretation(response.section.name, totalScore),
+      interpretation: getInterpretation((response.section as any).name, totalScore),
       completedAt: response.completedAt
     };
   }));

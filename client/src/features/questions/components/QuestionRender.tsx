@@ -30,11 +30,25 @@ const QuestionRender: React.FC<QuestionRenderProps> = ({
       />
     );
   } else if (question.type === QuestionType.METER_INNER_VALUE) {
-    return <MeterInnerValue question={question} game={game} />;
+    return <MeterInnerValue question={question} game={game} selectedOptionIndex={selectedOptionIndex} />;
   } else if (question.type === QuestionType.METER_OUTER_VALUE) {
-    return <MeterOuterValue question={question} game={game} />;
+    return (
+      <MeterOuterValue 
+        question={question} 
+        game={game} 
+        selectedOptionIndex={selectedOptionIndex}
+        onSelectWithIndex={question.onSelectWithIndex}
+      />
+    );
   } else if (question.type === QuestionType.METER_LINEAR) {
-    return <LinearMeter question={question} game={game} />;
+    return (
+      <LinearMeter 
+        question={question} 
+        game={game} 
+        selectedOptionIndex={selectedOptionIndex}
+        onSelectWithIndex={question.onSelectWithIndex}
+      />
+    );
   }
   return null;
 };

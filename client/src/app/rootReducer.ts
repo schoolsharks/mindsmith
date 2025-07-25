@@ -1,12 +1,12 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { baseApi } from '../services/baseApi';
-// import authReducer from '../features/auth/slice';
+import authReducer from '../features/auth/authSlice';
 // import themeReducer from '../features/theme/slice';
 // import uiReducer from '../features/ui/slice';
 
 const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
-  auth: "",
+  auth: authReducer,
 //   theme: themeReducer,
 //   ui: uiReducer,
 });

@@ -8,12 +8,17 @@ import AnimatedPage from "../../components/layout/AnimatedPage";
 import Home from "./Home";    
 import Games from "./Games";
 import { useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 import useSound from "../../features/sound/hooks/useSound";
 import SoundPermissionModal from "../../components/ui/SoundPermissionModal";
 import DoYouKnow from "./DoYouKnow";
+import ProtectedRoute from "../../features/auth/components/ProtectedRoute";
+import { fetchUser } from "../../features/auth/authSlice";
+import { AppDispatch } from "../../app/store";
 
 const UserMain = () => {
   const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
   const hasInitializedRef = useRef(false);
   const {
     stop,
@@ -33,14 +38,10 @@ const UserMain = () => {
     location.pathname.includes("/terms-and-conditions") ||
     location.pathname === "/user";
 
-  // Debug logging
-  console.log("🎵 UserMain debug:", {
-    isInitialized,
-    needsPermission,
-    hasUserInteracted,
-    isOnSoundExemptPage,
-    pathname: location.pathname,
-  });
+  // Dispatch fetchUser on component mount to check if user is already authenticated
+  useEffect(() => {
+    dispatch(fetchUser());
+  }, [dispatch]);
 
   // Initialize background music when conditions are met
   useEffect(() => {
@@ -173,25 +174,31 @@ const UserMain = () => {
           <Route
             path="/home"
             element={
-              <AnimatedPage>
-                <Home />
-              </AnimatedPage>
+              <ProtectedRoute>
+                <AnimatedPage>
+                  <Home />
+                </AnimatedPage>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/games/:gameId/*"
             element={
-              <AnimatedPage>
-                <Games />
-              </AnimatedPage>
+              <ProtectedRoute>
+                <AnimatedPage>
+                  <Games />
+                </AnimatedPage>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/do-you-know"
             element={
-              <AnimatedPage>
-                <DoYouKnow />
-              </AnimatedPage>
+              <ProtectedRoute>
+                <AnimatedPage>
+                  <DoYouKnow />
+                </AnimatedPage>
+              </ProtectedRoute>
             }
           />
 

@@ -21,4 +21,6 @@ export enum QuestionType {
 export interface QuestionProps {
   question: Question;
   game?: Game;
+  selectedOptionIndex?: number;
+  onSelectWithIndex?: (optionIndex: number, optionText: string) => void;
 }

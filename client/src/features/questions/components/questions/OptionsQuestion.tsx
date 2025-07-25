@@ -32,7 +32,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({
   };
 
   return (
-    <Box>
+    <Stack flex={1}>
       <Typography fontSize={"18px"} fontWeight={"500"}>
         {question.text}
       </Typography>
@@ -85,7 +85,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({
           </Stack>
         ))}
       </Stack>
-    </Box>
+    </Stack>
   );
 };
 

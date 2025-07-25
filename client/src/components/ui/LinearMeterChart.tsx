@@ -8,7 +8,7 @@ interface LinearMeterChartProps {
   height?: number;
   lineWidth?: number;
   lineGap?: number;
-  selectedIndex?: number;
+  selectedIndex?: number; // Can be undefined when nothing is selected
   onChange?: (index: number) => void;
 }
 
@@ -18,10 +18,10 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
   height = 120,
   lineWidth = 6,
   lineGap = 2,
-  selectedIndex = 1,
+  selectedIndex, // No default value - undefined means no selection
   onChange,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(selectedIndex);
+  const [currentIndex, setCurrentIndex] = useState<number | undefined>(selectedIndex);
   const [totalLines, setTotalLines] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,7 +38,7 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
   };
 
   const getIndexFromPosition = (clientX: number) => {
-    if (!containerRef.current) return currentIndex;
+    if (!containerRef.current) return currentIndex ?? 0;
     
     const rect = containerRef.current.getBoundingClientRect();
     const relativeX = clientX - rect.left;
@@ -122,7 +122,7 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
   }, [isDragging]);
 
   const getNeedlePosition = () => {
-    if (!containerRef.current) return 16;
+    if (!containerRef.current || currentIndex === undefined) return 16;
     
     const containerWidth = containerRef.current.offsetWidth;
     const sectionWidth = containerWidth / labels.length;
@@ -156,22 +156,24 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
 
   return (
     <Box sx={{ width, height, position: "relative", }}>
-      {/* Needle */}
-      <Box
-        component={"img"}
-        src={needleIcon}
-        sx={{
-          position: "absolute",
-          left: `${getNeedlePosition()}px`,
-          top: "25px",
-          width: 12,
-          transform: "translateX(-50%)",
-          transition: "left 0.3s ease",
-          zIndex: 10,
-        }}
-      >
-        {/* Empty needle div */}
-      </Box>
+      {/* Needle - only show when something is selected */}
+      {currentIndex !== undefined && (
+        <Box
+          component={"img"}
+          src={needleIcon}
+          sx={{
+            position: "absolute",
+            left: `${getNeedlePosition()}px`,
+            top: "25px",
+            width: 12,
+            transform: "translateX(-50%)",
+            transition: "left 0.3s ease",
+            zIndex: 10,
+          }}
+        >
+          {/* Empty needle div */}
+        </Box>
+      )}
 
       {/* Lines Container */}
       <Box
@@ -253,20 +255,23 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
         ))}
       </Box>
 
-      <Box
-        sx={{
-          backgroundColor: colors[selectedIndex],
-          color: "#fff",
-          fontWeight: "500",
-          fontSize: "22px",
-          padding: "7px 16px",
-          borderRadius: "10px",
-          width: "fit-content",
-          margin: "60px auto 0",
-        }}
-      >
-        <Typography>{labels[selectedIndex]}</Typography>
-      </Box>
+      {/* Show selected option label only when something is selected */}
+      {currentIndex !== undefined && (
+        <Box
+          sx={{
+            backgroundColor: colors[currentIndex],
+            color: "#fff",
+            fontWeight: "500",
+            fontSize: "22px",
+            padding: "7px 16px",
+            borderRadius: "10px",
+            width: "fit-content",
+            margin: "60px auto 0",
+          }}
+        >
+          <Typography>{labels[currentIndex]}</Typography>
+        </Box>
+      )}
     </Box>
   );
 };

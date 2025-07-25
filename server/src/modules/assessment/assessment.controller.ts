@@ -50,12 +50,19 @@ export const getQuestions = async (req: Request, res: Response) => {
 export const submitResponse = async (req: Request, res: Response) => {
   try {
     const { sectionId } = req.params;
-    const { userId, questionId, optionIndex } = req.body;
+    const { questionId, optionIndex } = req.body;
+    const userId = req.user?.id;
 
     // Get the question to calculate the score
     const question = await Question.findById(questionId);
     if (!question) {
       res.status(404).json({ message: "Question not found" });
+      return;
+    }
+
+    const section = await Section.findOne({ name: sectionId });
+    if (!section) {
+      res.status(404).json({ message: "Section not found" });
       return;
     }
 
@@ -68,7 +75,7 @@ export const submitResponse = async (req: Request, res: Response) => {
     // Check if response already exists for this user and section
     let userResponse = await UserResponse.findOne({
       user: userId,
-      section: sectionId,
+      section: section._id,
     });
 
     if (userResponse) {
@@ -102,7 +109,7 @@ export const submitResponse = async (req: Request, res: Response) => {
       // Create new response
       userResponse = await UserResponse.create({
         user: userId,
-        section: sectionId,
+        section: section._id,
         answers: [
           {
             question: questionId,
@@ -135,12 +142,19 @@ export const getResults = async (req: Request, res: Response) => {
 export const getUserProgress = async (req: Request, res: Response) => {
   try {
     const { sectionId } = req.params;
-    const { userId } = req.body;
+    const userId = req.user?.id;
+
+    const section = await Section.findOne({ name: sectionId });
+    if (!section) {
+      res.status(404).json({ message: "Section not found" });
+      return;
+    }
+
 
     const userResponse = await UserResponse.findOne({
       user: userId,
-      section: sectionId,
-    }).populate("answers.question");
+      section: section._id,
+    })
 
     if (!userResponse) {
       res.json({

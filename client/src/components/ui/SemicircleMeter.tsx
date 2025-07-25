@@ -15,10 +15,10 @@ const SemicircleMeterChart = ({
   labels = ["Low", "Medium", "High"],
   outerRadius = 120,
   innerRadius = 90,
-  selectedIndex = 1, // Default to middle option
+  selectedIndex, // No default value - undefined means no selection
   onChange,
 }: SemicircleMeterChartProps) => {
-  const [currentIndex, setCurrentIndex] = useState(selectedIndex);
+  const [currentIndex, setCurrentIndex] = useState<number | undefined>(selectedIndex);
 
   const colors = ["#44aa44", "#ffcc00", "#ff4444"]; //  Green, Yellow, Red
 
@@ -78,24 +78,29 @@ const SemicircleMeterChart = ({
           sx={{
             width: 24,
             transformOrigin: "bottom center",
-            transform: `rotate(${(currentIndex * 90) - 90}deg)`,
+            transform: currentIndex !== undefined 
+              ? `rotate(${(currentIndex * 90) - 90}deg)`
+              : `rotate(-90deg)`, // Point downwards when nothing is selected
             transition: "transform 0.3s ease",
           }}
         />
       </Box>
 
-      <Box
-        sx={{
-          backgroundColor: colors[currentIndex],
-          color: "#fff",
-          fontWeight: "500",
-          fontSize: "22px",
-          padding: "7px 16px",
-          borderRadius: "10px",
-        }}
-      >
-        <Typography>{labels[currentIndex]}</Typography>
-      </Box>
+      {/* Show selected option label only when something is selected */}
+      {currentIndex !== undefined && (
+        <Box
+          sx={{
+            backgroundColor: colors[currentIndex],
+            color: "#fff",
+            fontWeight: "500",
+            fontSize: "22px",
+            padding: "7px 16px",
+            borderRadius: "10px",
+          }}
+        >
+          <Typography>{labels[currentIndex]}</Typography>
+        </Box>
+      )}
     </Box>
   );
 };

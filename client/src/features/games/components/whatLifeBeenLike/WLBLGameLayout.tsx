@@ -1,5 +1,6 @@
 import { Box, LinearProgress, Stack, Typography } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/what-life-been-like.webp";
 import Page from "../../../../components/layout/Page";
 import HorizontalCarousel, {
@@ -19,6 +20,7 @@ import { Question, QuestionType } from "../../../questions/types/questionTypes";
 
 const WLBLGameLayout = () => {
   const carouselRef = useRef<HorizontalCarouselRef>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<
@@ -31,6 +33,28 @@ const WLBLGameLayout = () => {
   const game = games.find((game) => game.id === "what-life-been-like");
   const navigate = useNavigateWithSound();
   const sectionId = "Life Stress Assessment";
+
+  // Initialize current index from URL params
+  useEffect(() => {
+    const questionIndex = searchParams.get("question");
+    if (questionIndex) {
+      const index = parseInt(questionIndex, 10);
+      if (!isNaN(index) && index >= 0) {
+        setCurrentIndex(index);
+      }
+    }
+  }, [searchParams]);
+
+  // Update URL when index changes
+  useEffect(() => {
+    if (questions.length > 0) {
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("question", currentIndex.toString());
+        return newParams;
+      });
+    }
+  }, [currentIndex, questions.length, setSearchParams]);
 
   useEffect(() => {
     const loadQuestionsAndProgress = async () => {
@@ -81,7 +105,23 @@ const WLBLGameLayout = () => {
               };
             }
           });
+
           setAnswers(existingAnswers);
+        }
+
+        // After questions are loaded, navigate to the saved index
+        const questionIndex = searchParams.get("question");
+        if (questionIndex && transformedQuestions.length > 0) {
+          const index = parseInt(questionIndex, 10);
+          if (
+            !isNaN(index) &&
+            index >= 0 &&
+            index < transformedQuestions.length
+          ) {
+            setTimeout(() => {
+              carouselRef.current?.goToSlide(index);
+            }, 100);
+          }
         }
       } catch (err) {
         console.error("Failed to load questions:", err);
@@ -200,7 +240,7 @@ const WLBLGameLayout = () => {
           items={questions.map((question) => {
             const currentAnswer = answers[question._id];
             return (
-              <Box key={question._id} padding={"18px"} width="100%">
+              <Stack flex={1} key={question._id} padding={"18px"} width="100%">
                 <QuestionRender
                   question={question}
                   game={game}
@@ -237,12 +277,12 @@ const WLBLGameLayout = () => {
                       opacity: isSubmitting ? 0.7 : 1,
                     }}
                     onClick={handleNext}
-                    disabled={isSubmitting}
+                    // disabled={isSubmitting}
                   >
                     {currentIndex === questions.length - 1 ? "Finish" : "Next"}
                   </ContainedButton>
                 </Stack>
-              </Box>
+              </Stack>
             );
           })}
         />

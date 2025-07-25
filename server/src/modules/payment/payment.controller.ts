@@ -1,26 +1,28 @@
-import { Request, Response } from 'express';
-import httpStatus from 'http-status-codes';
-import crypto from 'crypto';
-import { User } from '../user/user.model';
-import { PaymentDetails } from './payment.model';
-import razorpay from '../../config/razorpay';
+import { Request, Response } from "express";
+import httpStatus from "http-status-codes";
+import crypto from "crypto";
+import { User } from "../user/user.model";
+import { PaymentDetails } from "./payment.model";
+import razorpay from "../../config/razorpay";
 import mongoose from "mongoose";
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const { userId } = req.body;
-    const fixedAmount = 2500 * 100; // ₹2500 in paise
+    // const fixedAmount = 2500 * 100; // ₹2500 in paise
+    const fixedAmount = 1 * 100; // ₹1 in paise
 
     // Validate userId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ message: 'Invalid user ID format' });
+      res.status(400).json({ message: "Invalid user ID format" });
+      return;
     }
 
     const options = {
       amount: fixedAmount,
-      currency: 'INR',
+      currency: "INR",
       receipt: `msm_${userId}`, // msm = Mind Smith
-      payment_capture: 1
+      payment_capture: 1,
     };
 
     const order = await razorpay.orders.create(options);
@@ -30,54 +32,61 @@ export const createOrder = async (req: Request, res: Response) => {
       id: order.id,
       currency: order.currency,
       amount: order.amount,
-      userId
+      userId,
     });
   } catch (error: any) {
-    console.error('Order creation failed:', error);
+    console.error("Order creation failed:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'Error creating payment order',
-      error: error.message || 'Unknown error'
+      message: "Error creating payment order",
+      error: error.message || "Unknown error",
     });
   }
 };
 
 export const verifyPayment = async (req: Request, res: Response) => {
   try {
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature, userId } = req.body;
+    const {
+      razorpay_payment_id,
+      razorpay_order_id,
+      razorpay_signature,
+      userId,
+    } = req.body;
 
     // Verify signature first
     const generatedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-      .digest('hex');
+      .digest("hex");
 
     if (generatedSignature !== razorpay_signature) {
       return res.status(httpStatus.BAD_REQUEST).json({
-        message: 'Payment verification failed'
+        message: "Payment verification failed",
       });
     }
 
     // Check if payment was already processed by another request
-    const existingPayment = await PaymentDetails.findOne({ razorpayPaymentId: razorpay_payment_id });
+    const existingPayment = await PaymentDetails.findOne({
+      razorpayPaymentId: razorpay_payment_id,
+    });
     if (existingPayment) {
       return res.status(httpStatus.CONFLICT).json({
-        message: 'Payment was already processed'
+        message: "Payment was already processed",
       });
     }
 
     // Fetch payment details from Razorpay
     const payment = await razorpay.payments.fetch(razorpay_payment_id);
-    
+
     // Get user with lock to prevent race conditions
     const user = await User.findOneAndUpdate(
-      { _id: userId, paymentStatus: { $ne: 'completed' } },
-      { $set: { paymentStatus: 'processing' } },
+      { _id: userId, paymentStatus: { $ne: "completed" } },
+      { $set: { paymentStatus: "processing" } },
       { new: true }
     );
 
     if (!user) {
       return res.status(httpStatus.CONFLICT).json({
-        message: 'Payment already completed or user not found'
+        message: "Payment already completed or user not found",
       });
     }
 
@@ -98,18 +107,18 @@ export const verifyPayment = async (req: Request, res: Response) => {
       email: user.email,
       contact: user.contact,
       fee: payment.fee,
-      tax: payment.tax
+      tax: payment.tax,
     });
 
     // Finalize user update
-    user.paymentStatus = 'completed';
+    user.paymentStatus = "completed";
     user.paymentId = razorpay_payment_id;
     user.payments = user.payments || [];
     user.payments.push(paymentRecord._id);
     await user.save();
 
     res.status(httpStatus.OK).json({
-      message: 'Payment verified and recorded successfully',
+      message: "Payment verified and recorded successfully",
       paymentId: razorpay_payment_id,
       paymentDetails: {
         id: paymentRecord._id,
@@ -117,19 +126,19 @@ export const verifyPayment = async (req: Request, res: Response) => {
         currency: paymentRecord.currency,
         method: paymentRecord.method,
         status: paymentRecord.status,
-        createdAt: paymentRecord.createdAt
-      }
+        createdAt: paymentRecord.createdAt,
+      },
     });
-  } catch (error) {
+  } catch (error: any) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-      message: 'Error verifying payment',
-      error: error.message
+      message: "Error verifying payment",
+      error: error.message,
     });
   }
 };
 
 export const getRazorpayConfig = (req: Request, res: Response) => {
   res.status(200).json({
-    razorpayKey: process.env.RAZORPAY_KEY_ID
+    razorpayKey: process.env.RAZORPAY_KEY_ID,
   });
 };

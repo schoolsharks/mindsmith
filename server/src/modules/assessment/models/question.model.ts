@@ -9,6 +9,7 @@ export interface IQuestion extends Document {
   subsection: mongoose.Types.ObjectId;
   text: string;
   options: IOption[];
+  order: number; // Added order field
   category?: string;
 }
 
@@ -19,6 +20,7 @@ const questionSchema = new mongoose.Schema<IQuestion>({
     text: { type: String, required: true },
     score: { type: Number, required: true }
   }],
+  order: { type: Number, required: true, default: 0 }, // Added order field
   category: { type: String }
 });
 
