@@ -1,21 +1,33 @@
+// src/features/questions/components/questions/OptionsQuestion.tsx
 import { Typography, Box, Stack } from "@mui/material";
 import { QuestionProps } from "../../types/questionTypes";
 import { useState } from "react";
 
-const OptionsQuestion: React.FC<QuestionProps> = ({ game, question }) => {
+interface QuestionProps {
+  game?: Game;
+  question: Question & { onSelect?: (option: string) => void };
+}
+
+const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
+  // Handle option selection
+  const handleOptionSelect = (optionText: string) => {
+    setSelectedOption(optionText);
+    onSelect?.(optionText);
+  };
+
   return (
-    <Box>
+    <Box >
       <Typography fontSize={"18px"} fontWeight={"500"}>
-        {question.question}
+        {question.text}
       </Typography>
       <Stack>
         {question.options?.map((option, index) => (
           <Stack
             direction={"row"}
             key={index}
-            onClick={() => setSelectedOption(option)}
+            onClick={() => handleOptionSelect(option)}
             sx={{
               flex: 1,
               border: `1px solid ${game?.theme.primary.main}`,

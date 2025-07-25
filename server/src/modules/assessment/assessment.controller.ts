@@ -14,12 +14,34 @@ export const getAssessmentStructure = async (req: Request, res: Response) => {
   }
 };
 
+// assessment.controller.ts
 export const getQuestions = async (req: Request, res: Response) => {
   try {
     const { sectionId } = req.params;
-    const questions = await Question.find({ subsection: sectionId }).sort('order');
+    
+    // Option 1: Find by section name instead of ID
+    const section = await Section.findOne({ name: sectionId });
+    if (!section) {
+      return res.status(404).json({ message: 'Section not found' });
+    }
+
+    const subsections = await Subsection.find({ section: section._id })
+      .sort('order')
+      .select('_id');
+    
+    const questions = await Question.find({ 
+      subsection: { $in: subsections.map(s => s._id) } 
+    })
+      .sort('order')
+      .lean();
+    
     res.json(questions);
+
+    // Option 2: Or if you prefer to keep using IDs in the URL:
+    // Make sure to pass the actual ObjectId (like "507f1f77bcf86cd799439011")
+    // const subsections = await Subsection.find({ section: sectionId })...
   } catch (error) {
+    console.error('Error fetching questions:', error);
     res.status(500).json({ message: 'Error fetching questions' });
   }
 };

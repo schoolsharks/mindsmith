@@ -1,16 +1,21 @@
 import { Game } from "../../games/data/allGames";
 
-export enum QuestionType {
-  OPTIONS = "OPTIONS",
-  METER_INNER_VALUE = "METER_INNER_VALUE",
-  METER_OUTER_VALUE = "METER_OUTER_VALUE",
-  METER_LINEAR = "METER_LINEAR",
+// src/features/questions/types/questionTypes.ts
+export interface Question {
+  _id: string;
+  text: string;
+  options: {
+    text: string;
+    score: number;
+  }[];
+  type: QuestionType;
 }
 
-export interface Question {
-  type: QuestionType;
-  question: string;
-  options?: string[];
+export enum QuestionType {
+  OPTIONS = 'OPTIONS',
+  METER_INNER_VALUE = 'METER_INNER_VALUE',
+  METER_OUTER_VALUE = 'METER_OUTER_VALUE',
+  METER_LINEAR = 'METER_LINEAR'
 }
 
 export interface QuestionProps {
