@@ -5,21 +5,34 @@ import { Question } from "../../types/questionTypes";
 
 interface QuestionProps {
   game?: Game;
-  question: Question & { onSelect?: (option: string) => void };
+  question: Question & { 
+    onSelect?: (option: string) => void;
+    onSelectWithIndex?: (optionIndex: number, optionText: string) => void;
+  };
   onSelect?: (option: string) => void;
+  selectedOptionIndex?: number; // For showing previously selected option
 }
 
-const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) => {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+const OptionsQuestion: React.FC<QuestionProps> = ({ 
+  game, 
+  question, 
+  onSelect, 
+  selectedOptionIndex 
+}) => {
+  const [selectedOption, setSelectedOption] = useState<number | null>(
+    selectedOptionIndex ?? null
+  );
 
   // Handle option selection
-  const handleOptionSelect = (optionText: string) => {
-    setSelectedOption(optionText);
+  const handleOptionSelect = (index: number, optionText: string) => {
+    setSelectedOption(index);
     onSelect?.(optionText);
+    question.onSelect?.(optionText);
+    question.onSelectWithIndex?.(index, optionText);
   };
 
   return (
-    <Box >
+    <Box>
       <Typography fontSize={"18px"} fontWeight={"500"}>
         {question.text}
       </Typography>
@@ -28,7 +41,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) 
           <Stack
             direction={"row"}
             key={index}
-            onClick={() => handleOptionSelect(option.text)}
+            onClick={() => handleOptionSelect(index, option.text)}
             sx={{
               flex: 1,
               border: `1px solid ${game?.theme.primary.main}`,
@@ -37,7 +50,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) 
               padding: "10px",
               marginTop: "10px",
               cursor: "pointer",
-              opacity: selectedOption === option.text ? 1 : 0.7,
+              opacity: selectedOption === index ? 1 : 0.7,
               minHeight: "70px",
               alignItems: "center",
               transition: "all 0.3s ease",
@@ -53,7 +66,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({ game, question, onSelect }) 
                 marginRight: "10px",
               }}
             >
-              {selectedOption === option.text && (
+              {selectedOption === index && (
                 <Box
                   width={"100%"}
                   height={"100%"}

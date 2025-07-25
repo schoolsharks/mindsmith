@@ -29,6 +29,7 @@ const UserMain = () => {
   const isOnSoundExemptPage =
     location.pathname.includes("/onboarding") ||
     location.pathname.includes("/login") ||
+    location.pathname.includes("/register") ||
     location.pathname.includes("/terms-and-conditions") ||
     location.pathname === "/user";
 

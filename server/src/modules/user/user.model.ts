@@ -30,12 +30,12 @@ const userSchema = new mongoose.Schema<IUser>(
     email: { 
       type: String, 
       required: true,
-      index: true
+      // index: true
     },
     contact: { 
       type: String, 
       required: true,
-      index: true
+      // index: true
     },
     password: { type: String },
     paymentStatus: { type: String, enum: ['pending', 'completed', 'failed'], default: 'pending' },

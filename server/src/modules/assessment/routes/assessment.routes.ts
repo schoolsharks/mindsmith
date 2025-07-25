@@ -3,7 +3,8 @@ import {
   getAssessmentStructure,
   getQuestions,
   submitResponse,
-  getResults
+  getResults,
+  getUserProgress
 } from '../assessment.controller';
 // import { authenticateUser } from '../../../middlewares/authMiddleware';
 // import { checkPaymentStatus } from '../../../middlewares/paymentStatus';
@@ -21,6 +22,7 @@ router.get('/structure', getAssessmentStructure);
 // No Protection API
 router.get('/:sectionId/questions', getQuestions);
 router.post('/:sectionId/responses', submitResponse);
+router.post('/:sectionId/progress', getUserProgress);
 router.get('/results', getResults);
 
 export default router;

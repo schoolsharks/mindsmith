@@ -8,16 +8,25 @@ import OptionsQuestion from "./questions/OptionsQuestion";
 
 interface QuestionRenderProps {
   game?: Game;
-  question: Question & { onSelect?: (option: string) => void };
+  question: Question & { 
+    onSelect?: (option: string) => void;
+    onSelectWithIndex?: (optionIndex: number, optionText: string) => void;
+  };
+  selectedOptionIndex?: number;
 }
 
-const QuestionRender: React.FC<QuestionRenderProps> = ({ game, question }) => {
+const QuestionRender: React.FC<QuestionRenderProps> = ({ 
+  game, 
+  question, 
+  selectedOptionIndex 
+}) => {
   if (question.type === QuestionType.OPTIONS) {
     return (
       <OptionsQuestion
         question={question}
         game={game}
         onSelect={question.onSelect}
+        selectedOptionIndex={selectedOptionIndex}
       />
     );
   } else if (question.type === QuestionType.METER_INNER_VALUE) {

@@ -7,7 +7,7 @@ import OutlinedButton from "../../../components/ui/OutlinedButton";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
 import axios from "axios";
 import { getRazorpayKey, loadRazorpay } from "../../../services/paymentService";
-import httpStatus from "http-status-codes"
+import httpStatus from "http-status-codes";
 
 const FORM_STORAGE_KEY = "loginFormData";
 
@@ -123,6 +123,7 @@ const RegisterForm = () => {
                 userId: userResponse.data.user._id,
               }
             );
+
 
             // FOR CHECKING PAYMENT DETAILS ON BROWSER ->
             // console.log(
