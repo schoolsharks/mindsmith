@@ -2,7 +2,9 @@ import { Box, Typography } from "@mui/material";
 import Page from "../../../components/layout/Page";
 import BgDiamonds from "../../../components/ui/BgDiamonds/BgDiamonds";
 import { positions1 } from "../../../components/ui/BgDiamonds/diamondsPositions";
-import cloudGraphic2 from "../../../assets/images/cloud-graphic-2.webp";
+// import cloudGraphic2 from "../../../assets/images/cloud-graphic-2.webp";
+import brainGraphic1 from "../../../assets/images/brain-graphic-1.webp";
+
 import BottomElement from "../../../components/ui/BottomElement";
 import OutlinedButton from "../../../components/ui/OutlinedButton";
 
@@ -16,8 +18,8 @@ const Welcome: React.FC<WelcomeProps> = ({handleNextPage}) => {
       <BgDiamonds positions={positions1} animation />
       <Box
         component="img"
-        src={cloudGraphic2}
-        width={"110px"}
+        src={brainGraphic1}
+        width={"90px"}
         marginTop={"40px"}
         position={"relative"}
       />

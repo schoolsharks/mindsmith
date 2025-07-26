@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { User } from "../user/user.model";
 import { PaymentDetails } from "./payment.model";
 import razorpay from "../../config/razorpay";
@@ -117,9 +118,32 @@ export const verifyPayment = async (req: Request, res: Response) => {
     user.payments.push(paymentRecord._id);
     await user.save();
 
+    // Generate access token after successful payment verification
+    const accessToken = jwt.sign(
+      { id: user._id, role: "USER" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: "7d" }
+    );
+
+    // Set cookie with token
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     res.status(httpStatus.OK).json({
       message: "Payment verified and recorded successfully",
       paymentId: razorpay_payment_id,
+      accessToken,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        contact: user.contact,
+        paymentStatus: user.paymentStatus,
+      },
       paymentDetails: {
         id: paymentRecord._id,
         amount: paymentRecord.amount / 100,

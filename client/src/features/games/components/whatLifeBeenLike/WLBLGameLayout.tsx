@@ -16,7 +16,7 @@ import {
   submitQuestionResponse,
   getUserProgress,
 } from "../../../../services/api/assessment";
-import { Question, QuestionType } from "../../../questions/types/questionTypes";
+import { Question, } from "../../../questions/types/questionTypes";
 
 const WLBLGameLayout = () => {
   const carouselRef = useRef<HorizontalCarouselRef>(null);
@@ -107,7 +107,7 @@ const WLBLGameLayout = () => {
           _id: q._id,
           text: q.text,
           options: q.options,
-          type: QuestionType.OPTIONS,
+          type: q.questionType,
           rawOptions: q.options,
           onSelectWithIndex: (optionIndex: number, optionText: string) =>
             handleOptionSelect(q._id, optionIndex, optionText),

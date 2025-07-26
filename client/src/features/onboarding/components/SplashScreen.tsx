@@ -1,4 +1,5 @@
-import cloudGraphic1 from "../../../assets/images/cloud-graphic-1.webp";
+// import cloudGraphic1 from "../../../assets/images/cloud-graphic-1.webp";
+import brainGraphic1 from "../../../assets/images/brain-graphic-1.webp";
 import Page from "../../../components/layout/Page";
 import { Typography, Box } from "@mui/material";
 import BgDiamonds from "../../../components/ui/BgDiamonds/BgDiamonds";
@@ -22,17 +23,17 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ handleNextPage }) => {
     <Page>
       <BgDiamonds positions={positions1} />
       <Box margin={"auto"} textAlign={"center"} position={"relative"}>
-        <motion.img 
-          src={cloudGraphic1} 
-          alt="" 
-          style={{ width: "200px" }}
+        <motion.img
+          src={brainGraphic1}
+          alt=""
+          style={{ width: "150px" }}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 260, 
+          transition={{
+            type: "spring",
+            stiffness: 260,
             damping: 20,
-            duration: 0.6
+            duration: 0.6,
           }}
         />
         <motion.div

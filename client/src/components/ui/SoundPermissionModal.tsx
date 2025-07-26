@@ -35,7 +35,7 @@ const SoundPermissionModal: React.FC<SoundPermissionModalProps> = ({
         maxWidth: "480px",
         margin: "0 auto",
         background:
-          "radial-gradient(98.1% 98.1% at 97.18% 1.13%, #FFE4E5 41.83%, #FFFCE5 100%)",
+          "radial-gradient(98.1% 98.1% at 97.18% 1.13%, #D2F8FF 41.83%, #FFFFFF 100%)",
       }}
     >
       <Stack

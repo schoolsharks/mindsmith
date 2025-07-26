@@ -31,7 +31,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           overflow: "hidden",
           minHeight: "100vh",
           background:
-            "radial-gradient(98.1% 98.1% at 97.18% 1.13%, #FFE4E5 41.83%, #FFFCE5 100%)",
+            "radial-gradient(98.1% 98.1% at 97.18% 1.13%, #D2F8FF 41.83%, #FFFFFF 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

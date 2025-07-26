@@ -74,9 +74,9 @@ const RegisterForm = () => {
 
   const isFormValid = () => {
     return (
-      formValues.name.trim() !== "" &&
-      formValues.email.trim() !== "" &&
-      formValues.contact.trim() !== "" &&
+      formValues.name?.trim() !== "" &&
+      formValues.email?.trim() !== "" &&
+      formValues.contact?.trim() !== "" &&
       tncAccepted
     );
   };

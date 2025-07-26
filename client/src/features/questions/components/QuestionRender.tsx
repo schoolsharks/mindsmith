@@ -2,7 +2,7 @@
 import { Game } from "../../games/data/allGames";
 import { Question, QuestionType } from "../types/questionTypes";
 import LinearMeter from "./questions/LinearMeter";
-import MeterInnerValue from "./questions/MeterInnerValue";
+// import MeterInnerValue from "./questions/MeterInnerValue";
 import MeterOuterValue from "./questions/MeterOuterValue";
 import OptionsQuestion from "./questions/OptionsQuestion";
 
@@ -29,9 +29,11 @@ const QuestionRender: React.FC<QuestionRenderProps> = ({
         selectedOptionIndex={selectedOptionIndex}
       />
     );
-  } else if (question.type === QuestionType.METER_INNER_VALUE) {
-    return <MeterInnerValue question={question} game={game} selectedOptionIndex={selectedOptionIndex} />;
-  } else if (question.type === QuestionType.METER_OUTER_VALUE) {
+  } 
+  // else if (question.type === QuestionType.METER_INNER_VALUE) {
+  //   return <MeterInnerValue question={question} game={game} selectedOptionIndex={selectedOptionIndex} />;
+  // } 
+  else if (question.type === QuestionType.SEMICIRCLE_METER) {
     return (
       <MeterOuterValue 
         question={question} 
@@ -40,7 +42,7 @@ const QuestionRender: React.FC<QuestionRenderProps> = ({
         onSelectWithIndex={question.onSelectWithIndex}
       />
     );
-  } else if (question.type === QuestionType.METER_LINEAR) {
+  } else if (question.type === QuestionType.LINEAR_METER) {
     return (
       <LinearMeter 
         question={question} 

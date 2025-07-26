@@ -13,12 +13,10 @@ import {
   submitQuestionResponse,
   getUserProgress,
 } from "../../../../services/api/assessment";
-import { Question, QuestionType } from "../../../questions/types/questionTypes";
+import { Question } from "../../../questions/types/questionTypes";
 import VerticalCarousel, {
   VerticalCarouselRef,
 } from "../../../../components/utility/VerticalCarousel";
-
-
 
 const BBGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
@@ -50,7 +48,7 @@ const BBGameLayout = () => {
   // Set initial index to first unanswered question or last question if all answered
   useEffect(() => {
     const questionIndex = searchParams.get("question");
-    
+
     // Only set initial index if no query parameter and we have questions and answers
     if (!questionIndex && questions.length > 0) {
       // Find first unanswered question
@@ -61,10 +59,13 @@ const BBGameLayout = () => {
           break;
         }
       }
-      
+
       // If all questions are answered, go to last question, otherwise go to first unanswered
-      const targetIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : questions.length - 1;
-      
+      const targetIndex =
+        firstUnansweredIndex !== -1
+          ? firstUnansweredIndex
+          : questions.length - 1;
+
       if (targetIndex !== currentIndex) {
         setCurrentIndex(targetIndex);
         setTimeout(() => {
@@ -142,7 +143,7 @@ const BBGameLayout = () => {
           _id: q._id,
           text: q.text,
           options: q.options,
-          type: QuestionType.METER_OUTER_VALUE,
+          type: q.questionType,
           rawOptions: q.options,
           // onChange: (selectedIndex: number) => {
           //   const score = q.options[selectedIndex].score;
@@ -312,7 +313,11 @@ const BBGameLayout = () => {
               justifyContent={"space-between"}
               flex={1}
             >
-              <QuestionRender question={question} game={game} selectedOptionIndex={answers[question._id]?.optionIndex} />
+              <QuestionRender
+                question={question}
+                game={game}
+                selectedOptionIndex={answers[question._id]?.optionIndex}
+              />
               <Stack
                 direction={"row"}
                 marginTop={"20px"}

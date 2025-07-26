@@ -5,7 +5,7 @@ import RegisterPage from "./RegisterPage";
 import TermsAndConditions from "./TermsAndConditionsPage";
 import { AnimatePresence } from "framer-motion";
 import AnimatedPage from "../../components/layout/AnimatedPage";
-import Home from "./Home";    
+import Home from "./Home";
 import Games from "./Games";
 import { useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
@@ -101,7 +101,7 @@ const UserMain = () => {
           overflow: "hidden",
           minHeight: "100vh",
           background:
-            "radial-gradient(98.1% 98.1% at 97.18% 1.13%, #FFE4E5 41.83%, #FFFCE5 100%)",
+            "radial-gradient(98.1% 98.1% at 97.18% 1.13%, #D2F8FF 41.83%, #FFFFFF 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -133,7 +133,7 @@ const UserMain = () => {
         overflow: "hidden",
         minHeight: "100vh",
         background:
-          "radial-gradient(98.1% 98.1% at 97.18% 1.13%, #FFE4E5 41.83%, #FFFCE5 100%)",
+          "radial-gradient(98.1% 98.1% at 97.18% 1.13%, #D2F8FF 41.83%, #FFFFFF 100%) ",
       }}
     >
       <AnimatePresence mode="wait" initial={false}>

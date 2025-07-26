@@ -70,7 +70,7 @@ const LoginForm = () => {
     };
 
   const isFormValid = () => {
-    return formValues.email.trim() !== "" && tncAccepted;
+    return formValues.email?.trim() !== "" && tncAccepted;
   };
 
   const handleRegisterRedirect = (e: React.MouseEvent) => {

@@ -13,7 +13,7 @@ import {
   submitQuestionResponse,
   getUserProgress,
 } from "../../../../services/api/assessment";
-import { Question, QuestionType } from "../../../questions/types/questionTypes";
+import { Question } from "../../../questions/types/questionTypes";
 import VerticalCarousel, {
   VerticalCarouselRef,
 } from "../../../../components/utility/VerticalCarousel";
@@ -169,7 +169,7 @@ const YBBSGameLayout = () => {
           _id: q._id,
           text: q.text,
           options: q.options,
-          type: QuestionType.METER_OUTER_VALUE,
+          type: q.questionType,
           rawOptions: q.options,
           // onChange: (selectedIndex: number) => {
           //   const score = q.options[selectedIndex].score;

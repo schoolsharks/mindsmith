@@ -3,6 +3,7 @@ import {
   orderReportData,
   generateAssessmentPageBySection,
 } from "./pageGenerators/assessmentPage.js";
+import { generateCoverPage } from "./pageGenerators/coverPage.js";
 
 export interface ReportPage {
   section: string;
@@ -83,6 +84,19 @@ export const generateReportHTML = (reportData: ReportPage[]) => {
     <body>
     
       
+      <!-- Cover Page -->
+      <div class="report-page">
+        ${generateCoverPage({
+          reportId: "12345",
+          assessmentDate: new Date().toLocaleDateString(),
+          patientName: "John Doe",
+          age: 30,
+          gender: "Male",
+          referringPhysician: "Dr. Smith",
+        })}</div>
+
+
+
       <!-- Assessment Pages -->
       ${orderReportData(reportData)
         .map(

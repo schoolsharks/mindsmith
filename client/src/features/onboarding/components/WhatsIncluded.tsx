@@ -2,7 +2,9 @@ import { Box, Stack, Typography } from "@mui/material";
 import Page from "../../../components/layout/Page";
 import BgDiamonds from "../../../components/ui/BgDiamonds/BgDiamonds";
 import { positions1 } from "../../../components/ui/BgDiamonds/diamondsPositions";
-import cloudGraphic1 from "../../../assets/images/cloud-graphic-1.webp";
+// import cloudGraphic1 from "../../../assets/images/cloud-graphic-1.webp";
+import brainGraphic1 from "../../../assets/images/brain-graphic-1.webp";
+
 import BottomElement from "../../../components/ui/BottomElement";
 import OutlinedButton from "../../../components/ui/OutlinedButton";
 
@@ -21,8 +23,8 @@ const WhatsIncluded: React.FC<WhatsIncludedProps> = ({ handleNextPage }) => {
       <BgDiamonds positions={positions1} animation />
       <Box
         component="img"
-        src={cloudGraphic1}
-        width={"143px"}
+        src={brainGraphic1}
+        width={"90px"}
         marginTop={"40px"}
         position={"relative"}
       />

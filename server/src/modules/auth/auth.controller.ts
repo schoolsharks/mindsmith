@@ -74,21 +74,6 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
-    // After creating/updating user, generate token
-    const accessToken = jwt.sign(
-      { id: user._id, role: "USER" },
-      process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "1d" }
-    );
-
-    // Set cookie with token
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "developement",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
-
     res.status(httpStatus.CREATED).json({
       message: "User registered successfully",
       user: {
@@ -98,7 +83,6 @@ export const register = async (req: Request, res: Response) => {
         contact: user.contact,
         paymentStatus: user.paymentStatus,
       },
-      accessToken, // Also send token in response if needed
     });
   } catch (error: any) {
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
@@ -147,6 +131,7 @@ export const login = async (req: Request, res: Response) => {
         email: user.email,
         contact: user.contact,
         paymentStatus: user.paymentStatus,
+        quizProgress: user.quizProgress,
       },
       accessToken,
     });
