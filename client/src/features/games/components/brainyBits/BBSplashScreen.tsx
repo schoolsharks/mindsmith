@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import Page from "../../../../components/layout/Page";
-import mainGraphic from "../../../../assets/images/gameIntroScreenGraphics/brainyBits/main-graphic.webp";
+// import mainGraphic from "../../../../assets/images/gameIntroScreenGraphics/brainyBits/main-graphic.webp";
+import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/brainyBits/main-animation.webm";
 import { useEffect } from "react";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 
@@ -14,17 +15,39 @@ const BBSplashScreen = () => {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <Page sx={{ padding: "36px" }}>
+    <Page sx={{ padding: "36px", overflow: "hidden" }}>
       <Typography
         fontSize={"30px"}
         fontWeight={"600"}
         lineHeight={"35px"}
         marginTop={"40px"}
+        position={"relative"}
+        zIndex={3}
       >
         Gratitude
       </Typography>
-      <Box component={"img"} src={mainGraphic} width={"100%"} m={"40px auto"}/>
-      <Typography fontSize={"20px"} fontWeight={"500"} marginTop={"8px"}>
+      <Box
+        component={"video"}
+        src={mainAnimation}
+        autoPlay
+        muted
+        sx={{
+          position: "absolute",
+          left: "0",
+          top: "0",
+          width: "100%",
+          height: "100%",
+          zIndex: 2,
+        }}
+      />
+      <Typography
+        fontSize={"20px"}
+        fontWeight={"500"}
+        // marginTop={"8px"}
+        position={"relative"}
+        zIndex={3}
+        marginTop="400px"
+      >
         Even when it’s hard, be grateful for every moment of your life.
       </Typography>
     </Page>

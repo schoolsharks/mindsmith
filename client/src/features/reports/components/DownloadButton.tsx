@@ -2,10 +2,14 @@ import { useState } from "react";
 import { generateReportHTML } from "../reportGenerator";
 import { reportsApi } from "../../../services/api/reportsApi";
 import ContainedButton from "../../../components/ui/ContainedTextInput";
+import { RootState } from "../../../app/store";
+import { useSelector } from "react-redux";
 
 const DownloadButton = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const quizProgress = user?.quizProgress;
 
   const handleLoadDataAndDownload = async () => {
     setIsLoading(true);
@@ -45,8 +49,8 @@ const DownloadButton = () => {
   return (
     <ContainedButton
       onClick={handleLoadDataAndDownload}
-      disabled={isLoading || isGenerating}
-      sx={{py:1}}
+      disabled={isLoading || isGenerating || !quizProgress?.completed}
+      sx={{ py: 1 }}
     >
       {isLoading
         ? "Loading Data..."

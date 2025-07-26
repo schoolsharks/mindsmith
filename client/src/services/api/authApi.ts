@@ -18,6 +18,10 @@ export interface AuthResponse {
     email: string;
     contact: string;
     paymentStatus: string;
+    quizProgress: {
+      currentSection: number;
+      completed: boolean;
+    };
   };
   accessToken: string;
 }

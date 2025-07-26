@@ -1,14 +1,22 @@
 // import { generateCoverPage } from "./pageGenerators/coverPage.js";
-import { orderReportData, generateAssessmentPageBySection } from "./pageGenerators/assessmentPage.js";
+import {
+  orderReportData,
+  generateAssessmentPageBySection,
+} from "./pageGenerators/assessmentPage.js";
 
-
-interface ReportPage{
-  section: string;    // Section name
-  title: string;      // Subsection title (empty for Life Stress Assessment)
-  totalScore: number; // Calculated score
+export interface ReportPage {
+  section: string;
+  title: string;
+  totalScore: number;
+  pageName?: string;
+  assessmentOverview: string;
+  clinicalInterpretation: string;
+  considerations: string[];
+  recommendations: string[];
+  _id?: string;
 }
 // Main HTML generation function
-export const generateReportHTML = (reportData:ReportPage[]) => {
+export const generateReportHTML = (reportData: ReportPage[]) => {
   return `
     <!DOCTYPE html>
     <html>
@@ -77,8 +85,9 @@ export const generateReportHTML = (reportData:ReportPage[]) => {
       
       <!-- Assessment Pages -->
       ${orderReportData(reportData)
-        .map((report: ReportPage, index: number) =>
-          `<div class="report-page">
+        .map(
+          (report: ReportPage, index: number) =>
+            `<div class="report-page">
             ${generateAssessmentPageBySection(report, index + 1)}
           </div>`
         )

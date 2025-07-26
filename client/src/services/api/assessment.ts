@@ -1,5 +1,7 @@
 // assessment.ts
 import axios from "axios";
+import { store } from "../../app/store";
+import { updateQuizProgress } from "../../features/auth/authSlice";
 
 export const fetchSectionQuestions = async (sectionId: string) => {
   try {
@@ -26,6 +28,15 @@ export const submitQuestionResponse = async (
       data,
       { withCredentials: true }
     );
+    
+    // Check if the response includes progress updates
+    if (response.data.progressUpdated) {
+      store.dispatch(updateQuizProgress({
+        currentSection: response.data.nextSection,
+        completed: response.data.quizCompleted
+      }));
+    }
+    
     return response.data;
   } catch (error) {
     console.error("Error submitting response:", error);

@@ -10,32 +10,36 @@ export const generateLinearChart = (
   totalScore: number,
   percentageScore: number,
   status: string,
-  sections: ChartSection[]
+  sections: ChartSection[],
+  statusColor: string
 ): string => {
-const chartWidth: number = 600;
+  const chartWidth: number = 600;
   const chartHeight = 40;
 
-  // Gradient construction
-  const gradientStops = sections.map((s, i) => {
-    const start = sections.slice(0, i).reduce((acc, val) => acc + val.percentage, 0);
-    return `${s.color} ${start}%, ${s.color} ${start + s.percentage}%`;
-  }).join(', ');
+  // Gradient construction - create smooth color transitions
+  // const gradientStops = sections.map((s, i) => {
+  //   const position = sections.slice(0, i + 1).reduce((acc, val) => acc + val.percentage, 0);
+  //   return `${s.color} ${position}%`;
+  // }).join(', ');
+
+  const gradientStops = sections.map((s) => s.color).join(", ");
 
   const indicatorPosition = (percentageScore / 100) * chartWidth;
 
   return `
-    <div style="margin: 24px 0; width: 100%; font-family: sans-serif;">
+    <div style="margin: 0 0 24px; width: 100%; font-family: sans-serif;">
       <!-- Score Summary -->
-      <div style="background-color: #e0e7ff; padding: 12px 20px; border-radius: 8px; text-align: center; margin-bottom: 16px;">
-        <div style="font-size: 1.125rem; font-weight: 600; color: #1f2937;">Raw score - ${currentScore}/${totalScore} points</div>
-        <div style="font-size: 1rem; color: #1f2937;">Percentage score - ${percentageScore}%</div>
-      </div>
 
-      <!-- Status Badge -->
-      <div style="text-align: center; margin-bottom: 16px;">
-        <span style="display: inline-block; background-color: #c7d2fe; padding: 6px 20px; border-radius: 9999px; font-weight: 600; color: #1f2937;">${status}</span>
+      <div style="display:flex; justify-content:space-between;align-items: center; margin-bottom: 16px;">
+        <div>
+          <div style="font-size: 18px; font-weight: 500;">Raw score - ${currentScore}/${totalScore} points</div>
+          <div style="font-size: 18px;">Percentage score - ${percentageScore}%</div>
+        </div>
+        <div style="text-align: center; margin-bottom: 16px;">
+        <span style="display: inline-block; font-size:25px;font-weight:600; background-color: ${statusColor}; padding: 6px 40px; border-radius: 5px;">${status}</span>
       </div>
-
+      </div>
+      
       <!-- Chart Area -->
       <div style="position: relative; width: ${chartWidth}px; margin: 0 auto;">
         <!-- Gradient Bar -->
@@ -65,10 +69,13 @@ const chartWidth: number = 600;
           margin-top: 6px;
           height: 16px;
         ">
-          ${sections.map((section, index) => {
-            const left = sections.slice(0, index).reduce((sum, s) => sum + s.percentage, 0);
-            const width = section.percentage;
-            return `
+          ${sections
+            .map((section, index) => {
+              const left = sections
+                .slice(0, index)
+                .reduce((sum, s) => sum + s.percentage, 0);
+              const width = section.percentage;
+              return `
               <div style="
                 position: absolute;
                 left: ${(left / 100) * chartWidth}px;
@@ -78,7 +85,8 @@ const chartWidth: number = 600;
                 ${section.range}
               </div>
             `;
-          }).join('')}
+            })
+            .join("")}
         </div>
 
         <!-- Labels Below -->
@@ -89,10 +97,13 @@ const chartWidth: number = 600;
           margin-top: 20px;
           height: 16px;
         ">
-          ${sections.map((section, index) => {
-            const left = sections.slice(0, index).reduce((sum, s) => sum + s.percentage, 0);
-            const width = section.percentage;
-            return `
+          ${sections
+            .map((section, index) => {
+              const left = sections
+                .slice(0, index)
+                .reduce((sum, s) => sum + s.percentage, 0);
+              const width = section.percentage;
+              return `
               <div style="
                 position: absolute;
                 left: ${(left / 100) * chartWidth}px;
@@ -103,7 +114,8 @@ const chartWidth: number = 600;
                 ${section.label}
               </div>
             `;
-          }).join('')}
+            })
+            .join("")}
         </div>
       </div>
     </div>

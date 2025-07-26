@@ -4,12 +4,66 @@ import { Subsection } from "./models/subsection.model";
 import { Question } from "./models/question.model";
 import { Response as UserResponse } from "./models/response.model";
 import mongoose from "mongoose";
+import { reportData } from "./data/reportData";
 
 interface ReportPage {
   section: string;
   title: string;
   totalScore: number;
+  pageName?: string;
+  assessmentOverview?: string;
+  clinicalInterpretation?: string;
+  considerations?: string[];
+  recommendations?: string[];
 }
+
+// Helper function to find report data by page name
+const findReportDataByPageName = (pageName: string) => {
+  if (!pageName) return null;
+  
+  return reportData.find(data => {
+    const dataPageName = data.pageName.toLowerCase();
+    const searchName = pageName.toLowerCase();
+    
+    // Exact match
+    if (dataPageName === searchName) return true;
+    
+    // Check if one contains the other
+    if (dataPageName.includes(searchName) || searchName.includes(dataPageName)) return true;
+    
+    // Special case mappings for common variations
+    const mappings: { [key: string]: string } = {
+      'life stress assessment': 'life event stress scale analysis',
+      'life event stress scale analysis': 'life stress assessment'
+    };
+    
+    if (mappings[searchName] && dataPageName === mappings[searchName]) return true;
+    
+    return false;
+  });
+};
+
+// Helper function to merge report data with page
+const mergeReportData = (page: ReportPage): ReportPage => {
+  // For the first page (Life Stress Assessment), use section name
+  const searchName = page.section === "Life Stress Assessment" ? page.section : page.title;
+  
+  // Find matching report data
+  const matchingReportData = findReportDataByPageName(searchName);
+  
+  if (matchingReportData) {
+    return {
+      ...page,
+      pageName: matchingReportData.pageName,
+      assessmentOverview: matchingReportData.assessmentOverview,
+      clinicalInterpretation: matchingReportData.clinicalInterpretation,
+      considerations: matchingReportData.considerations,
+      recommendations: matchingReportData.recommendations
+    };
+  }
+  
+  return page;
+};
 
 export const generateReportController = async (req: Request, res: Response) => {
   try {
@@ -25,15 +79,18 @@ export const generateReportController = async (req: Request, res: Response) => {
         section: lifeStressSection._id
       });
 
-      pages.push({
+      const lifeStressPage: ReportPage = {
         section: "Life Stress Assessment",
         title: "",
         totalScore: lifeStressResponse?.totalScore || 0
-      });
+      };
+
+      // Merge with report data and add to pages
+      pages.push(mergeReportData(lifeStressPage));
     }
 
     // Aggregation pipeline for all other sections and subsections
-    const reportData = await Section.aggregate([
+    const aggregatedData = await Section.aggregate([
       // Match all sections except Life Stress Assessment
       {
         $match: {
@@ -139,8 +196,9 @@ export const generateReportController = async (req: Request, res: Response) => {
       }
     ]);
 
-    // Add the aggregated data to pages
-    pages.push(...reportData);
+    // Add the aggregated data to pages with merged report data
+    const enrichedAggregatedData = aggregatedData.map((page: any) => mergeReportData(page));
+    pages.push(...enrichedAggregatedData);
 
     res.status(200).json({
       success: true,

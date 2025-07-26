@@ -19,9 +19,10 @@ const Home = () => {
       >
         No pressure — just notice what’s going on inside.
       </Typography>
-      <Box marginTop={"20px"} flex={1}>
+      <Box margin={"20px 0"} flex={1}>
         <AllGames />
       </Box>
+
       <DownloadButton />
     </Page>
   );

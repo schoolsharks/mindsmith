@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import Page from "../../../../components/layout/Page";
-import mainGraphic from "../../../../assets/images/gameIntroScreenGraphics/feelYourFeeling/main-graphic.webp";
+// import mainGraphic from "../../../../assets/images/gameIntroScreenGraphics/feelYourFeeling/main-graphic.webp";
+import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/feelYourFeeling/main-animation.webm";
 import { useEffect } from "react";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 
@@ -14,8 +15,16 @@ const FYFSplashScreen = () => {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <Page>
-      <Box component={"img"} src={mainGraphic} width={"100%"} />
+    <Page sx={{ overflow: "hidden" }}>
+      {/* <Box component={"img"} src={mainGraphic} width={"100%"} /> */}
+      <Box
+        component={"video"}
+        src={mainAnimation}
+        autoPlay
+        muted
+        width={"100%"}
+        height={"100%"}
+      />
     </Page>
   );
 };

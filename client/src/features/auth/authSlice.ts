@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { authApi, AuthResponse } from '../../services/api/authApi';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { authApi, AuthResponse } from "../../services/api/authApi";
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -9,6 +9,10 @@ export interface AuthState {
     email: string;
     contact: string;
     paymentStatus: string;
+    quizProgress: {
+      currentSection: number;
+      completed: boolean;
+    };
   } | null;
   accessToken: string | null;
   loading: boolean;
@@ -25,45 +29,52 @@ const initialState: AuthState = {
 
 // Async thunk for fetching user
 export const fetchUser = createAsyncThunk(
-  'auth/fetchUser',
+  "auth/fetchUser",
   async (_, { rejectWithValue }) => {
     try {
       const response = await authApi.fetchUser();
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch user');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user"
+      );
     }
   }
 );
 
 // Async thunk for login
 export const loginUser = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async (loginData: { email: string }, { rejectWithValue }) => {
     try {
       const response = await authApi.login(loginData);
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }
 );
 
 // Async thunk for register
 export const registerUser = createAsyncThunk(
-  'auth/register',
-  async (registerData: { name: string; email: string; contact: string }, { rejectWithValue }) => {
+  "auth/register",
+  async (
+    registerData: { name: string; email: string; contact: string },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await authApi.register(registerData);
       return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Registration failed');
+      return rejectWithValue(
+        error.response?.data?.message || "Registration failed"
+      );
     }
   }
 );
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setAuthenticated: (state, action: PayloadAction<boolean>) => {
@@ -78,6 +89,11 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    updateQuizProgress: (state, action: PayloadAction<{ currentSection: number; completed: boolean }>) => {
+      if (state.user) {
+        state.user.quizProgress = action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -86,13 +102,16 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchUser.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
-        state.loading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-        state.error = null;
-      })
+      .addCase(
+        fetchUser.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.loading = false;
+          state.isAuthenticated = true;
+          state.user = action.payload.user;
+          state.accessToken = action.payload.accessToken;
+          state.error = null;
+        }
+      )
       .addCase(fetchUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
@@ -103,13 +122,16 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
-        state.loading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-        state.error = null;
-      })
+      .addCase(
+        loginUser.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.loading = false;
+          state.isAuthenticated = true;
+          state.user = action.payload.user;
+          state.accessToken = action.payload.accessToken;
+          state.error = null;
+        }
+      )
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
@@ -119,13 +141,16 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action: PayloadAction<AuthResponse>) => {
-        state.loading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-        state.error = null;
-      })
+      .addCase(
+        registerUser.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.loading = false;
+          state.isAuthenticated = true;
+          state.user = action.payload.user;
+          state.accessToken = action.payload.accessToken;
+          state.error = null;
+        }
+      )
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
@@ -133,5 +158,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setAuthenticated, logout, clearError } = authSlice.actions;
+export const { setAuthenticated, logout, clearError, updateQuizProgress } = authSlice.actions;
 export default authSlice.reducer;

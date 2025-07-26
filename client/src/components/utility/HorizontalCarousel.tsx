@@ -18,6 +18,7 @@ interface HorizontalCarouselProps {
   autoplaySpeed?: number;
   speed?: number;
   handleCardChange: () => void;
+  disableTouch?: boolean;
 }
 
 export interface HorizontalCarouselRef {
@@ -41,6 +42,7 @@ const HorizontalCarousel = forwardRef<
       autoplaySpeed = 3000,
       speed = 500,
       handleCardChange,
+      disableTouch = false,
     },
     ref
   ) => {
@@ -140,6 +142,7 @@ const HorizontalCarousel = forwardRef<
 
     // Swipe/touch handlers
     const handleTouchStart = (e: React.TouchEvent) => {
+      if (disableTouch) return;
       setTouchEnd(null);
       setTouchStart(e.targetTouches[0].clientX);
       setStartTime(Date.now());
@@ -152,13 +155,14 @@ const HorizontalCarousel = forwardRef<
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
-      if (!isDragging) return;
+      if (disableTouch || !isDragging) return;
       setTouchEnd(e.targetTouches[0].clientX);
       // Prevent default scrolling behavior
       e.preventDefault();
     };
 
     const handleTouchEnd = () => {
+      if (disableTouch) return;
       if (!touchStart || !touchEnd || !isDragging || !startTime) {
         setIsDragging(false);
         setStartTime(null);
@@ -203,6 +207,7 @@ const HorizontalCarousel = forwardRef<
 
     // Mouse drag handlers (for desktop)
     const handleMouseDown = (e: React.MouseEvent) => {
+      if (disableTouch) return;
       setTouchEnd(null);
       setTouchStart(e.clientX);
       setStartTime(Date.now());
@@ -218,11 +223,12 @@ const HorizontalCarousel = forwardRef<
     };
 
     const handleMouseMove = (e: React.MouseEvent) => {
-      if (!isDragging) return;
+      if (disableTouch || !isDragging) return;
       setTouchEnd(e.clientX);
     };
 
     const handleMouseUp = () => {
+      if (disableTouch) return;
       if (!touchStart || !touchEnd || !isDragging || !startTime) {
         setIsDragging(false);
         setStartTime(null);
@@ -320,21 +326,21 @@ const HorizontalCarousel = forwardRef<
           alignItems: "center",
           justifyContent: "center",
           userSelect: "none", // Prevent text selection during drag
-          cursor: isDragging ? "grabbing" : "grab",
-          touchAction: "pan-y", // Allow vertical scrolling but handle horizontal
+          cursor: disableTouch ? "default" : (isDragging ? "grabbing" : "grab"),
+          touchAction: disableTouch ? "auto" : "pan-y", // Allow vertical scrolling but handle horizontal
           ...containerStyle,
         }}
         onMouseEnter={handleMouseEnter}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onTouchStart={disableTouch ? undefined : handleTouchStart}
+        onTouchMove={disableTouch ? undefined : handleTouchMove}
+        onTouchEnd={disableTouch ? undefined : handleTouchEnd}
+        onMouseDown={disableTouch ? undefined : handleMouseDown}
+        onMouseMove={disableTouch ? undefined : handleMouseMove}
+        onMouseUp={disableTouch ? undefined : handleMouseUp}
         onMouseLeave={() => {
           handleMouseLeave();
           // Also handle mouse up when leaving the component
-          if (isDragging) {
+          if (isDragging && !disableTouch) {
             handleMouseUp();
           }
         }}

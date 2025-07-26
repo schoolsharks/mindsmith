@@ -45,6 +45,33 @@ const WLBLGameLayout = () => {
     }
   }, [searchParams]);
 
+  // Set initial index to first unanswered question or last question if all answered
+  useEffect(() => {
+    const questionIndex = searchParams.get("question");
+    
+    // Only set initial index if no query parameter and we have questions and answers
+    if (!questionIndex && questions.length > 0) {
+      // Find first unanswered question
+      let firstUnansweredIndex = -1;
+      for (let i = 0; i < questions.length; i++) {
+        if (!answers[questions[i]._id]) {
+          firstUnansweredIndex = i;
+          break;
+        }
+      }
+      
+      // If all questions are answered, go to last question, otherwise go to first unanswered
+      const targetIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : questions.length - 1;
+      
+      if (targetIndex !== currentIndex) {
+        setCurrentIndex(targetIndex);
+        setTimeout(() => {
+          carouselRef.current?.goToSlide(targetIndex);
+        }, 100);
+      }
+    }
+  }, [questions, answers, searchParams, currentIndex]);
+
   // Update URL when index changes
   useEffect(() => {
     if (questions.length > 0) {
@@ -190,6 +217,12 @@ const WLBLGameLayout = () => {
     }, 0);
   };
 
+  // Function to check if current question is answered
+  const isCurrentQuestionAnswered = () => {
+    const currentQuestionId = questions[currentIndex]?._id;
+    return !!answers[currentQuestionId];
+  };
+
   // Show loading spinner with submission status
   if (isLoading) return <div>Loading questions...</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -231,6 +264,7 @@ const WLBLGameLayout = () => {
         <HorizontalCarousel
           ref={carouselRef}
           handleCardChange={handleCardChange}
+          disableTouch={!isCurrentQuestionAnswered()}
           cardStyle={{
             border: `2px solid ${game?.theme.primary.main}`,
             bgcolor: game?.theme.secondary.main,

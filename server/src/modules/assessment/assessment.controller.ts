@@ -3,6 +3,7 @@ import { Section } from "./models/section.model";
 import { Subsection } from "./models/subsection.model";
 import { Question } from "./models/question.model";
 import { Response as UserResponse } from "./models/response.model";
+import { User } from "../user/user.model";
 import { calculateScores } from "./assessment.service";
 
 export const getAssessmentStructure = async (req: Request, res: Response) => {
@@ -120,6 +121,46 @@ export const submitResponse = async (req: Request, res: Response) => {
         totalScore: score,
         completedAt: new Date(),
       });
+    }
+
+    // Check if current section is complete by comparing answered questions with total questions
+    const subsections = await Subsection.find({ section: section._id });
+    const totalQuestions = await Question.countDocuments({
+      subsection: { $in: subsections.map((s) => s._id) },
+    });
+
+    const isCurrentSectionComplete = userResponse.answers.length === totalQuestions;
+
+    // If current section is complete, update user's quiz progress
+    if (isCurrentSectionComplete) {
+      const user = await User.findById(userId);
+      if (user && user.quizProgress) {
+        const currentSection = user.quizProgress.currentSection || 0;
+        const nextSection = currentSection + 1;
+        const totalSections = 4; // Based on the 4 games/sections available
+
+        // Update quiz progress
+        if (nextSection >= totalSections) {
+          // All sections completed
+          user.quizProgress.completed = true;
+          user.quizProgress.currentSection = totalSections - 1; // Keep at last section
+        } else {
+          // Move to next section
+          user.quizProgress.currentSection = nextSection;
+        }
+
+        await user.save();
+
+        // Include progress update in response
+        res.status(201).json({
+          ...userResponse.toObject(),
+          progressUpdated: true,
+          sectionComplete: true,
+          quizCompleted: user.quizProgress.completed,
+          nextSection: user.quizProgress.currentSection,
+        });
+        return;
+      }
     }
 
     res.status(201).json(userResponse);

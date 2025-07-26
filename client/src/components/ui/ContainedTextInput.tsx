@@ -23,6 +23,10 @@ const ContainedButton: React.FC<ContainedButtonProps> = ({
         textTransform: "none",
         padding: "2px 12px",
         boxShadow: "none",
+        "&:disabled": {
+          backgroundColor: "#E0E0E0",
+          color: "#B0B0B0",
+        },
         ...sx,
       }}
       onClick={onClick}

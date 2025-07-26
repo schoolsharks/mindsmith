@@ -128,7 +128,7 @@ export const login = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { id: user._id, role: "USER" },
       process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "1d" }
+      { expiresIn: "7d" }
     );
 
     // Set cookie with token
@@ -151,7 +151,6 @@ export const login = async (req: Request, res: Response) => {
       accessToken,
     });
   } catch (error: any) {
-
     console.error("Login error:", error);
     res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       message: "Error logging in user",
@@ -159,8 +158,6 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 };
-
-
 
 export const fetchUser = async (req: Request, res: Response) => {
   try {
@@ -187,6 +184,7 @@ export const fetchUser = async (req: Request, res: Response) => {
         email: user.email,
         contact: user.contact,
         paymentStatus: user.paymentStatus,
+        quizProgress: user.quizProgress,
       },
     });
   } catch (error: any) {
@@ -196,4 +194,4 @@ export const fetchUser = async (req: Request, res: Response) => {
       error: error.message,
     });
   }
-}
+};

@@ -10,10 +10,11 @@ export const generateDonutChart = (
   totalScore: number,
   status: string,
   statusColor: string,
-  sections: ChartSection[]
+  sections: ChartSection[],
+  mode: "score" | "percentage" = "score"
 ): string => {
-  const radius = 100;
-  const innerRadius = 50;
+  const radius = 110;
+  const innerRadius = 70;
   let cumulativePercentage = 0;
 
   const generatePath = (section: ChartSection): string => {
@@ -60,16 +61,23 @@ export const generateDonutChart = (
         
         <!-- Center content -->
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-          <div style="font-size: 2.5rem; font-weight: bold; color: #000; line-height: 1;">${currentScore}</div>
-          <div style="font-size: 1rem; color: #000; margin: 4px 0; font-weight: normal;">───</div>
-          <div style="font-size: 2rem; font-weight: bold; color: #000; line-height: 1;">${totalScore}</div>
+        ${
+          mode === "score"
+            ? `<div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${currentScore}</div>
+          <div style="font-size: 16px; color: #000; font-weight: normal;">─────</div>
+          <div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${totalScore}</div>`
+            : `<div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${
+                (currentScore * 100) / totalScore
+              }%</div>`
+        }
         </div>
+      
         
         <!-- Status badge -->
-        <div style="position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); 
+        <div style="position: absolute; bottom: -17px; left: 50%; transform: translateX(-50%); 
                     background-color: ${statusColor}; padding: 8px 16px; border-radius: 20px; 
                     border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-          <span style="font-weight: 600; color: #000; font-size: 0.875rem;">${status}</span>
+          <span style="font-weight: 700; color: #000; font-size: 28px;">${status}</span>
         </div>
       </div>
     </div>
