@@ -3,7 +3,9 @@ import Page from "../../components/layout/Page";
 import BgDiamonds from "../../components/ui/BgDiamonds/BgDiamonds";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import cloudGraphic from "../../assets/images/cloud-graphic-3.webp";
+// import cloudGraphic from "../../assets/images/cloud-graphic-3.webp";
+import brainGraphic from "../../assets/images/brain-graphic-2.webp";
+
 
 const DoYouKnow = () => {
   const navigate = useNavigate();
@@ -11,8 +13,8 @@ const DoYouKnow = () => {
     <Page sx={{ padding: "30px" }}>
       <BgDiamonds positions={[]} animation />
       <Box
-        bgcolor={"#FFC5C31F"}
-        border={"3px solid #FF8789"}
+        bgcolor={"#8DD1FF5C"}
+        border={"3px solid #18C4E7"}
         borderRadius={"10px"}
         padding={"20px"}
         marginTop={"130px"}
@@ -32,7 +34,7 @@ const DoYouKnow = () => {
       </Box>
       <Box
         component={"img"}
-        src={cloudGraphic}
+        src={brainGraphic}
         width={"140px"}
         marginLeft={"auto"}
         marginTop={"10px"}

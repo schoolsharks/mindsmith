@@ -5,6 +5,7 @@ import { Question } from "./models/question.model";
 import { Response as UserResponse } from "./models/response.model";
 import mongoose from "mongoose";
 import { reportData } from "./data/reportData";
+import { User } from "../user/user.model";
 
 interface ReportPage {
   section: string;
@@ -69,6 +70,16 @@ export const generateReportController = async (req: Request, res: Response) => {
   try {
     const userId = req.user.id;
     const pages: ReportPage[] = [];
+
+    // Fetch user information
+    const user = await User.findById(userId).select('_id name createdAt');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
 
     // First page: Life Stress Assessment
     const lifeStressSection = await Section.findOne({ name: "Life Stress Assessment" });
@@ -202,7 +213,12 @@ export const generateReportController = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      data: pages
+      data: pages,
+      userInfo: {
+        _id: user._id,
+        name: user.name,
+        createdAt: user.createdAt
+      }
     });
 
   } catch (error) {

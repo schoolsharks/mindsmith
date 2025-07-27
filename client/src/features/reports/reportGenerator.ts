@@ -1,4 +1,5 @@
 // import { generateCoverPage } from "./pageGenerators/coverPage.js";
+import { generateAllSectionsOverviewPage } from "./pageGenerators/allSectionsOverview.js";
 import {
   orderReportData,
   generateAssessmentPageBySection,
@@ -16,8 +17,17 @@ export interface ReportPage {
   recommendations: string[];
   _id?: string;
 }
+
+export interface UserInfo {
+  _id: string;
+  name: string;
+  createdAt: string;
+}
 // Main HTML generation function
-export const generateReportHTML = (reportData: ReportPage[]) => {
+export const generateReportHTML = (
+  reportData: ReportPage[],
+  userInfo: UserInfo
+) => {
   return `
     <!DOCTYPE html>
     <html>
@@ -87,22 +97,34 @@ export const generateReportHTML = (reportData: ReportPage[]) => {
       <!-- Cover Page -->
       <div class="report-page">
         ${generateCoverPage({
-          reportId: "12345",
-          assessmentDate: new Date().toLocaleDateString(),
-          patientName: "John Doe",
+          reportId: userInfo._id,
+          assessmentDate: new Date(userInfo.createdAt).toLocaleDateString(),
+          patientName: userInfo.name,
           age: 30,
           gender: "Male",
           referringPhysician: "Dr. Smith",
         })}</div>
+      
 
+      <!-- Life Stress Assessment Page-->
+      <div class="report-page">
+        ${generateAssessmentPageBySection(orderReportData(reportData)[0], 1)}
+      </div>
+
+
+      <!-- All Sections Overview Page -->
+      <div class="report-page">
+        ${generateAllSectionsOverviewPage(reportData.slice(1))}
+      </div>
 
 
       <!-- Assessment Pages -->
       ${orderReportData(reportData)
+        .slice(1)
         .map(
           (report: ReportPage, index: number) =>
             `<div class="report-page">
-            ${generateAssessmentPageBySection(report, index + 1)}
+            ${generateAssessmentPageBySection(report, index + 2)}
           </div>`
         )
         .join("")}

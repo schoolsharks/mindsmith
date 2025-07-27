@@ -1,4 +1,5 @@
 import mindsmithLogo from "../../../assets/images/mindsmith-logo.webp";
+import bgGraphic from "../../../assets/images/report-cover-bg-graphic.webp"
 interface BrainHealthReportParams {
   reportId: string;
   assessmentDate: string;
@@ -28,7 +29,8 @@ export const generateCoverPage = (params: BrainHealthReportParams): string => {
         </div>
         
         <!-- Content Column -->
-        <div style="flex: 1; padding: 40px; display: flex; flex-direction: column;">
+        <div style="flex: 1; padding: 40px; display: flex; flex-direction: column; position:relative;">
+            <img src="${bgGraphic}" style="position:absolute; bottom:0; left:0; width:100%;"/>
             <!-- Title Section -->
             <div style="margin-bottom: 60px;">
                 <h1 style="font-size: 32px; font-weight: bold; color: #333; margin: 0 0 5px 0;">Brain Health Profile</h1>
@@ -49,7 +51,7 @@ export const generateCoverPage = (params: BrainHealthReportParams): string => {
                     <span style="font-weight: bold; color: #333; width: 180px; flex-shrink: 0;">Patient's Name:</span>
                     <span style="color: #333;">${patientName}</span>
                 </div>
-                <div style="display: flex; margin-bottom: 12px; font-size: 16px;">
+               <!-- <div style="display: flex; margin-bottom: 12px; font-size: 16px;">
                     <span style="font-weight: bold; color: #333; width: 180px; flex-shrink: 0;">Age:</span>
                     <span style="color: #333;">${age}</span>
                 </div>
@@ -61,6 +63,7 @@ export const generateCoverPage = (params: BrainHealthReportParams): string => {
                     <span style="font-weight: bold; color: #333; width: 180px; flex-shrink: 0;">Referring Physician:</span>
                     <span style="color: #333;">${referringPhysician}</span>
                 </div>
+                -->
             </div>
             
             <!-- Assessment Overview Section -->

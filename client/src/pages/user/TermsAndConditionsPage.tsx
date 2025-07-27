@@ -14,8 +14,8 @@ const TermsAndConditions = () => {
         padding={"24px"}
         margin={"0 20px"}
         position={"relative"}
-        border={"1px solid #000000"}
-        bgcolor={"#FFC5C31F"}
+        border={"3px solid #18C4E7"}
+        bgcolor={"#8DD1FF54"}
         borderRadius={"10px"}
       >
         <Stack direction={"row"} justifyContent={"flex-end"}>

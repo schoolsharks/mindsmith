@@ -20,7 +20,7 @@ const DownloadButton = () => {
       setIsGenerating(true);
 
       const printWindow = window.open("", "_blank");
-      const htmlContent = generateReportHTML(data.data);
+      const htmlContent = generateReportHTML(data.data,data.userInfo);
 
       if (printWindow) {
         printWindow.document.write(htmlContent);
