@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Section } from "./models/section.model";
 import { Subsection } from "./models/subsection.model";
 import { Question } from "./models/question.model";
@@ -75,10 +75,11 @@ export const generateReportController = async (req: Request, res: Response) => {
     const user = await User.findById(userId).select('_id name createdAt');
     
     if (!user) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "User not found"
       });
+      return;
     }
 
     // First page: Life Stress Assessment
