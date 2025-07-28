@@ -246,6 +246,8 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
               fontSize: "10px",
               color: currentIndex === index ? "#1976d2" : "#666",
               cursor: "pointer",
+              flex:1,
+              textAlign: "center",
               transition: "color 0.2s ease",
             }}
             onClick={() => handleLabelClick(index)}

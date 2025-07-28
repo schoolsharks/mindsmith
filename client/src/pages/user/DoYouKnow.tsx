@@ -20,7 +20,7 @@ const DoYouKnow = () => {
         marginTop={"130px"}
       >
         <Stack direction={"row"} justifyContent={"flex-end"}>
-          <IconButton onClick={() => navigate("/user/home")}>
+          <IconButton onClick={() => navigate("/user/home?nextSectionTransition=true")}>
             <X />
           </IconButton>
         </Stack>

@@ -4,11 +4,31 @@ import { ArrowRight } from "lucide-react";
 import useNavigateWithSound from "../../sound/hooks/useNavigateWithSound";
 import { RootState } from "../../../app/store";
 import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const AllGames = () => {
   const navigate = useNavigateWithSound();
   const { user } = useSelector((state: RootState) => state.auth);
   const quizProgress = user?.quizProgress;
+  const [currentSection, setCurrentSection] = useState(0);
+  const [searchParams] = useSearchParams();
+  const nextSectionTransition = searchParams.get("nextSectionTransition");
+  const dottedLineHeights = ["0%", "25%", "55%", "80%"];
+
+  useEffect(() => {
+    if (nextSectionTransition === "true" && quizProgress?.completed===false) {
+      setCurrentSection(Math.max((quizProgress?.currentSection ?? 0) - 1, 0));
+      setTimeout(() => {
+        setCurrentSection(quizProgress?.currentSection ?? 0);
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete("nextSectionTransition");
+        navigate(`/user/home?${newParams.toString()}`, { replace: true });
+      }, 1000);
+    } else {
+      setCurrentSection(quizProgress?.currentSection ?? 0);
+    }
+  }, [nextSectionTransition, quizProgress?.currentSection]);
 
   return (
     <Stack direction={"row"} gap={"40px"} height={"100%"}>
@@ -17,7 +37,8 @@ const AllGames = () => {
           sx={{
             borderRight: "1px dashed black",
             marginTop: "28px",
-            height: "80%",
+            height: dottedLineHeights[currentSection || 0],
+            transition: "all 1s ease",
           }}
         />
       </Box>
@@ -43,7 +64,7 @@ const AllGames = () => {
             </Stack>
             <Stack
               onClick={() =>
-                quizProgress?.currentSection === index &&
+                currentSection === index &&
                 navigate(`/user/games/${game.id}/intro`)
               }
               key={index}
@@ -55,15 +76,13 @@ const AllGames = () => {
                 gap: "20px",
                 position: "relative",
                 boxSizing: "content-box",
-                opacity: quizProgress?.currentSection !== index ? 0.5 : 1,
+                opacity: currentSection !== index ? 0.5 : 1,
+                transition: "all 1s ease",
                 boxShadow:
-                  quizProgress?.currentSection !== index
+                  currentSection !== index
                     ? "none"
                     : "0px 2px 10px rgba(0, 0, 0, 0.108)",
-                cursor:
-                  quizProgress?.currentSection !== index
-                    ? "not-allowed"
-                    : "pointer",
+                cursor: currentSection !== index ? "not-allowed" : "pointer",
               }}
             >
               <Box
