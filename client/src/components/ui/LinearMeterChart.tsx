@@ -26,7 +26,7 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const colors = ["#44aa44", "#ffcc00", "#ff4444"];;
+  const colors = ["#67e285", "#feda6a", "#f96666"];;
 
   const getColorForIndex = (index: number, total: number) => {
     if (total <= colors.length) {

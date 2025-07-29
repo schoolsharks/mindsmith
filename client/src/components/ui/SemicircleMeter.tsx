@@ -22,7 +22,11 @@ const SemicircleMeterChart = ({
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const colors = ["#44aa44", "#ffcc00", "#ff4444"]; //  Green, Yellow, Red
+const colors = [
+  "#69e287",  // Green with 59% opacity (96 in hex = 150/255 ≈ 59%)
+  "#fedf7f",  // Yellow with 60% opacity (99 in hex = 153/255 ≈ 60%)
+  "#f96666"   // Red with 60% opacity (99 in hex = 153/255 ≈ 60%)
+]; //  Green, Yellow, Red
 
   const handleClick = (index: number) => {
     setCurrentIndex(index);
