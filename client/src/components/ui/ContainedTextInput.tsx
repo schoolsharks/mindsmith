@@ -2,7 +2,7 @@ import { Button, SxProps } from "@mui/material";
 import { MouseEvent } from "react";
 
 interface ContainedButtonProps {
-  sx?: SxProps;
+  sx: SxProps;
   disabled?: boolean;
   children?: React.ReactNode;
   onClick?: (e?: MouseEvent<HTMLButtonElement>) => void;
@@ -24,8 +24,9 @@ const ContainedButton: React.FC<ContainedButtonProps> = ({
         padding: "2px 12px",
         boxShadow: "none",
         "&:disabled": {
-          backgroundColor: "#E0E0E0",
-          color: "#B0B0B0",
+          opacity: 0.5,
+          backgroundColor: (sx as any)?.backgroundColor ?? "#E0E0E0",
+          color: (sx as any)?.color ?? "#000000",
         },
         ...sx,
       }}

@@ -17,6 +17,8 @@ import { Question } from "../../../questions/types/questionTypes";
 import VerticalCarousel, {
   VerticalCarouselRef,
 } from "../../../../components/utility/VerticalCarousel";
+import { useDidYouKnow } from "../../../didYouKnow/hooks/useDidYouKnow";
+import DidYouKnowOverlay from "../../../didYouKnow/components/DidYouKnowOverlay";
 
 
 
@@ -38,6 +40,13 @@ const YBBSGameLayout = () => {
   const game = games.find((game) => game.id === "your-best-bouncing-self");
   const navigate = useNavigateWithSound();
   const sectionId = "Resilience & Coping Mechanisms";
+
+  // Did You Know overlay logic
+  const { isOverlayOpen, currentFact, closeOverlay } = useDidYouKnow(
+    "your-best-bouncing-self",
+    questions.length,
+    currentIndex
+  );
 
   // Initialize current index from URL params
   useEffect(() => {
@@ -256,7 +265,7 @@ const YBBSGameLayout = () => {
   };
 
   const handleEnded = () => {
-    navigate("/user/do-you-know", { state: { answers } });
+    navigate("/user/home?nextSectionTransition=true", { state: { answers } });
   };
 
   const handleNext = () => {
@@ -363,7 +372,7 @@ const YBBSGameLayout = () => {
                 <ContainedButton
                   sx={{
                     flex: 1,
-                    bgcolor: game?.theme.primary.main,
+                    backgroundColor: game?.theme.primary.main,
                     padding: "8px 12px",
                     opacity: isSubmitting ? 0.7 : 1,
                   }}
@@ -377,6 +386,13 @@ const YBBSGameLayout = () => {
           ))}
         />
       </Stack>
+
+      {/* Did You Know Overlay */}
+      <DidYouKnowOverlay
+        open={isOverlayOpen}
+        onClose={closeOverlay}
+        fact={currentFact}
+      />
     </Page>
   );
 };

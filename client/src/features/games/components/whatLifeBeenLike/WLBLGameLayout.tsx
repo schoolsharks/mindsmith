@@ -16,7 +16,9 @@ import {
   submitQuestionResponse,
   getUserProgress,
 } from "../../../../services/api/assessment";
-import { Question, } from "../../../questions/types/questionTypes";
+import { Question } from "../../../questions/types/questionTypes";
+import { useDidYouKnow } from "../../../didYouKnow/hooks/useDidYouKnow";
+import DidYouKnowOverlay from "../../../didYouKnow/components/DidYouKnowOverlay";
 
 const WLBLGameLayout = () => {
   const carouselRef = useRef<HorizontalCarouselRef>(null);
@@ -34,6 +36,13 @@ const WLBLGameLayout = () => {
   const navigate = useNavigateWithSound();
   const sectionId = "Life Stress Assessment";
 
+  // Did You Know overlay logic
+  const { isOverlayOpen, currentFact, closeOverlay } = useDidYouKnow(
+    "what-life-been-like",
+    questions.length,
+    currentIndex
+  );
+
   // Initialize current index from URL params
   useEffect(() => {
     const questionIndex = searchParams.get("question");
@@ -48,7 +57,7 @@ const WLBLGameLayout = () => {
   // Set initial index to first unanswered question or last question if all answered
   useEffect(() => {
     const questionIndex = searchParams.get("question");
-    
+
     // Only set initial index if no query parameter and we have questions and answers
     if (!questionIndex && questions.length > 0) {
       // Find first unanswered question
@@ -59,10 +68,13 @@ const WLBLGameLayout = () => {
           break;
         }
       }
-      
+
       // If all questions are answered, go to last question, otherwise go to first unanswered
-      const targetIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : questions.length - 1;
-      
+      const targetIndex =
+        firstUnansweredIndex !== -1
+          ? firstUnansweredIndex
+          : questions.length - 1;
+
       if (targetIndex !== currentIndex) {
         setCurrentIndex(targetIndex);
         setTimeout(() => {
@@ -203,7 +215,7 @@ const WLBLGameLayout = () => {
     }
 
     if (currentIndex === questions.length - 1) {
-      navigate("/user/do-you-know");
+      navigate("/user/home?nextSectionTransition=true");
       return;
     }
 
@@ -280,7 +292,6 @@ const WLBLGameLayout = () => {
                   game={game}
                   selectedOptionIndex={currentAnswer?.optionIndex}
                 />
-
                 <Stack
                   direction={"row"}
                   marginTop={"20px"}
@@ -305,7 +316,7 @@ const WLBLGameLayout = () => {
                   <ContainedButton
                     sx={{
                       flex: 1,
-                      bgcolor: game?.theme.primary.main,
+                      backgroundColor: game?.theme.primary.main,
                       padding: "8px 12px",
                       minWidth: "120px",
                       opacity: isSubmitting ? 0.7 : 1,
@@ -321,6 +332,13 @@ const WLBLGameLayout = () => {
           })}
         />
       </Stack>
+
+      {/* Did You Know Overlay */}
+      <DidYouKnowOverlay
+        open={isOverlayOpen}
+        onClose={closeOverlay}
+        fact={currentFact}
+      />
     </Page>
   );
 };

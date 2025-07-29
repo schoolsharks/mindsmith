@@ -67,7 +67,7 @@ export const generateDonutChart = (
           <div style="font-size: 16px; color: #000; font-weight: normal;">─────</div>
           <div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${totalScore}</div>`
             : `<div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${
-                (currentScore * 100) / totalScore
+                ((currentScore * 100) / totalScore).toFixed(1)
               }%</div>`
         }
         </div>

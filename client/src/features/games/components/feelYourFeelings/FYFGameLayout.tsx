@@ -17,6 +17,8 @@ import { Question } from "../../../questions/types/questionTypes";
 import VerticalCarousel, {
   VerticalCarouselRef,
 } from "../../../../components/utility/VerticalCarousel";
+import { useDidYouKnow } from "../../../didYouKnow/hooks/useDidYouKnow";
+import DidYouKnowOverlay from "../../../didYouKnow/components/DidYouKnowOverlay";
 
 const FYFGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
@@ -33,6 +35,13 @@ const FYFGameLayout = () => {
   const game = games.find((game) => game.id === "feel-your-feelings");
   const navigate = useNavigateWithSound();
   const sectionId = "Mental Health Screening";
+
+  // Did You Know overlay logic
+  const { isOverlayOpen, currentFact, closeOverlay } = useDidYouKnow(
+    "feel-your-feelings",
+    questions.length,
+    currentIndex
+  );
 
 
   useEffect(() => {
@@ -190,7 +199,7 @@ const FYFGameLayout = () => {
   };
 
   const handleEnded = () => {
-    navigate("/user/do-you-know", { state: { answers } });
+    navigate("/user/home?nextSectionTransition=true", { state: { answers } });
   };
 
   const handleNext = () => {
@@ -301,7 +310,7 @@ const FYFGameLayout = () => {
                   </OutlinedButton>
                   <ContainedButton
                     sx={{
-                      bgcolor: game?.theme.secondary.main,
+                     backgroundColor: game?.theme.secondary.main,
                       padding: "3px 30px",
                       opacity: isSubmitting ? 0.7 : 1,
                     }}
@@ -319,6 +328,13 @@ const FYFGameLayout = () => {
           })}
         />
       </Box>
+
+      {/* Did You Know Overlay */}
+      <DidYouKnowOverlay
+        open={isOverlayOpen}
+        onClose={closeOverlay}
+        fact={currentFact}
+      />
     </Page>
   );
 };

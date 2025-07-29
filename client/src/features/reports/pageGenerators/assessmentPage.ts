@@ -4,6 +4,7 @@ import { generateMentalHealthScreeningPage } from "./MentalHealthScreeningPage";
 import { generateBrainHealthBiomarkersPage } from "./BrainHealthBiomarkersPage";
 import { generateResilienceCopingPage } from "./ResilienceCopingPage";
 import { getStatusByScore } from "./utils";
+import {  getTotalScoreByTitle } from "./titleScoreMapping";
 
 export const orderReportData = (reportData: ReportPage[]): ReportPage[] => {
   const sectionOrder = [
@@ -27,7 +28,8 @@ export const orderReportData = (reportData: ReportPage[]): ReportPage[] => {
 
 export const generateAssessmentPageBySection = (
   reportItem: ReportPage,
-  pageNumber: number
+  pageNumber: number,
+  // allReportData: ReportPage[] = []
 ): string => {
   const {
     section,
@@ -46,12 +48,15 @@ export const generateAssessmentPageBySection = (
     recommendations,
   };
 
+  // Calculate dynamic total score for the section
+  const sectionTotalScore = getTotalScoreByTitle(title);
+
   switch (section) {
     case "Life Stress Assessment":
       return generateLifeStressAssessmentPage({
         pageNumber,
         currentScore: totalScore,
-        totalScore: 1813,
+        totalScore: 1813, // This remains fixed as specified
         status: getStatusByScore(totalScore, "stress"),
         ...contentData,
       });
@@ -61,8 +66,8 @@ export const generateAssessmentPageBySection = (
         pageNumber,
         title,
         currentScore: totalScore,
-        totalScore: 25,
-        status: getStatusByScore((totalScore * 100) / 25, "mental"),
+        totalScore: sectionTotalScore,
+        status: getStatusByScore((totalScore * 100) / sectionTotalScore, "mental"),
         ...contentData,
       });
 
@@ -71,8 +76,8 @@ export const generateAssessmentPageBySection = (
         pageNumber,
         title,
         currentScore: totalScore,
-        totalScore: 25,
-        status: getStatusByScore((totalScore * 100) / 25, "brain"),
+        totalScore: sectionTotalScore,
+        status: getStatusByScore((totalScore * 100) / sectionTotalScore, "brain"),
         ...contentData,
       });
 
@@ -81,8 +86,8 @@ export const generateAssessmentPageBySection = (
         pageNumber,
         title,
         currentScore: totalScore,
-        totalScore: 100,
-        status: getStatusByScore((totalScore * 100) / 100, "resilience"),
+        totalScore: sectionTotalScore,
+        status: getStatusByScore((totalScore * 100) / sectionTotalScore, "resilience"),
         ...contentData,
       });
 

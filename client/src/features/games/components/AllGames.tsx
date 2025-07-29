@@ -6,6 +6,8 @@ import { RootState } from "../../../app/store";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import starIcon from "../../../assets/images/star-icon.webp";
+import DownloadButton from "../../reports/components/DownloadButton";
 
 const AllGames = () => {
   const navigate = useNavigateWithSound();
@@ -14,17 +16,21 @@ const AllGames = () => {
   const [currentSection, setCurrentSection] = useState(0);
   const [searchParams] = useSearchParams();
   const nextSectionTransition = searchParams.get("nextSectionTransition");
-  const dottedLineHeights = ["0%", "25%", "55%", "80%"];
+  const dottedLineHeights = ["0%", "25%", "45%", "70%", "90%"];
 
   useEffect(() => {
-    if (nextSectionTransition === "true" && quizProgress?.completed===false) {
-      setCurrentSection(Math.max((quizProgress?.currentSection ?? 0) - 1, 0));
-      setTimeout(() => {
-        setCurrentSection(quizProgress?.currentSection ?? 0);
-        const newParams = new URLSearchParams(searchParams);
-        newParams.delete("nextSectionTransition");
-        navigate(`/user/home?${newParams.toString()}`, { replace: true });
-      }, 1000);
+    if (nextSectionTransition === "true") {
+      if (quizProgress?.completed === false) {
+        setCurrentSection(Math.max((quizProgress?.currentSection ?? 0) - 1, 0));
+        setTimeout(() => {
+          setCurrentSection(quizProgress?.currentSection ?? 0);
+          const newParams = new URLSearchParams(searchParams);
+          newParams.delete("nextSectionTransition");
+          navigate(`/user/home?${newParams.toString()}`, { replace: true });
+        }, 1000);
+      } else {
+        setCurrentSection(4);
+      }
     } else {
       setCurrentSection(quizProgress?.currentSection ?? 0);
     }
@@ -64,7 +70,7 @@ const AllGames = () => {
             </Stack>
             <Stack
               onClick={() =>
-                currentSection === index &&
+                currentSection >= index &&
                 navigate(`/user/games/${game.id}/intro`)
               }
               key={index}
@@ -76,13 +82,13 @@ const AllGames = () => {
                 gap: "20px",
                 position: "relative",
                 boxSizing: "content-box",
-                opacity: currentSection !== index ? 0.5 : 1,
+                opacity: currentSection < index ? 0.5 : 1,
                 transition: "all 1s ease",
                 boxShadow:
-                  currentSection !== index
+                  currentSection < index
                     ? "none"
                     : "0px 2px 10px rgba(0, 0, 0, 0.108)",
-                cursor: currentSection !== index ? "not-allowed" : "pointer",
+                cursor: currentSection < index ? "not-allowed" : "pointer",
               }}
             >
               <Box
@@ -119,6 +125,26 @@ const AllGames = () => {
             </Stack>
           </Stack>
         ))}
+        <Stack>
+          <Stack
+            sx={{
+              // alignItems: "center",
+              justifyContent: "center",
+              position: "absolute",
+              width: "48px",
+              height: "48px",
+              transform: "translateX(-130%)",
+              bgcolor: "#B6E3FF",
+              padding: "10px",
+              borderRadius: "50%",
+
+              // aspectRatio: "1",
+            }}
+          >
+            <Box component={"img"} src={starIcon} />
+          </Stack>
+          <DownloadButton />
+        </Stack>
       </Stack>
     </Stack>
   );

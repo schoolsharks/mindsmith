@@ -17,6 +17,8 @@ import { Question } from "../../../questions/types/questionTypes";
 import VerticalCarousel, {
   VerticalCarouselRef,
 } from "../../../../components/utility/VerticalCarousel";
+import { useDidYouKnow } from "../../../didYouKnow/hooks/useDidYouKnow";
+import DidYouKnowOverlay from "../../../didYouKnow/components/DidYouKnowOverlay";
 
 const BBGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
@@ -33,6 +35,13 @@ const BBGameLayout = () => {
   const game = games.find((game) => game.id === "the-brainy-bits");
   const navigate = useNavigateWithSound();
   const sectionId = "Comprehensive Brain Health Biomarkers";
+
+  // Did You Know overlay logic
+  const { isOverlayOpen, currentFact, closeOverlay } = useDidYouKnow(
+    "the-brainy-bits",
+    questions.length,
+    currentIndex
+  );
 
   // Initialize current index from URL params
   useEffect(() => {
@@ -230,7 +239,7 @@ const BBGameLayout = () => {
   };
 
   const handleEnded = () => {
-    navigate("/user/do-you-know", { state: { answers } });
+    navigate("/user/home?nextSectionTransition=true", { state: { answers } });
   };
 
   const handleNext = () => {
@@ -336,7 +345,7 @@ const BBGameLayout = () => {
                 </OutlinedButton>
                 <ContainedButton
                   sx={{
-                    bgcolor: game?.theme.primary.main,
+                    backgroundColor: game?.theme.primary.main,
                     padding: "3px 30px",
                     opacity: isSubmitting ? 0.7 : 1,
                   }}
@@ -350,6 +359,13 @@ const BBGameLayout = () => {
           ))}
         />
       </Box>
+
+      {/* Did You Know Overlay */}
+      <DidYouKnowOverlay
+        open={isOverlayOpen}
+        onClose={closeOverlay}
+        fact={currentFact}
+      />
     </Page>
   );
 };

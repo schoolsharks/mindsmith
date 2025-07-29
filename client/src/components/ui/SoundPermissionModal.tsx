@@ -75,11 +75,11 @@ const SoundPermissionModal: React.FC<SoundPermissionModalProps> = ({
           <ContainedButton
             onClick={handleDeny}
             sx={{
-              bgcolor: "transparent",
+              backgroundColor: "transparent",
               color: "#000",
               border: "2px solid #000",
               opacity: 0.26,
-              "&:hover": { bgcolor: theme.palette.primary.main, opacity: 1 },
+              "&:hover": { backgroundColor: theme.palette.primary.main, opacity: 1 },
             }}
           >
             Play Without Sound

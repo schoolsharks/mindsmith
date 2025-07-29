@@ -4,6 +4,9 @@ import { reportsApi } from "../../../services/api/reportsApi";
 import ContainedButton from "../../../components/ui/ContainedTextInput";
 import { RootState } from "../../../app/store";
 import { useSelector } from "react-redux";
+import { Box } from "@mui/material";
+import { ArrowRight } from "lucide-react";
+
 
 const DownloadButton = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -20,7 +23,7 @@ const DownloadButton = () => {
       setIsGenerating(true);
 
       const printWindow = window.open("", "_blank");
-      const htmlContent = generateReportHTML(data.data,data.userInfo);
+      const htmlContent = generateReportHTML(data.data, data.userInfo);
 
       if (printWindow) {
         printWindow.document.write(htmlContent);
@@ -47,17 +50,30 @@ const DownloadButton = () => {
   };
 
   return (
-    <ContainedButton
-      onClick={handleLoadDataAndDownload}
-      disabled={isLoading || isGenerating || !quizProgress?.completed}
-      sx={{ py: 1 }}
-    >
-      {isLoading
-        ? "Loading Data..."
-        : isGenerating
-        ? "Opening Print Dialog..."
-        : "Download Report"}
-    </ContainedButton>
+    <Box position={"relative"}>
+      <ContainedButton
+        onClick={handleLoadDataAndDownload}
+        disabled={isLoading || isGenerating || !quizProgress?.completed}
+        sx={{
+          padding: "16px 12px",
+          border: "1px solid #18C4E7",
+          backgroundColor: "#8DD1FF80",
+          width: "100%",
+          justifyContent: "flex-start",
+        }}
+      >
+        {isLoading
+          ? "Loading Data..."
+          : isGenerating
+          ? "Opening Print Dialog..."
+          : "Download Report"}
+      </ContainedButton>
+      <ArrowRight
+        size={36}
+        color={"#FFEFA8"}
+        style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)" }}
+      />
+    </Box>
   );
 };
 

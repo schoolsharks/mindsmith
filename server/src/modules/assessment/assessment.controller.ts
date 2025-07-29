@@ -129,8 +129,7 @@ export const submitResponse = async (req: Request, res: Response) => {
       subsection: { $in: subsections.map((s) => s._id) },
     });
 
-    const isCurrentSectionComplete = userResponse.answers.length === totalQuestions;
-
+    const isCurrentSectionComplete = userResponse.answers.length >= totalQuestions;
     // If current section is complete, update user's quiz progress
     if (isCurrentSectionComplete) {
       const user = await User.findById(userId);

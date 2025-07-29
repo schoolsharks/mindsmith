@@ -1,7 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import Page from "../../components/layout/Page";
 import AllGames from "../../features/games/components/AllGames";
-import DownloadButton from "../../features/reports/components/DownloadButton";
 
 const Home = () => {
   return (
@@ -22,8 +21,6 @@ const Home = () => {
       <Box margin={"20px 0"} flex={1}>
         <AllGames />
       </Box>
-
-      <DownloadButton />
     </Page>
   );
 };

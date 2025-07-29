@@ -1,5 +1,6 @@
 import { generateRadarChart } from "../chartGenerators/generateRadarChart";
 import { ReportPage } from "../reportGenerator";
+import { calculateSectionTotalScore } from "./titleScoreMapping";
 
 interface ChartDataPoint {
   name: string;
@@ -7,7 +8,7 @@ interface ChartDataPoint {
 }
 
 // Helper function to calculate percentage score based on section type
-const calculatePercentageScore = (reportItem: ReportPage): number => {
+const calculatePercentageScore = (reportItem: ReportPage, allReportData: ReportPage[]): number => {
   const { section, totalScore } = reportItem;
 
   switch (section) {
@@ -16,16 +17,19 @@ const calculatePercentageScore = (reportItem: ReportPage): number => {
       return Math.max(0, 100 - (totalScore / 1813) * 100);
 
     case "Mental Health Screening":
-      // Already a percentage score (out of 25, so multiply by 4)
-      return (totalScore / 25) * 100;
+      // Use dynamic total score based on individual title scores
+      const mentalHealthMaxScore = calculateSectionTotalScore(section, allReportData);
+      return (totalScore / mentalHealthMaxScore) * 100;
 
     case "Comprehensive Brain Health Biomarkers":
-      // Same as mental health (out of 25)
-      return (totalScore / 25) * 100;
+      // Use dynamic total score based on individual title scores
+      const brainHealthMaxScore = calculateSectionTotalScore(section, allReportData);
+      return (totalScore / brainHealthMaxScore) * 100;
 
     case "Resilience & Coping Mechanisms":
-      // Already a percentage score (out of 100)
-      return totalScore;
+      // Use dynamic total score based on individual title scores
+      const resilienceMaxScore = calculateSectionTotalScore(section, allReportData);
+      return (totalScore / resilienceMaxScore) * 100;
 
     default:
       return 0;
@@ -36,7 +40,7 @@ export const generateAllSectionsOverviewPage = (reportData: ReportPage[]) => {
   // Map report data to chart format
   const chartData: ChartDataPoint[] = reportData.map((report) => ({
     name: report.title || report.section,
-    value: Math.min(100, Math.max(0, calculatePercentageScore(report))), // Ensure value is between 0-100
+    value: Math.min(100, Math.max(0, calculatePercentageScore(report, reportData))), // Ensure value is between 0-100
   }));
 
   return `

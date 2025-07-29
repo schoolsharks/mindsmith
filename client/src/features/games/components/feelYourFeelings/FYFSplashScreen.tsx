@@ -15,7 +15,7 @@ const FYFSplashScreen = () => {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <Page sx={{ overflow: "hidden" }}>
+    <Page sx={{ overflow: "hidden", }}>
       {/* <Box component={"img"} src={mainGraphic} width={"100%"} /> */}
       <Box
         component={"video"}
@@ -23,7 +23,8 @@ const FYFSplashScreen = () => {
         autoPlay
         muted
         width={"100%"}
-        height={"100%"}
+        sx={{position: "absolute", top: -64, left: 0}}
+        // height={"100%"}
       />
     </Page>
   );
