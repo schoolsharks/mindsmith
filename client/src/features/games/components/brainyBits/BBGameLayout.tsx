@@ -5,8 +5,10 @@ import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/the-brai
 import Page from "../../../../components/layout/Page";
 import { games } from "../../data/allGames";
 import QuestionRender from "../../../questions/components/QuestionRender";
-import OutlinedButton from "../../../../components/ui/OutlinedButton";
-import ContainedButton from "../../../../components/ui/ContainedTextInput";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import CheckIcon from "@mui/icons-material/Check";
+import IconButton from "@mui/material/IconButton";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 import {
   fetchSectionQuestions,
@@ -333,27 +335,68 @@ const BBGameLayout = () => {
                 justifyContent={"space-between"}
                 alignItems={"center"}
               >
-                <OutlinedButton
-                  border={`2px solid ${game?.theme.primary.main}`}
+                <IconButton
                   sx={{
-                    color: game?.theme.primary.main,
-                    padding: "3px 10px",
+                    border: `3px solid #8DD1FF`,
+                    color: "#8DD1FF",
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.04)",
+                    },
                   }}
-                  onClick={handlePrevious}
+                  onClick={(e) => {
+                    e?.stopPropagation();
+                    handlePrevious();
+                  }}
                 >
-                  Previous
-                </OutlinedButton>
-                <ContainedButton
+                  <ArrowBackIosNewIcon
+                    fontSize="medium"
+                    sx={{
+                      color: "#8DD1FF !important",
+                      path: { color: "inherit !important" },
+                    }}
+                  />
+                </IconButton>
+
+                <IconButton
                   sx={{
-                    backgroundColor: game?.theme.primary.main,
-                    padding: "3px 30px",
+                    border: "3px solid #8DD1FF",
+                    color: "#8DD1FF",
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      opacity: 0.9,
+                    },
                     opacity: isSubmitting ? 0.7 : 1,
                   }}
-                  onClick={handleNext}
+                  onClick={(e) => {
+                    e?.stopPropagation();
+                    handleNext();
+                  }}
                   // disabled={isSubmitting}
                 >
-                  {currentIndex === questions.length - 1 ? "Finish" : "Next"}
-                </ContainedButton>
+                  {currentIndex === questions.length - 1 ? (
+                    <CheckIcon
+                      fontSize="medium"
+                      sx={{
+                        color: "#8DD1FF !important",
+                        path: { color: "inherit !important" },
+                      }}
+                    />
+                  ) : (
+                    <ArrowForwardIosIcon
+                      fontSize="medium"
+                      sx={{
+                        color: "#8DD1FF !important",
+                        path: { color: "inherit !important" },
+                      }}
+                    />
+                  )}
+                </IconButton>
               </Stack>
             </Stack>
           ))}
