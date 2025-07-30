@@ -5,8 +5,10 @@ import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/your-bou
 import Page from "../../../../components/layout/Page";
 import { games } from "../../data/allGames";
 import QuestionRender from "../../../questions/components/QuestionRender";
-import OutlinedButton from "../../../../components/ui/OutlinedButton";
-import ContainedButton from "../../../../components/ui/ContainedTextInput";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import CheckIcon from "@mui/icons-material/Check";
+import IconButton from "@mui/material/IconButton";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 import {
   fetchSectionQuestions,
@@ -19,8 +21,6 @@ import VerticalCarousel, {
 } from "../../../../components/utility/VerticalCarousel";
 import { useDidYouKnow } from "../../../didYouKnow/hooks/useDidYouKnow";
 import DidYouKnowOverlay from "../../../didYouKnow/components/DidYouKnowOverlay";
-
-
 
 const YBBSGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
@@ -62,7 +62,7 @@ const YBBSGameLayout = () => {
   // Set initial index to first unanswered question or last question if all answered
   useEffect(() => {
     const questionIndex = searchParams.get("question");
-    
+
     // Only set initial index if no query parameter and we have questions and answers
     if (!questionIndex && questions.length > 0) {
       // Find first unanswered question
@@ -73,10 +73,13 @@ const YBBSGameLayout = () => {
           break;
         }
       }
-      
+
       // If all questions are answered, go to last question, otherwise go to first unanswered
-      const targetIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : questions.length - 1;
-      
+      const targetIndex =
+        firstUnansweredIndex !== -1
+          ? firstUnansweredIndex
+          : questions.length - 1;
+
       if (targetIndex !== currentIndex) {
         setCurrentIndex(targetIndex);
         setTimeout(() => {
@@ -108,7 +111,10 @@ const YBBSGameLayout = () => {
 
     // Update local state immediately
     const optionText = question?.options[optionIndex]?.text || "";
-    setAnswers((prev) => ({ ...prev, [questionId]: { optionIndex, optionText } }));
+    setAnswers((prev) => ({
+      ...prev,
+      [questionId]: { optionIndex, optionText },
+    }));
 
     // Submit to backend
     try {
@@ -357,30 +363,62 @@ const YBBSGameLayout = () => {
                 onClick={(e) => e.stopPropagation()}
                 gap={2}
               >
-                <OutlinedButton
-                  border={`2px solid ${game?.theme.primary.main}`}
+                {/* Previous Button */}
+                <IconButton
                   sx={{
-                    flex: 1,
-                    color: game?.theme.primary.main,
-                    padding: "8px 12px",
+                    border: `3px solid #A4B56E`,
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.04)",
+                    },
                   }}
                   onClick={handlePrevious}
                 >
-                  Previous
-                </OutlinedButton>
+                  <ArrowBackIosNewIcon
+                    fontSize="medium"
+                    sx={{
+                      color: "#A4B56E !important",
+                      path: { color: "inherit !important" },
+                    }}
+                  />
+                </IconButton>
 
-                <ContainedButton
+                {/* Next/Finish Button */}
+                <IconButton
                   sx={{
-                    flex: 1,
-                    backgroundColor: game?.theme.primary.main,
-                    padding: "8px 12px",
+                    border: `3px solid #A4B56E`,
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    "&:hover": {
+                      backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      opacity: 0.9,
+                    },
                     opacity: isSubmitting ? 0.7 : 1,
                   }}
                   onClick={handleNext}
                   // disabled={isSubmitting}
                 >
-                  {currentIndex === questions.length - 1 ? "Finish" : "Next"}
-                </ContainedButton>
+                  {currentIndex === questions.length - 1 ? (
+                    <CheckIcon
+                      fontSize="medium"
+                      sx={{
+                        color: "#A4B56E !important",
+                        path: { color: "inherit !important" },
+                      }}
+                    />
+                  ) : (
+                    <ArrowForwardIosIcon
+                      fontSize="medium"
+                      sx={{
+                        color: "#A4B56E !important",
+                        path: { color: "inherit !important" },
+                      }}
+                    />
+                  )}
+                </IconButton>
               </Stack>
             </Box>
           ))}
