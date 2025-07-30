@@ -21,12 +21,14 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
   selectedIndex, // No default value - undefined means no selection
   onChange,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState<number | undefined>(selectedIndex);
+  const [currentIndex, setCurrentIndex] = useState<number | undefined>(
+    selectedIndex
+  );
   const [totalLines, setTotalLines] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const colors = ["#67e285", "#feda6a", "#f96666"];;
+  const colors = ["#67e285", "#feda6a", "#f96666"];
 
   const getColorForIndex = (index: number, total: number) => {
     if (total <= colors.length) {
@@ -39,25 +41,25 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
 
   const getIndexFromPosition = (clientX: number) => {
     if (!containerRef.current) return currentIndex ?? 0;
-    
+
     const rect = containerRef.current.getBoundingClientRect();
     const relativeX = clientX - rect.left;
     const containerWidth = rect.width;
-    
+
     // Calculate percentage of position (0 to 1)
     const percentage = Math.max(0, Math.min(1, relativeX / containerWidth));
-    
+
     // Map percentage to label index
     const exactIndex = percentage * (labels.length - 1);
     const newIndex = Math.round(exactIndex);
-    
+
     return Math.max(0, Math.min(newIndex, labels.length - 1));
   };
 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     setIsDragging(true);
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const newIndex = getIndexFromPosition(clientX);
     setCurrentIndex(newIndex);
     if (onChange) {
@@ -67,9 +69,9 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
 
   const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging) return;
-    
+
     e.preventDefault();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const newIndex = getIndexFromPosition(clientX);
     setCurrentIndex(newIndex);
     if (onChange) {
@@ -84,7 +86,9 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
   useEffect(() => {
     const availableWidth = width - 32;
     // Calculate lines per section to ensure equal distribution
-    const linesPerSection = Math.floor(availableWidth / (labels.length * (lineWidth + lineGap)));
+    const linesPerSection = Math.floor(
+      availableWidth / (labels.length * (lineWidth + lineGap))
+    );
     const totalLinesCount = linesPerSection * labels.length;
     setTotalLines(totalLinesCount);
   }, [width, lineWidth, lineGap, labels.length]);
@@ -107,40 +111,42 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
     const handleTouchEnd = () => handleDragEnd();
 
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      document.addEventListener('touchmove', handleTouchMove, { passive: false });
-      document.addEventListener('touchend', handleTouchEnd);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleTouchEnd);
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
     };
   }, [isDragging]);
 
   const getNeedlePosition = () => {
     if (!containerRef.current || currentIndex === undefined) return 16;
-    
+
     const containerWidth = containerRef.current.offsetWidth;
     const sectionWidth = containerWidth / labels.length;
     const sectionCenter = sectionWidth / 2;
-    
+
     // Position needle at center of current section
-    const needlePosition = 3 + (currentIndex * sectionWidth) + sectionCenter;
-    
+    const needlePosition = 3 + currentIndex * sectionWidth + sectionCenter;
+
     return needlePosition;
   };
 
   const handleLineClick = (lineIndex: number) => {
     if (!containerRef.current) return;
-    
+
     const linesPerSection = totalLines / labels.length;
     const sectionIndex = Math.floor(lineIndex / linesPerSection);
     const clampedIndex = Math.min(sectionIndex, labels.length - 1);
-    
+
     setCurrentIndex(clampedIndex);
     if (onChange) {
       onChange(clampedIndex);
@@ -155,8 +161,8 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
   };
 
   return (
-    <Box sx={{ width, height, position: "relative", }}>
-      {/* Needle - only show when something is selected */}
+    <Box sx={{ position: "relative", width: "100%" }}>
+      {/* Needle - positioned absolutely outside the bordered box */}
       {currentIndex !== undefined && (
         <Box
           component={"img"}
@@ -164,100 +170,107 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
           sx={{
             position: "absolute",
             left: `${getNeedlePosition()}px`,
-            top: "25px",
+            top: "40px",
             width: 12,
             transform: "translateX(-50%)",
             transition: "left 0.3s ease",
             zIndex: 10,
           }}
-        >
-          {/* Empty needle div */}
-        </Box>
+        />
       )}
 
-      {/* Lines Container */}
+      {/* Blue Border Box containing only meter and labels */}
       <Box
-        ref={containerRef}
         sx={{
-          display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "flex-start",
-          height: "60px",
-          mt: 4,
-          position: "relative",
-          cursor: isDragging ? "grabbing" : "grab",
+          border: "3px solid #8DD1FF",
+          borderRadius: "25px",
+          padding: "30px 20px 20px",
+          boxSizing: "border-box",
+          backgroundColor: "white",
+          mt: 4, // Add margin to accommodate needle
         }}
-        onMouseDown={handleDragStart}
-        onTouchStart={handleDragStart}
       >
-        {Array.from({ length: totalLines }, (_, index) => {
-          const linesPerSection = totalLines / labels.length;
-          const sectionIndex = Math.floor(index / linesPerSection);
-          const color = getColorForIndex(sectionIndex, labels.length);
+        {/* Lines Container */}
+        <Box
+          ref={containerRef}
+          sx={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "flex-start",
+            height: "60px",
+            position: "relative",
+            cursor: isDragging ? "grabbing" : "grab",
+          }}
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+        >
+          {Array.from({ length: totalLines }, (_, index) => {
+            const linesPerSection = totalLines / labels.length;
+            const sectionIndex = Math.floor(index / linesPerSection);
+            const color = getColorForIndex(sectionIndex, labels.length);
 
-          return (
-            <Box
+            return (
+              <Box
+                key={index}
+                sx={{
+                  flex: "1",
+                  minWidth: `${lineWidth}px`,
+                  height: "40px",
+                  bgcolor: color,
+                  borderRadius: "4px",
+                  marginRight: index < totalLines - 1 ? `${lineGap}px` : 0,
+                  cursor: "pointer",
+                  transition: "opacity 0.2s ease",
+                  opacity: 1,
+                  pointerEvents: isDragging ? "none" : "auto",
+                }}
+                onClick={() => !isDragging && handleLineClick(index)}
+                onTouchStart={() => !isDragging && handleLineClick(index)}
+                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                  if (!isDragging) {
+                    (e.target as HTMLDivElement).style.opacity = "0.8";
+                  }
+                }}
+                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                  if (!isDragging) {
+                    (e.target as HTMLDivElement).style.opacity = "1";
+                  }
+                }}
+              />
+            );
+          })}
+        </Box>
+
+        {/* Labels (Well, Some Difficult, Very Difficult) */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mt: 1,
+            position: "relative",
+          }}
+        >
+          {labels.map((label, index) => (
+            <Typography
               key={index}
               sx={{
-                flex:"1",
-                minWidth: `${lineWidth}px`,
-                height: "40px",
-                bgcolor: color,
-                borderRadius: "4px",
-                marginRight: index < totalLines - 1 ? `${lineGap}px` : 0,
+                fontSize: "10px",
+                color: currentIndex === index ? "#1976d2" : "#666",
                 cursor: "pointer",
-                transition: "opacity 0.2s ease",
-                opacity: 1,
-                pointerEvents: isDragging ? "none" : "auto",
+                flex: 1,
+                textAlign: "center",
+                transition: "color 0.2s ease",
               }}
-              onClick={() => !isDragging && handleLineClick(index)}
-              onTouchStart={() => !isDragging && handleLineClick(index)}
-              onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (!isDragging) {
-                  (e.target as HTMLDivElement).style.opacity = "0.8";
-                }
-              }}
-              onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                if (!isDragging) {
-                  (e.target as HTMLDivElement).style.opacity = "1";
-                }
-              }}
+              onClick={() => handleLabelClick(index)}
             >
-              {/* Empty line div */}
-            </Box>
-          );
-        })}
+              {label}
+            </Typography>
+          ))}
+        </Box>
       </Box>
 
-      {/* Labels */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mt: 1,
-          position: "relative",
-        }}
-      >
-        {labels.map((label, index) => (
-          <Typography
-            key={index}
-            sx={{
-              fontSize: "10px",
-              color: currentIndex === index ? "#1976d2" : "#666",
-              cursor: "pointer",
-              flex:1,
-              textAlign: "center",
-              transition: "color 0.2s ease",
-            }}
-            onClick={() => handleLabelClick(index)}
-          >
-            {label}
-          </Typography>
-        ))}
-      </Box>
-
-      {/* Show selected option label only when something is selected */}
+      {/* Selected Option (appears below the blue box) */}
       {currentIndex !== undefined && (
         <Box
           sx={{
@@ -268,7 +281,7 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
             padding: "7px 16px",
             borderRadius: "10px",
             width: "fit-content",
-            margin: "60px auto 0",
+            margin: "20px auto 0",
           }}
         >
           <Typography>{labels[currentIndex]}</Typography>
