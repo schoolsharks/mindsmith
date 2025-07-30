@@ -5,8 +5,12 @@ import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/feel-you
 import Page from "../../../../components/layout/Page";
 import { games } from "../../data/allGames";
 import QuestionRender from "../../../questions/components/QuestionRender";
-import OutlinedButton from "../../../../components/ui/OutlinedButton";
-import ContainedButton from "../../../../components/ui/ContainedTextInput";
+// import OutlinedButton from "../../../../components/ui/OutlinedButton";
+// import ContainedButton from "../../../../components/ui/ContainedTextInput";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import CheckIcon from "@mui/icons-material/Check";
+import IconButton from "@mui/material/IconButton";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 import {
   fetchSectionQuestions,
@@ -43,9 +47,8 @@ const FYFGameLayout = () => {
     currentIndex
   );
 
-
   useEffect(() => {
-    const questionIndex = searchParams.get('question');
+    const questionIndex = searchParams.get("question");
     if (questionIndex) {
       const index = parseInt(questionIndex, 10);
       if (!isNaN(index) && index >= 0) {
@@ -57,7 +60,7 @@ const FYFGameLayout = () => {
   // Set initial index to first unanswered question or last question if all answered
   useEffect(() => {
     const questionIndex = searchParams.get("question");
-    
+
     // Only set initial index if no query parameter and we have questions and answers
     if (!questionIndex && questions.length > 0) {
       // Find first unanswered question
@@ -68,10 +71,13 @@ const FYFGameLayout = () => {
           break;
         }
       }
-      
+
       // If all questions are answered, go to last question, otherwise go to first unanswered
-      const targetIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : questions.length - 1;
-      
+      const targetIndex =
+        firstUnansweredIndex !== -1
+          ? firstUnansweredIndex
+          : questions.length - 1;
+
       if (targetIndex !== currentIndex) {
         setCurrentIndex(targetIndex);
         setTimeout(() => {
@@ -83,9 +89,9 @@ const FYFGameLayout = () => {
 
   useEffect(() => {
     if (questions.length > 0) {
-      setSearchParams(prev => {
+      setSearchParams((prev) => {
         const newParams = new URLSearchParams(prev);
-        newParams.set('question', currentIndex.toString());
+        newParams.set("question", currentIndex.toString());
         return newParams;
       });
     }
@@ -173,10 +179,14 @@ const FYFGameLayout = () => {
         }
 
         // After questions are loaded, navigate to the saved index
-        const questionIndex = searchParams.get('question');
+        const questionIndex = searchParams.get("question");
         if (questionIndex && transformedQuestions.length > 0) {
           const index = parseInt(questionIndex, 10);
-          if (!isNaN(index) && index >= 0 && index < transformedQuestions.length) {
+          if (
+            !isNaN(index) &&
+            index >= 0 &&
+            index < transformedQuestions.length
+          ) {
             setTimeout(() => {
               carouselRef.current?.goToSlide(index);
             }, 100);
@@ -204,9 +214,9 @@ const FYFGameLayout = () => {
 
   const handleNext = () => {
     const currentQuestionId = questions[currentIndex]?._id;
-    
+
     if (!answers[currentQuestionId]) {
-      alert('Please select an option before proceeding');
+      alert("Please select an option before proceeding");
       return;
     }
 
@@ -284,9 +294,9 @@ const FYFGameLayout = () => {
                 justifyContent={"space-between"}
                 flex={1}
               >
-                <QuestionRender 
-                  question={question} 
-                  game={game} 
+                <QuestionRender
+                  question={question}
+                  game={game}
                   selectedOptionIndex={currentAnswer?.optionIndex}
                 />
                 <Stack
@@ -295,23 +305,42 @@ const FYFGameLayout = () => {
                   justifyContent={"space-between"}
                   alignItems={"center"}
                 >
-                  <OutlinedButton
-                    border={`2px solid ${game?.theme.secondary.main}`}
+                  <IconButton
                     sx={{
-                      color: game?.theme.secondary.main,
-                      padding: "3px 10px",
+                      border: `3px solid #8DD1FF`,
+                      color: "#8DD1FF",
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      },
                     }}
                     onClick={(e) => {
                       e?.stopPropagation();
                       handlePrevious();
                     }}
                   >
-                    Previous
-                  </OutlinedButton>
-                  <ContainedButton
+                    <ArrowBackIosNewIcon
+                      fontSize="medium"
+                      sx={{
+                        color: "#8DD1FF !important",
+                        path: { color: "inherit !important" },
+                      }}
+                    />
+                  </IconButton>
+
+                  <IconButton
                     sx={{
-                     backgroundColor: game?.theme.secondary.main,
-                      padding: "3px 30px",
+                      border: "3px solid #8DD1FF",
+                      color: "#8DD1FF",
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                        opacity: 0.9,
+                      },
                       opacity: isSubmitting ? 0.7 : 1,
                     }}
                     onClick={(e) => {
@@ -320,8 +349,24 @@ const FYFGameLayout = () => {
                     }}
                     // disabled={isSubmitting}
                   >
-                    {currentIndex === questions.length - 1 ? "Finish" : "Next"}
-                  </ContainedButton>
+                    {currentIndex === questions.length - 1 ? (
+                      <CheckIcon
+                        fontSize="medium"
+                        sx={{
+                          color: "#8DD1FF !important",
+                          path: { color: "inherit !important" },
+                        }}
+                      />
+                    ) : (
+                      <ArrowForwardIosIcon
+                        fontSize="medium"
+                        sx={{
+                          color: "#8DD1FF !important",
+                          path: { color: "inherit !important" },
+                        }}
+                      />
+                    )}
+                  </IconButton>
                 </Stack>
               </Stack>
             );
