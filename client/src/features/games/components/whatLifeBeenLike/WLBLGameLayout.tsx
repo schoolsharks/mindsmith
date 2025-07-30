@@ -8,8 +8,10 @@ import HorizontalCarousel, {
 } from "../../../../components/utility/HorizontalCarousel";
 import { games } from "../../data/allGames";
 import QuestionRender from "../../../questions/components/QuestionRender";
-import OutlinedButton from "../../../../components/ui/OutlinedButton";
-import ContainedButton from "../../../../components/ui/ContainedTextInput";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import CheckIcon from "@mui/icons-material/Check";
+import IconButton from "@mui/material/IconButton";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 import {
   fetchSectionQuestions,
@@ -300,32 +302,62 @@ const WLBLGameLayout = () => {
                   onClick={(e) => e.stopPropagation()}
                   gap={2}
                 >
-                  <OutlinedButton
-                    border={`2px solid ${game?.theme.primary.main}`}
+                  {/* Previous Button */}
+                  <IconButton
                     sx={{
-                      flex: 1,
-                      color: game?.theme.primary.main,
-                      padding: "8px 12px",
-                      minWidth: "120px",
+                      border: `3px solid #A4B56E`, // Updated border color
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      },
                     }}
                     onClick={handlePrevious}
                   >
-                    Previous
-                  </OutlinedButton>
+                    <ArrowBackIosNewIcon
+                      fontSize="medium"
+                      sx={{
+                        color: "#A4B56E !important", // Updated arrow color
+                        path: { color: "inherit !important" },
+                      }}
+                    />
+                  </IconButton>
 
-                  <ContainedButton
+                  {/* Next/Finish Button */}
+                  <IconButton
                     sx={{
-                      flex: 1,
-                      backgroundColor: game?.theme.primary.main,
-                      padding: "8px 12px",
-                      minWidth: "120px",
+                      border: `3px solid #A4B56E`, // Updated border color
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                        opacity: 0.9,
+                      },
                       opacity: isSubmitting ? 0.7 : 1,
                     }}
                     onClick={handleNext}
                     // disabled={isSubmitting}
                   >
-                    {currentIndex === questions.length - 1 ? "Finish" : "Next"}
-                  </ContainedButton>
+                    {currentIndex === questions.length - 1 ? (
+                      <CheckIcon
+                        fontSize="medium"
+                        sx={{
+                          color: "#A4B56E !important", // Updated checkmark color
+                          path: { color: "inherit !important" },
+                        }}
+                      />
+                    ) : (
+                      <ArrowForwardIosIcon
+                        fontSize="medium"
+                        sx={{
+                          color: "#A4B56E !important", // Updated arrow color
+                          path: { color: "inherit !important" },
+                        }}
+                      />
+                    )}
+                  </IconButton>
                 </Stack>
               </Stack>
             );

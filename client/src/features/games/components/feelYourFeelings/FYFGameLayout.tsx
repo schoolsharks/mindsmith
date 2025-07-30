@@ -5,8 +5,6 @@ import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/feel-you
 import Page from "../../../../components/layout/Page";
 import { games } from "../../data/allGames";
 import QuestionRender from "../../../questions/components/QuestionRender";
-// import OutlinedButton from "../../../../components/ui/OutlinedButton";
-// import ContainedButton from "../../../../components/ui/ContainedTextInput";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import CheckIcon from "@mui/icons-material/Check";
