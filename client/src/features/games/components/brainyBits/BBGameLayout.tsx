@@ -289,6 +289,14 @@ const BBGameLayout = () => {
           transform: "translateX(-50%)",
         }}
       />
+            {/* Header with Title and Counter */}
+      <Stack 
+        direction="row" 
+        justifyContent="space-between" 
+        alignItems="flex-start" 
+        position="relative" 
+        marginTop="16px"
+      >
       <Typography
         fontSize={"25px"}
         fontWeight={"600"}
@@ -298,6 +306,26 @@ const BBGameLayout = () => {
       >
         The Brainy Bits
       </Typography>
+        {/* Page Counter */}
+        <Box
+          sx={{
+            borderRadius: "20px",
+            padding: "8px 16px",
+            paddingBottom: "0px",
+            marginTop: "4px",
+            alignSelf: "flex-end",
+          }}
+        >
+          <Typography
+            fontSize={"30px"}
+            fontWeight={"700"}
+            color="#FFFFFF"
+            sx={{ opacity: 0.4 }}
+          >
+            {currentIndex + 1}/{questions.length}
+          </Typography>
+        </Box>
+      </Stack>
 
       <LinearProgress
         value={((currentIndex + 1) / questions.length) * 100}
