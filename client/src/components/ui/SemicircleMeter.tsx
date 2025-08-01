@@ -216,7 +216,7 @@ const SemicircleMeterChart = ({
                 borderRadius: '30%',
                 backgroundColor: colors[index],
                 mb: 1,
-                border: currentIndex === index ? '2px solid #000' : 'none'
+                // border: currentIndex === index ? '2px solid #000' : 'none'
               }}
             />
             <Typography 

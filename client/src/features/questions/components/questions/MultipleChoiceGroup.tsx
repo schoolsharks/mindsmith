@@ -2,7 +2,7 @@
 import { Typography, Box, Stack } from "@mui/material";
 import { useState, useEffect } from "react";
 import { Game } from "../../../games/data/allGames";
-import { Question, QuestionGroup } from "../../types/questionTypes";
+import {  QuestionGroup } from "../../types/questionTypes";
 
 interface MultipleChoiceGroupProps {
   game?: Game;

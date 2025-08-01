@@ -17,8 +17,8 @@ const didYouKnows = [
 ];
 
 const sectionNumberOfCards = {
-    "what-life-been-like": 5,
-    "feel-your-feelings": 5,
+    "what-life-been-like": 2,
+    "feel-your-feelings": 8,
     "your-best-bouncing-self": 2,
     "the-brainy-bits": 2,
 } as const;

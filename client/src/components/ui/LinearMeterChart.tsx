@@ -15,7 +15,7 @@ interface LinearMeterChartProps {
 const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
   labels = ["Rarely", "Sometimes", "Often"],
   width = 260,
-  height = 120,
+  // height = 120,
   lineWidth = 6,
   lineGap = 2,
   selectedIndex, // No default value - undefined means no selection

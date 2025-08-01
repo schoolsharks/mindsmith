@@ -28,7 +28,7 @@ const WLBLGameLayout = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayQuestions, setDisplayQuestions] = useState<(Question | QuestionGroup)[]>([]);
-  const [originalQuestions, setOriginalQuestions] = useState<Question[]>([]); // Store original DB questions
+  const [setOriginalQuestions] = useState<Question[]>([]); // Store original DB questions
   const [answers, setAnswers] = useState<
     Record<string, { optionIndex?: number; optionText?: string; selectedQuestionIds?: string[] }>
   >({});
