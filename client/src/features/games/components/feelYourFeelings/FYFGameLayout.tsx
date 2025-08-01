@@ -255,16 +255,44 @@ const FYFGameLayout = () => {
           right: "0",
         }}
       />
-      <Typography
-        fontSize={"25px"}
-        fontWeight={"600"}
-        position={"relative"}
-        marginTop={"16px"}
-        mb={"12px"}
+      
+      {/* Header with Title and Counter */}
+      <Stack 
+        direction="row" 
+        justifyContent="space-between" 
+        alignItems="flex-start" 
+        position="relative" 
+        marginTop="16px"
       >
-        Feel Your
-        <br /> Feelings
-      </Typography>
+        <Typography
+          fontSize={"25px"}
+          fontWeight={"600"}
+        >
+          Feel Your
+          <br /> Feelings
+        </Typography>
+        
+        {/* Page Counter */}
+        <Box
+          sx={{
+            borderRadius: "20px",
+            padding: "8px 16px",
+            paddingBottom: "0px",
+            marginTop: "4px",
+            alignSelf: "flex-end",
+          }}
+        >
+          <Typography
+            fontSize={"30px"}
+            fontWeight={"700"}
+            color="#FFFFFF"
+            sx={{ opacity: 0.4 }}
+          >
+            {currentIndex + 1}/{questions.length}
+          </Typography>
+        </Box>
+      </Stack>
+
       <LinearProgress
         value={((currentIndex + 1) / questions.length) * 100}
         variant="determinate"
@@ -273,6 +301,7 @@ const FYFGameLayout = () => {
             backgroundColor: "#8DD1FF",
           },
           backgroundColor: "#FFA1A2",
+          marginTop: "10px",
         }}
       />
       <Box marginTop={"20px"} id="game-questions-container">
