@@ -69,7 +69,7 @@ const MultipleChoiceGroup: React.FC<MultipleChoiceGroupProps> = ({
                 padding: "16px",
                 cursor: "pointer",
                 minHeight: "60px",
-                opacity: isSelected ? 1 : 0.7,
+                opacity: isSelected ? 1 : 0.5,
                 alignItems: "center",
                 transition: "all 0.3s ease",
                 "&:hover": {

@@ -19,6 +19,7 @@ interface VerticalCarouselProps {
   speed?: number;
   handleCardChange: () => void;
   disableTouch?: boolean;
+  height?: number;
 }
 
 export interface VerticalCarouselRef {
@@ -40,6 +41,7 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
       speed = 500,
       handleCardChange,
       disableTouch = false,
+      height = 430, // Default height if not provided
     },
     ref
   ) => {
@@ -300,7 +302,7 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
         }, autoplaySpeed);
       }
     };
-    const cardHeight = 430;
+    const cardHeight = height;
 
     return (
       <Box

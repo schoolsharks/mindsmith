@@ -20,12 +20,12 @@ const MeterOuterValue: React.FC<QuestionProps> = ({
 
   return (
     <Box>
-      <Typography fontSize={"18px"} fontWeight={"500"} minHeight={"80px"}>
+      <Typography fontSize={"18px"} fontWeight={"500"} minHeight={"50px"}>
         {question.text}
       </Typography>
       <Stack alignItems={"center"}>
         <SemicircleMeterChart
-          labels={question.options.map((option) => option.text)}
+          labels={question.options.map((option: { text: string }) => option.text)}
           selectedIndex={selectedOption !== null ? selectedOption : undefined}
           onChange={handleOptionSelect}
         />

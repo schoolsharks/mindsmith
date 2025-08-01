@@ -371,8 +371,9 @@ const YBBSGameLayout = () => {
           ref={carouselRef}
           handleCardChange={handleCardChange}
           disableTouch={!isCurrentQuestionAnswered()}
+          height={490} // Optional - will use 430 if not provided
           cardStyle={{
-            border: `2px solid ${game?.theme.primary.main}`,
+            border: `2px solid #A4B56E`,
             bgcolor: game?.theme.secondary.main,
           }}
           items={questions.map((question) => (
@@ -385,7 +386,7 @@ const YBBSGameLayout = () => {
 
               <Stack
                 direction={"row"}
-                marginTop={"20px"}
+                marginTop={"50px"}
                 justifyContent={"space-between"}
                 alignItems={"center"}
                 onClick={(e) => e.stopPropagation()}
