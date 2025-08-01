@@ -28,7 +28,7 @@ const WLBLGameLayout = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayQuestions, setDisplayQuestions] = useState<(Question | QuestionGroup)[]>([]);
-  const [setOriginalQuestions] = useState<Question[]>([]); // Store original DB questions
+  const originalQuestionsRef = useRef<Question[]>([]); // Store original DB questions
   const [answers, setAnswers] = useState<
     Record<string, { optionIndex?: number; optionText?: string; selectedQuestionIds?: string[] }>
   >({});
@@ -153,7 +153,7 @@ const WLBLGameLayout = () => {
             handleOptionSelect(q._id, optionIndex, optionText),
         }));
 
-        setOriginalQuestions(transformedQuestions);
+        originalQuestionsRef.current = transformedQuestions;
 
         // For Section A (Life Stress Assessment), group questions for display
         // For other sections, show as individual questions
