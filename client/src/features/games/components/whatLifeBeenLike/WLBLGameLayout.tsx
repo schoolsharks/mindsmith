@@ -350,15 +350,43 @@ const WLBLGameLayout = () => {
           right: "0",
         }}
       />
-      <Typography
-        fontSize={"25px"}
-        fontWeight={"600"}
-        position={"relative"}
-        marginTop={"16px"}
+      
+      {/* Header with Title and Counter */}
+      <Stack 
+        direction="row" 
+        justifyContent="space-between" 
+        alignItems="flex-start" 
+        position="relative" 
+        marginTop="16px"
       >
-        What Life's Been <br />
-        Like?
-      </Typography>
+        <Typography
+          fontSize={"25px"}
+          fontWeight={"600"}
+        >
+          What Life's Been <br />
+          Like?
+        </Typography>
+        
+        {/* Page Counter */}
+        <Box
+          sx={{
+            borderRadius: "20px",
+            padding: "8px 16px",
+            paddingBottom: "0px",
+            marginTop: "4px",
+            alignSelf: "flex-end",
+          }}
+        >
+          <Typography
+            fontSize={"30px"}
+            fontWeight={"700"}
+            color="#A4B56E"
+            sx={{ opacity: 0.4 }}
+          >
+            {currentIndex + 1}/{displayQuestions.length}
+          </Typography>
+        </Box>
+      </Stack>
 
       <LinearProgress
         value={((currentIndex + 1) / displayQuestions.length) * 100}
@@ -441,7 +469,7 @@ const WLBLGameLayout = () => {
                     onClick={handleNext}
                     // disabled={isSubmitting}
                   >
-                    {currentIndex === 10 ? (
+                    {currentIndex === displayQuestions.length - 1 ? (
                       <CheckIcon
                         fontSize="medium"
                         sx={{
