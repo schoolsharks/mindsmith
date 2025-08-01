@@ -129,7 +129,11 @@ export const submitResponse = async (req: Request, res: Response) => {
       subsection: { $in: subsections.map((s) => s._id) },
     });
 
-    const isCurrentSectionComplete = userResponse.answers.length >= totalQuestions;
+    const isCurrentSectionComplete =
+      userResponse.answers.length >= totalQuestions;
+    console.log(
+      `User ${userId} answered ${userResponse.answers.length} questions out of ${totalQuestions} in section ${sectionId}. Section complete: ${isCurrentSectionComplete}`
+    );
     // If current section is complete, update user's quiz progress
     if (isCurrentSectionComplete) {
       const user = await User.findById(userId);
@@ -190,11 +194,10 @@ export const getUserProgress = async (req: Request, res: Response) => {
       return;
     }
 
-
     const userResponse = await UserResponse.findOne({
       user: userId,
       section: section._id,
-    })
+    });
 
     if (!userResponse) {
       res.json({

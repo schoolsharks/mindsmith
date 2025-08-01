@@ -74,7 +74,6 @@ const MultipleChoiceGroup: React.FC<MultipleChoiceGroupProps> = ({
                 transition: "all 0.3s ease",
                 "&:hover": {
                   borderColor: game?.theme.primary.main,
-                  bgcolor: `${game?.theme.primary.main}05`,
                 },
               }}
             >

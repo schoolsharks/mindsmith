@@ -9,9 +9,6 @@ import HorizontalCarousel, {
 } from "../../../../components/utility/HorizontalCarousel";
 import { games } from "../../data/allGames";
 import QuestionRender from "../../../questions/components/QuestionRender";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import CheckIcon from "@mui/icons-material/Check";
 import IconButton from "@mui/material/IconButton";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 import {
@@ -19,18 +16,36 @@ import {
   submitQuestionResponse,
   getUserProgress,
 } from "../../../../services/api/assessment";
-import { Question, QuestionType, QuestionGroup } from "../../../questions/types/questionTypes";
+import {
+  Question,
+  QuestionType,
+  QuestionGroup,
+} from "../../../questions/types/questionTypes";
 import { useDidYouKnow } from "../../../didYouKnow/hooks/useDidYouKnow";
 import DidYouKnowOverlay from "../../../didYouKnow/components/DidYouKnowOverlay";
+import {
+  CircleCheck,
+  CircleChevronLeft,
+  CircleChevronRight,
+} from "lucide-react";
 
 const WLBLGameLayout = () => {
   const carouselRef = useRef<HorizontalCarouselRef>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [displayQuestions, setDisplayQuestions] = useState<(Question | QuestionGroup)[]>([]);
+  const [displayQuestions, setDisplayQuestions] = useState<
+    (Question | QuestionGroup)[]
+  >([]);
   const originalQuestionsRef = useRef<Question[]>([]); // Store original DB questions
   const [answers, setAnswers] = useState<
-    Record<string, { optionIndex?: number; optionText?: string; selectedQuestionIds?: string[] }>
+    Record<
+      string,
+      {
+        optionIndex?: number;
+        optionText?: string;
+        selectedQuestionIds?: string[];
+      }
+    >
   >({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,13 +63,15 @@ const WLBLGameLayout = () => {
   );
 
   // Function to group questions into sets of 5 for display (Section A only)
-  const createQuestionGroups = (questionsArray: Question[]): (Question | QuestionGroup)[] => {
+  const createQuestionGroups = (
+    questionsArray: Question[]
+  ): (Question | QuestionGroup)[] => {
     const groupedQuestions: (Question | QuestionGroup)[] = [];
     const groupSize = 5;
-    
+
     for (let i = 0; i < questionsArray.length; i += groupSize) {
       const questionGroup = questionsArray.slice(i, i + groupSize);
-      
+
       if (questionGroup.length > 1) {
         // Create a grouped question for display
         const questionGroupDisplay: QuestionGroup = {
@@ -62,7 +79,7 @@ const WLBLGameLayout = () => {
           title: `Life Experiences - Group ${Math.floor(i / groupSize) + 1}`,
           questions: questionGroup,
           type: QuestionType.MULTIPLE_CHOICE_GROUP,
-          selectedQuestions: new Set<string>()
+          selectedQuestions: new Set<string>(),
         };
         groupedQuestions.push(questionGroupDisplay);
       } else if (questionGroup.length === 1) {
@@ -70,7 +87,7 @@ const WLBLGameLayout = () => {
         groupedQuestions.push(questionGroup[0]);
       }
     }
-    
+
     return groupedQuestions;
   };
 
@@ -86,31 +103,31 @@ const WLBLGameLayout = () => {
   }, [searchParams]);
 
   // Set initial index to first unanswered question or last question if all answered
-  useEffect(() => {
-    const questionIndex = searchParams.get("question");
+  // useEffect(() => {
+    // const questionIndex = searchParams.get("question");
 
-    if (!questionIndex && displayQuestions.length > 0) {
-      let firstUnansweredIndex = -1;
-      for (let i = 0; i < displayQuestions.length; i++) {
-        if (!answers[displayQuestions[i]._id]) {
-          firstUnansweredIndex = i;
-          break;
-        }
-      }
+    // if (!questionIndex && displayQuestions.length > 0) {
+    //   let firstUnansweredIndex = -1;
+    //   for (let i = 0; i < displayQuestions.length; i++) {
+    //     if (!answers[displayQuestions[i]._id]) {
+    //       firstUnansweredIndex = i;
+    //       break;
+    //     }
+    //   }
 
-      const targetIndex =
-        firstUnansweredIndex !== -1
-          ? firstUnansweredIndex
-          : displayQuestions.length - 1;
+    //   const targetIndex =
+    //     firstUnansweredIndex !== -1
+    //       ? firstUnansweredIndex
+    //       : displayQuestions.length - 1;
 
-      if (targetIndex !== currentIndex) {
-        setCurrentIndex(targetIndex);
-        setTimeout(() => {
-          carouselRef.current?.goToSlide(targetIndex);
-        }, 100);
-      }
-    }
-  }, [displayQuestions, answers, searchParams, currentIndex]);
+    //   if (targetIndex !== currentIndex) {
+    //     setCurrentIndex(targetIndex);
+    //     setTimeout(() => {
+    //       carouselRef.current?.goToSlide(targetIndex);
+    //     }, 100);
+    //   }
+    // }
+  // }, [displayQuestions, answers, searchParams, currentIndex]);
 
   // Update URL when index changes
   useEffect(() => {
@@ -157,9 +174,10 @@ const WLBLGameLayout = () => {
 
         // For Section A (Life Stress Assessment), group questions for display
         // For other sections, show as individual questions
-        const questionsForDisplay = sectionId === "Life Stress Assessment" 
-          ? createQuestionGroups(transformedQuestions)
-          : transformedQuestions;
+        const questionsForDisplay =
+          sectionId === "Life Stress Assessment"
+            ? createQuestionGroups(transformedQuestions)
+            : transformedQuestions;
 
         setDisplayQuestions(questionsForDisplay);
 
@@ -167,9 +185,13 @@ const WLBLGameLayout = () => {
         if (progressData?.exists && progressData.answeredQuestions) {
           const existingAnswers: Record<
             string,
-            { optionIndex?: number; optionText?: string; selectedQuestionIds?: string[] }
+            {
+              optionIndex?: number;
+              optionText?: string;
+              selectedQuestionIds?: string[];
+            }
           > = {};
-          
+
           // Handle individual question answers
           progressData.answeredQuestions.forEach((answer: any) => {
             const question = transformedQuestions.find(
@@ -189,12 +211,16 @@ const WLBLGameLayout = () => {
               if (displayQ.type === QuestionType.MULTIPLE_CHOICE_GROUP) {
                 const group = displayQ as QuestionGroup;
                 const selectedQuestionIds = group.questions
-                  .filter(q => existingAnswers[q._id] && existingAnswers[q._id].optionIndex === 0) // "Experienced" option
-                  .map(q => q._id);
-                
+                  .filter(
+                    (q) =>
+                      existingAnswers[q._id] &&
+                      existingAnswers[q._id].optionIndex === 0
+                  ) // "Experienced" option
+                  .map((q) => q._id);
+
                 if (selectedQuestionIds.length > 0) {
                   existingAnswers[group._id] = {
-                    selectedQuestionIds
+                    selectedQuestionIds,
                   };
                 }
               }
@@ -255,7 +281,10 @@ const WLBLGameLayout = () => {
     }
   };
 
-  const handleGroupSelection = async (groupId: string, selectedQuestionIds: string[]) => {
+  const handleGroupSelection = async (
+    groupId: string,
+    selectedQuestionIds: string[]
+  ) => {
     // Update local state immediately
     setAnswers((prev) => ({
       ...prev,
@@ -265,22 +294,25 @@ const WLBLGameLayout = () => {
     // Submit individual responses to backend for each question in the group
     try {
       setIsSubmitting(true);
-      
-      const currentGroup = displayQuestions.find(q => q._id === groupId) as QuestionGroup;
+
+      const currentGroup = displayQuestions.find(
+        (q) => q._id === groupId
+      ) as QuestionGroup;
       if (currentGroup) {
-        // Submit responses for all questions in the group
         const submitPromises = currentGroup.questions.map(async (question) => {
           const isSelected = selectedQuestionIds.includes(question._id);
           const optionIndex = isSelected ? 0 : 1; // 0 = "Experienced", 1 = "Not experienced"
-          
+
           return submitQuestionResponse(sectionId, {
             questionId: question._id,
             optionIndex,
           });
         });
-        
+
         await Promise.all(submitPromises);
-        console.log(`Successfully submitted group answers for ${currentGroup.questions.length} questions`);
+        console.log(
+          `Successfully submitted group answers for ${currentGroup.questions.length} questions`
+        );
       }
     } catch (error) {
       console.error("Failed to submit group answers:", error);
@@ -299,9 +331,12 @@ const WLBLGameLayout = () => {
     const currentAnswer = answers[currentQuestion._id];
 
     // Check if current question is answered
-    if (!currentAnswer || 
-        (currentQuestion.type === QuestionType.MULTIPLE_CHOICE_GROUP && 
-         (!currentAnswer.selectedQuestionIds || currentAnswer.selectedQuestionIds.length === 0))) {
+    if (
+      !currentAnswer ||
+      (currentQuestion.type === QuestionType.MULTIPLE_CHOICE_GROUP &&
+        (!currentAnswer.selectedQuestionIds ||
+          currentAnswer.selectedQuestionIds.length === 0))
+    ) {
       alert("Please select at least one option before proceeding");
       return;
     }
@@ -325,11 +360,14 @@ const WLBLGameLayout = () => {
   const isCurrentQuestionAnswered = () => {
     const currentQuestion = displayQuestions[currentIndex];
     const currentAnswer = answers[currentQuestion?._id];
-    
+
     if (currentQuestion?.type === QuestionType.MULTIPLE_CHOICE_GROUP) {
-      return currentAnswer?.selectedQuestionIds && currentAnswer.selectedQuestionIds.length > 0;
+      return (
+        currentAnswer?.selectedQuestionIds &&
+        currentAnswer.selectedQuestionIds.length > 0
+      );
     }
-    
+
     return !!currentAnswer;
   };
 
@@ -343,49 +381,45 @@ const WLBLGameLayout = () => {
       <Box
         component={"img"}
         src={cornerGraphic}
-        width={"100px"}
+        width={"140px"}
         sx={{
           position: "absolute",
-          top: "0",
+          top: "10px",
           right: "0",
         }}
       />
-      
-      {/* Header with Title and Counter */}
-      <Stack 
-        direction="row" 
-        justifyContent="space-between" 
-        alignItems="flex-start" 
-        position="relative" 
-        marginTop="16px"
+      <Box
+        sx={{
+          position: "absolute",
+          borderRadius: "20px",
+          right: "28px",
+          top:"75px"
+        }}
       >
         <Typography
-          fontSize={"25px"}
-          fontWeight={"600"}
+          fontSize={"30px"}
+          fontWeight={"700"}
+          color="#A4B56E"
+          sx={{ opacity: 0.4 }}
         >
+          {currentIndex + 1}/{displayQuestions.length}
+        </Typography>
+      </Box>
+
+      {/* Header with Title and Counter */}
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
+        position="relative"
+        marginTop="16px"
+      >
+        <Typography fontSize={"25px"} fontWeight={"600"}>
           What Life's Been <br />
           Like?
         </Typography>
-        
+
         {/* Page Counter */}
-        <Box
-          sx={{
-            borderRadius: "20px",
-            padding: "8px 16px",
-            paddingBottom: "0px",
-            marginTop: "4px",
-            alignSelf: "flex-end",
-          }}
-        >
-          <Typography
-            fontSize={"30px"}
-            fontWeight={"700"}
-            color="#A4B56E"
-            sx={{ opacity: 0.4 }}
-          >
-            {currentIndex + 1}/{displayQuestions.length}
-          </Typography>
-        </Box>
       </Stack>
 
       <LinearProgress
@@ -411,7 +445,7 @@ const WLBLGameLayout = () => {
           }}
           items={displayQuestions.map((question) => {
             const currentAnswer = answers[question._id];
-            
+
             return (
               <Stack flex={1} key={question._id} padding={"18px"} width="100%">
                 <QuestionRender
@@ -419,72 +453,36 @@ const WLBLGameLayout = () => {
                   game={game}
                   selectedOptionIndex={currentAnswer?.optionIndex}
                   selectedQuestionIds={currentAnswer?.selectedQuestionIds}
-                  onSelectionChange={(selectedQuestionIds: string[]) => 
+                  onSelectionChange={(selectedQuestionIds: string[]) =>
                     handleGroupSelection(question._id, selectedQuestionIds)
                   }
                 />
                 <Stack
                   direction={"row"}
-                  marginTop={"20px"}
+                  marginTop={"10px"}
                   justifyContent={"space-between"}
                   alignItems={"center"}
                   onClick={(e) => e.stopPropagation()}
                   gap={2}
                 >
                   {/* Previous Button */}
-                  <IconButton
-                    sx={{
-                      border: `3px solid #A4B56E`, // Updated border color
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      "&:hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.04)",
-                      },
-                    }}
-                    onClick={handlePrevious}
-                  >
-                    <ArrowBackIosNewIcon
-                      fontSize="medium"
-                      sx={{
-                        color: "#A4B56E !important", // Updated arrow color
-                        path: { color: "inherit !important" },
-                      }}
-                    />
+                  <IconButton onClick={handlePrevious} sx={{ padding: 0 }}>
+                    <CircleChevronLeft size={30} color="#A4B56E" />
                   </IconButton>
 
                   {/* Next/Finish Button */}
                   <IconButton
                     sx={{
-                      border: `3px solid #A4B56E`, // Updated border color
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      "&:hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.04)",
-                        opacity: 0.9,
-                      },
                       opacity: isSubmitting ? 0.7 : 1,
+                      padding: 0,
                     }}
                     onClick={handleNext}
                     // disabled={isSubmitting}
                   >
                     {currentIndex === displayQuestions.length - 1 ? (
-                      <CheckIcon
-                        fontSize="medium"
-                        sx={{
-                          color: "#A4B56E !important", // Updated checkmark color
-                          path: { color: "inherit !important" },
-                        }}
-                      />
+                      <CircleCheck size={30} color="#A4B56E" />
                     ) : (
-                      <ArrowForwardIosIcon
-                        fontSize="medium"
-                        sx={{
-                          color: "#A4B56E !important", // Updated arrow color
-                          path: { color: "inherit !important" },
-                        }}
-                      />
+                      <CircleChevronRight size={30} color="#A4B56E" />
                     )}
                   </IconButton>
                 </Stack>

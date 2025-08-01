@@ -5,9 +5,6 @@ import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/your-bou
 import Page from "../../../../components/layout/Page";
 import { games } from "../../data/allGames";
 import QuestionRender from "../../../questions/components/QuestionRender";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import CheckIcon from "@mui/icons-material/Check";
 import IconButton from "@mui/material/IconButton";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 import {
@@ -21,6 +18,11 @@ import VerticalCarousel, {
 } from "../../../../components/utility/VerticalCarousel";
 import { useDidYouKnow } from "../../../didYouKnow/hooks/useDidYouKnow";
 import DidYouKnowOverlay from "../../../didYouKnow/components/DidYouKnowOverlay";
+import {
+  CircleCheck,
+  CircleChevronLeft,
+  CircleChevronRight,
+} from "lucide-react";
 
 const YBBSGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
@@ -312,13 +314,32 @@ const YBBSGameLayout = () => {
       <Box
         component={"img"}
         src={cornerGraphic}
-        width={"100px"}
+        width={"160px"}
         sx={{
           position: "absolute",
-          top: "0",
+          top: "20px",
           right: "0",
         }}
       />
+      <Box
+        sx={{
+          position: "absolute",
+          top: "90px",
+          right: "20px",
+          borderRadius: "20px",
+          paddingBottom: "0px",
+          alignSelf: "flex-end",
+        }}
+      >
+        <Typography
+          fontSize={"30px"}
+          fontWeight={"700"}
+          color="#A4B56E"
+          sx={{ opacity: 0.4 }}
+        >
+          {currentIndex + 1}/{questions.length}
+        </Typography>
+      </Box>
       {/* Header with Title and Counter */}
       <Stack
         direction="row"
@@ -333,27 +354,10 @@ const YBBSGameLayout = () => {
           position={"relative"}
           marginTop={"16px"}
         >
-          Your Best Bouncing Self
+          Your Bounce
+          <br /> Back Style
         </Typography>
         {/* Page Counter */}
-        <Box
-          sx={{
-            borderRadius: "20px",
-            padding: "8px 16px",
-            paddingBottom: "0px",
-            marginTop: "4px",
-            alignSelf: "flex-end",
-          }}
-        >
-          <Typography
-            fontSize={"30px"}
-            fontWeight={"700"}
-            color="#A4B56E"
-            sx={{ opacity: 0.4 }}
-          >
-            {currentIndex + 1}/{questions.length}
-          </Typography>
-        </Box>
       </Stack>
 
       <LinearProgress
@@ -377,7 +381,7 @@ const YBBSGameLayout = () => {
             bgcolor: game?.theme.secondary.main,
           }}
           items={questions.map((question) => (
-            <Box key={question._id} padding={"18px"} width="100%">
+            <Stack key={question._id} padding={"18px"} width="100%" height={"100%"} justifyContent={"space-between"}>
               <QuestionRender
                 question={question}
                 game={game}
@@ -386,7 +390,7 @@ const YBBSGameLayout = () => {
 
               <Stack
                 direction={"row"}
-                marginTop={"50px"}
+                marginTop={"auto"}
                 justifyContent={"space-between"}
                 alignItems={"center"}
                 onClick={(e) => e.stopPropagation()}
@@ -395,61 +399,30 @@ const YBBSGameLayout = () => {
                 {/* Previous Button */}
                 <IconButton
                   sx={{
-                    border: `3px solid #A4B56E`,
-                    width: 40,
-                    height: 40,
-                    borderRadius: "50%",
-                    "&:hover": {
-                      backgroundColor: "rgba(0, 0, 0, 0.04)",
-                    },
+                    padding: 0,
                   }}
                   onClick={handlePrevious}
                 >
-                  <ArrowBackIosNewIcon
-                    fontSize="medium"
-                    sx={{
-                      color: "#A4B56E !important",
-                      path: { color: "inherit !important" },
-                    }}
-                  />
+                  <CircleChevronLeft size={30} color="#A4B56E" />
                 </IconButton>
 
                 {/* Next/Finish Button */}
                 <IconButton
                   sx={{
-                    border: `3px solid #A4B56E`,
-                    width: 40,
-                    height: 40,
-                    borderRadius: "50%",
-                    "&:hover": {
-                      backgroundColor: "rgba(0, 0, 0, 0.04)",
-                      opacity: 0.9,
-                    },
+                    padding: 0,
                     opacity: isSubmitting ? 0.7 : 1,
                   }}
                   onClick={handleNext}
                   // disabled={isSubmitting}
                 >
                   {currentIndex === questions.length - 1 ? (
-                    <CheckIcon
-                      fontSize="medium"
-                      sx={{
-                        color: "#A4B56E !important",
-                        path: { color: "inherit !important" },
-                      }}
-                    />
+                    <CircleCheck size={30} color="#A4B56E" />
                   ) : (
-                    <ArrowForwardIosIcon
-                      fontSize="medium"
-                      sx={{
-                        color: "#A4B56E !important",
-                        path: { color: "inherit !important" },
-                      }}
-                    />
+                    <CircleChevronRight size={30} color="#A4B56E" />
                   )}
                 </IconButton>
               </Stack>
-            </Box>
+            </Stack>
           ))}
         />
       </Stack>
