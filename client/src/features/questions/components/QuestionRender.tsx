@@ -1,54 +1,68 @@
 // QuestionRender.tsx
 import { Game } from "../../games/data/allGames";
-import { Question, QuestionType } from "../types/questionTypes";
+import { Question, QuestionType, QuestionGroup } from "../types/questionTypes";
 import LinearMeter from "./questions/LinearMeter";
-// import MeterInnerValue from "./questions/MeterInnerValue";
 import MeterOuterValue from "./questions/MeterOuterValue";
 import OptionsQuestion from "./questions/OptionsQuestion";
+import MultipleChoiceGroup from "./questions/MultipleChoiceGroup";
 
 interface QuestionRenderProps {
   game?: Game;
-  question: Question & { 
-    onSelect?: (option: string) => void;
-    onSelectWithIndex?: (optionIndex: number, optionText: string) => void;
-  };
+  question: Question | QuestionGroup;
   selectedOptionIndex?: number;
+  selectedQuestionIds?: string[];
+  onSelectionChange?: (selectedQuestionIds: string[]) => void;
 }
 
 const QuestionRender: React.FC<QuestionRenderProps> = ({ 
   game, 
   question, 
-  selectedOptionIndex 
+  selectedOptionIndex,
+  selectedQuestionIds,
+  onSelectionChange
 }) => {
-  if (question.type === QuestionType.OPTIONS) {
+  // Handle grouped questions (multiple choice) - frontend display only
+  if (question.type === QuestionType.MULTIPLE_CHOICE_GROUP) {
+    const questionGroup = question as QuestionGroup;
+    return (
+      <MultipleChoiceGroup
+        questionGroup={questionGroup}
+        game={game}
+        selectedQuestionIds={selectedQuestionIds}
+        onSelectionChange={onSelectionChange}
+      />
+    );
+  }
+
+  // Handle regular questions (existing logic unchanged)
+  const regularQuestion = question as Question;
+  
+  if (regularQuestion.type === QuestionType.OPTIONS) {
     return (
       <OptionsQuestion
-        question={question}
+        question={regularQuestion}
         game={game}
-        onSelect={question.onSelect}
+        onSelect={regularQuestion.onSelect}
         selectedOptionIndex={selectedOptionIndex}
       />
     );
   } 
-  // else if (question.type === QuestionType.METER_INNER_VALUE) {
-  //   return <MeterInnerValue question={question} game={game} selectedOptionIndex={selectedOptionIndex} />;
-  // } 
-  else if (question.type === QuestionType.SEMICIRCLE_METER) {
+  else if (regularQuestion.type === QuestionType.SEMICIRCLE_METER) {
     return (
       <MeterOuterValue 
-        question={question} 
+        question={regularQuestion} 
         game={game} 
         selectedOptionIndex={selectedOptionIndex}
-        onSelectWithIndex={question.onSelectWithIndex}
+        onSelectWithIndex={regularQuestion.onSelectWithIndex}
       />
     );
-  } else if (question.type === QuestionType.LINEAR_METER) {
+  } else if (regularQuestion.type === QuestionType.LINEAR_METER) {
     return (
       <LinearMeter 
-        question={question} 
+        question={regularQuestion} 
         game={game} 
         selectedOptionIndex={selectedOptionIndex}
-        onSelectWithIndex={question.onSelectWithIndex}
+        onSelectWithIndex={regularQuestion.onSelectWithIndex}
       />
     );
   }

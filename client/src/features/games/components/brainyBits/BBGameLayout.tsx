@@ -315,7 +315,7 @@ const BBGameLayout = () => {
           disableTouch={!isCurrentQuestionAnswered()}
           cardStyle={{
             border: `2px solid ${game?.theme.primary.main}`,
-            bgcolor: game?.theme.secondary.main,
+            bgcolor: "white",
           }}
           items={questions.map((question) => (
             <Stack
