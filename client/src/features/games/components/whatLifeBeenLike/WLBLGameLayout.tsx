@@ -1,4 +1,3 @@
-// WLBLGameLayout.tsx
 import { Box, LinearProgress, Stack, Typography } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -33,10 +32,11 @@ import Loader from "../../../../components/ui/Loader";
 const WLBLGameLayout = () => {
   const carouselRef = useRef<HorizontalCarouselRef>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [displayQuestions, setDisplayQuestions] = useState<
     (Question | QuestionGroup)[]
   >([]);
-  const originalQuestionsRef = useRef<Question[]>([]);
+  const originalQuestionsRef = useRef<Question[]>([]); // Store original DB questions
   const [answers, setAnswers] = useState<
     Record<
       string,
@@ -54,15 +54,6 @@ const WLBLGameLayout = () => {
   const game = games.find((game) => game.id === "what-life-been-like");
   const navigate = useNavigateWithSound();
   const sectionId = "Life Stress Assessment";
-
-  // Helper function to get current index from URL - single source of truth
-  const getCurrentIndex = () => {
-    const questionIndex = searchParams.get("question");
-    const index = questionIndex ? parseInt(questionIndex, 10) : 0;
-    return !isNaN(index) && index >= 0 && index < displayQuestions.length ? index : 0;
-  };
-
-  const currentIndex = getCurrentIndex();
 
   // Did You Know overlay logic
   const { isOverlayOpen, currentFact, closeOverlay } = useDidYouKnow(
@@ -100,37 +91,54 @@ const WLBLGameLayout = () => {
     return groupedQuestions;
   };
 
-  // Set initial question index when questions are loaded
+  // Initialize current index from URL params
   useEffect(() => {
-    if (displayQuestions.length > 0 && !searchParams.get("question")) {
-      // For WLBLGameLayout, we might want to start from the beginning or find first unanswered
-      let firstUnansweredIndex = -1;
-      for (let i = 0; i < displayQuestions.length; i++) {
-        if (!answers[displayQuestions[i]._id]) {
-          firstUnansweredIndex = i;
-          break;
-        }
+    const questionIndex = searchParams.get("question");
+    if (questionIndex) {
+      const index = parseInt(questionIndex, 10);
+      if (!isNaN(index) && index >= 0) {
+        setCurrentIndex(index);
       }
-
-      const targetIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : 0;
-
-      setSearchParams(prev => {
-        const newParams = new URLSearchParams(prev);
-        newParams.set("question", targetIndex.toString());
-        return newParams;
-      }, { replace: true });
     }
-  }, [displayQuestions, answers, searchParams, setSearchParams]);
+  }, [searchParams]);
 
-  // Sync carousel with URL changes
+  // Set initial index to first unanswered question or last question if all answered
+  // useEffect(() => {
+  // const questionIndex = searchParams.get("question");
+
+  // if (!questionIndex && displayQuestions.length > 0) {
+  //   let firstUnansweredIndex = -1;
+  //   for (let i = 0; i < displayQuestions.length; i++) {
+  //     if (!answers[displayQuestions[i]._id]) {
+  //       firstUnansweredIndex = i;
+  //       break;
+  //     }
+  //   }
+
+  //   const targetIndex =
+  //     firstUnansweredIndex !== -1
+  //       ? firstUnansweredIndex
+  //       : displayQuestions.length - 1;
+
+  //   if (targetIndex !== currentIndex) {
+  //     setCurrentIndex(targetIndex);
+  //     setTimeout(() => {
+  //       carouselRef.current?.goToSlide(targetIndex);
+  //     }, 100);
+  //   }
+  // }
+  // }, [displayQuestions, answers, searchParams, currentIndex]);
+
+  // Update URL when index changes
   useEffect(() => {
     if (displayQuestions.length > 0) {
-      const targetIndex = getCurrentIndex();
-      setTimeout(() => {
-        carouselRef.current?.goToSlide(targetIndex);
-      }, 100);
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("question", currentIndex.toString());
+        return newParams;
+      });
     }
-  }, [searchParams, displayQuestions.length]);
+  }, [currentIndex, displayQuestions.length, setSearchParams]);
 
   useEffect(() => {
     const loadQuestionsAndProgress = async () => {
@@ -222,6 +230,20 @@ const WLBLGameLayout = () => {
           setAnswers(existingAnswers);
         }
 
+        // Navigate to saved index after questions are loaded
+        const questionIndex = searchParams.get("question");
+        if (questionIndex && questionsForDisplay.length > 0) {
+          const index = parseInt(questionIndex, 10);
+          if (
+            !isNaN(index) &&
+            index >= 0 &&
+            index < questionsForDisplay.length
+          ) {
+            setTimeout(() => {
+              carouselRef.current?.goToSlide(index);
+            }, 100);
+          }
+        }
       } catch (err) {
         console.error("Failed to load questions:", err);
         setError("Failed to load questions. Please try again later.");
@@ -300,13 +322,8 @@ const WLBLGameLayout = () => {
   };
 
   const handlePrevious = () => {
-    if (currentIndex === 0) return;
-    
-    setSearchParams(prev => {
-      const newParams = new URLSearchParams(prev);
-      newParams.set("question", (currentIndex - 1).toString());
-      return newParams;
-    });
+    if (carouselRef.current?.getCurrentIndex() === 0) return;
+    carouselRef.current?.previous();
   };
 
   const handleNext = () => {
@@ -315,10 +332,8 @@ const WLBLGameLayout = () => {
 
     // Check if current question is answered
     if (
-      !currentAnswer ||
-      (currentQuestion.type === QuestionType.MULTIPLE_CHOICE_GROUP &&
-        (!currentAnswer.selectedQuestionIds ||
-          currentAnswer.selectedQuestionIds.length === 0))
+      !currentAnswer &&
+      currentQuestion.type != QuestionType.MULTIPLE_CHOICE_GROUP
     ) {
       alert("Please select at least one option before proceeding");
       return;
@@ -329,27 +344,13 @@ const WLBLGameLayout = () => {
       return;
     }
 
-    setSearchParams(prev => {
-      const newParams = new URLSearchParams(prev);
-      newParams.set("question", (currentIndex + 1).toString());
-      return newParams;
-    });
+    carouselRef.current?.next();
   };
 
   const handleCardChange = () => {
-    // Update URL when carousel changes (for manual swipe/touch navigation)
     setTimeout(() => {
       const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-      const currentUrlIndex = getCurrentIndex();
-      
-      // Only update URL if carousel index differs from URL index
-      if (currentIdx !== currentUrlIndex) {
-        setSearchParams(prev => {
-          const newParams = new URLSearchParams(prev);
-          newParams.set("question", currentIdx.toString());
-          return newParams;
-        });
-      }
+      setCurrentIndex(currentIdx);
     }, 0);
   };
 
@@ -369,7 +370,7 @@ const WLBLGameLayout = () => {
   };
 
   // Show loading spinner
-  if (isLoading) return <Loader />;
+  if (isLoading) return <Loader/>;
   if (error) return <div className="error-message">{error}</div>;
   if (displayQuestions.length === 0) return <div>No questions found</div>;
 
@@ -390,7 +391,7 @@ const WLBLGameLayout = () => {
           position: "absolute",
           borderRadius: "20px",
           right: "28px",
-          top:"75px"
+          top: "75px",
         }}
       >
         <Typography
