@@ -18,14 +18,16 @@ const SemicircleMeterChart = ({
   selectedIndex, // No default value - undefined means no selection
   onChange,
 }: SemicircleMeterChartProps) => {
-  const [currentIndex, setCurrentIndex] = useState<number | undefined>(selectedIndex);
+  const [currentIndex, setCurrentIndex] = useState<number | undefined>(
+    selectedIndex
+  );
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const colors = [
-    "#69e287",  // Green
-    "#fedf7f",  // Yellow
-    "#f96666"   // Red
+    "#69e287", // Green
+    "#fedf7f", // Yellow
+    "#f96666", // Red
   ];
 
   const handleClick = (index: number) => {
@@ -35,38 +37,38 @@ const SemicircleMeterChart = ({
 
   const getIndexFromAngle = (clientX: number, clientY: number) => {
     if (!containerRef.current) return currentIndex ?? 0;
-    
+
     const rect = containerRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height * 0.8; // Semicircle center is at 80% height
-    
+
     // Calculate angle from center
     const deltaX = clientX - centerX;
     const deltaY = centerY - clientY; // Invert Y axis
-    
+
     let angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-    
+
     // Normalize angle to 0-180 range (semicircle)
     if (angle < 0) angle += 360;
     if (angle > 180) angle = angle > 270 ? 0 : 180;
-    
+
     // Reverse the angle mapping so left-to-right movement works correctly
     // Invert the angle: 180 degrees becomes 0, 0 degrees becomes 180
     const reversedAngle = 180 - angle;
-    
+
     // Map angle to section index
     const sectionAngle = 180 / labels.length;
     const adjustedAngle = reversedAngle + sectionAngle / 2; // Offset to center sections
     const index = Math.floor(adjustedAngle / sectionAngle);
-    
+
     return Math.max(0, Math.min(index, labels.length - 1));
   };
 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     setIsDragging(true);
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
     const newIndex = getIndexFromAngle(clientX, clientY);
     setCurrentIndex(newIndex);
     onChange?.(newIndex);
@@ -74,10 +76,10 @@ const SemicircleMeterChart = ({
 
   const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging) return;
-    
+
     e.preventDefault();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
     const newIndex = getIndexFromAngle(clientX, clientY);
     setCurrentIndex(newIndex);
     onChange?.(newIndex);
@@ -101,17 +103,19 @@ const SemicircleMeterChart = ({
     const handleTouchEnd = () => handleDragEnd();
 
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      document.addEventListener('touchmove', handleTouchMove, { passive: false });
-      document.addEventListener('touchend', handleTouchEnd);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleTouchEnd);
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
     };
   }, [isDragging]);
 
@@ -135,13 +139,15 @@ const SemicircleMeterChart = ({
       onMouseDown={handleDragStart}
       onTouchStart={handleDragStart}
     >
-
-
       {/* The semicircle meter */}
       <ResponsiveContainer width="100%" height="80%">
         <PieChart>
           <Pie
-            data={labels.map((label, index) => ({ name: label, value: 1, index }))}
+            data={labels.map((label, index) => ({
+              name: label,
+              value: 1,
+              index,
+            }))}
             cx="50%"
             cy="60%"
             startAngle={180}
@@ -160,7 +166,7 @@ const SemicircleMeterChart = ({
                 fill={colors[index]}
                 stroke="none"
                 onClick={() => !isDragging && handleClick(index)}
-                style={{ 
+                style={{
                   cursor: "pointer",
                   outline: "none",
                   pointerEvents: isDragging ? "none" : "auto",
@@ -179,52 +185,53 @@ const SemicircleMeterChart = ({
           sx={{
             width: 24,
             transformOrigin: "bottom center",
-            transform: currentIndex !== undefined 
-              ? `rotate(${(currentIndex * 90) - 90}deg)`
-              : `rotate(-90deg)`,
+            transform:
+              currentIndex !== undefined
+                ? `rotate(${currentIndex * 90 - 90}deg)`
+                : `rotate(-90deg)`,
             transition: "transform 0.3s ease",
           }}
         />
       </Box>
 
       {/* Color indicators with labels - NEW SECTION */}
-      <Stack 
-        direction="row" 
-        justifyContent="center" 
-        spacing={2} 
-        sx={{ 
-          width: '100%', 
+      <Stack
+        direction="row"
+        justifyContent="center"
+        spacing={2}
+        sx={{
+          width: "100%",
           // mb: 2,
-          position: 'relative',
-          zIndex: 1 
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {labels.map((label, index) => (
-          <Box 
+          <Box
             key={`indicator-${index}`}
-            sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center',
-              width: '60%'
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "60%",
             }}
           >
             <Box
               sx={{
                 width: 20,
                 height: 16,
-                borderRadius: '30%',
+                borderRadius: "30%",
                 backgroundColor: colors[index],
                 mb: 1,
                 // border: currentIndex === index ? '2px solid #000' : 'none'
               }}
             />
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                textAlign: 'center',
-                fontWeight: currentIndex === index ? 'bold' : 'normal',
-                fontSize: '14px'
+            <Typography
+              variant="body2"
+              sx={{
+                textAlign: "center",
+                fontWeight: currentIndex === index ? "bold" : "normal",
+                fontSize: "14px",
               }}
             >
               {label}
@@ -233,7 +240,7 @@ const SemicircleMeterChart = ({
         ))}
       </Stack>
 
-      {/* Selected option display */}
+      {/* Selected option display
       {currentIndex !== undefined && (
         <Box
           sx={{
@@ -249,7 +256,7 @@ const SemicircleMeterChart = ({
         >
           <Typography>{labels[currentIndex]}</Typography>
         </Box>
-      )}
+      )} */}
     </Box>
   );
 };

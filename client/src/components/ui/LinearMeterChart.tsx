@@ -53,22 +53,25 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
     return colors[colorIndex] || colors[colors.length - 1];
   }, []);
 
-  const getIndexFromPosition = useCallback((clientX: number) => {
-    if (!containerRef.current) return currentIndex ?? 0;
+  const getIndexFromPosition = useCallback(
+    (clientX: number) => {
+      if (!containerRef.current) return currentIndex ?? 0;
 
-    const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = clientX - rect.left;
-    const containerWidth = rect.width;
+      const rect = containerRef.current.getBoundingClientRect();
+      const relativeX = clientX - rect.left;
+      const containerWidth = rect.width;
 
-    // Calculate percentage of position (0 to 1)
-    const percentage = Math.max(0, Math.min(1, relativeX / containerWidth));
+      // Calculate percentage of position (0 to 1)
+      const percentage = Math.max(0, Math.min(1, relativeX / containerWidth));
 
-    // Map percentage to label index
-    const exactIndex = percentage * (labels.length - 1);
-    const newIndex = Math.round(exactIndex);
+      // Map percentage to label index
+      const exactIndex = percentage * (labels.length - 1);
+      const newIndex = Math.round(exactIndex);
 
-    return Math.max(0, Math.min(newIndex, labels.length - 1));
-  }, [currentIndex, labels.length]);
+      return Math.max(0, Math.min(newIndex, labels.length - 1));
+    },
+    [currentIndex, labels.length]
+  );
 
   // Throttled function to update position and trigger onChange
   const updatePosition = useCallback(
@@ -91,14 +94,17 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
     updatePosition(newIndex);
   };
 
-  const handleDragMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDragging) return;
+  const handleDragMove = useCallback(
+    (e: React.MouseEvent | React.TouchEvent) => {
+      if (!isDragging) return;
 
-    e.preventDefault();
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const newIndex = getIndexFromPosition(clientX);
-    updatePosition(newIndex);
-  }, [isDragging, getIndexFromPosition, updatePosition]);
+      e.preventDefault();
+      const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const newIndex = getIndexFromPosition(clientX);
+      updatePosition(newIndex);
+    },
+    [isDragging, getIndexFromPosition, updatePosition]
+  );
 
   const handleDragEnd = () => {
     setIsDragging(false);
@@ -135,7 +141,8 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
 
     animationFrameRef.current = requestAnimationFrame(() => {
       const newPosition = calculateNeedlePosition();
-      if (Math.abs(newPosition - needlePosition) > 1) { // Only update if significant change
+      if (Math.abs(newPosition - needlePosition) > 1) {
+        // Only update if significant change
         setNeedlePosition(newPosition);
       }
     });
@@ -232,7 +239,15 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
         />
       );
     });
-  }, [totalLines, labels.length, getColorForIndex, lineWidth, lineGap, isDragging, handleLineClick]);
+  }, [
+    totalLines,
+    labels.length,
+    getColorForIndex,
+    lineWidth,
+    lineGap,
+    isDragging,
+    handleLineClick,
+  ]);
 
   return (
     <Box sx={{ position: "relative", width: "100%" }}>
