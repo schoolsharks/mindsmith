@@ -137,12 +137,14 @@ export const submitResponse = async (req: Request, res: Response) => {
       if (user && user.quizProgress) {
         // Get all sections to determine the current section index
         const sections = await Section.find().sort("order");
-        const completedSectionIndex = sections.findIndex(s => s._id.toString() === section._id.toString());
-        
+        const completedSectionIndex = sections.findIndex(
+          (s) => s._id.toString() === section._id.toString()
+        );
+
         if (completedSectionIndex === -1) {
           throw new Error("Section not found in database");
         }
-        
+
         const totalSections = 4; // 0, 1, 2, 3
         const nextSectionIndex = completedSectionIndex + 1;
 
@@ -173,6 +175,62 @@ export const submitResponse = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error submitting response:", error);
     res.status(500).json({ message: "Error submitting response" });
+  }
+};
+
+export const finishSection = async (req: Request, res: Response) => {
+  try {
+    const { sectionNumber } = req.body;
+    const userId = req.user?.id;
+
+    // Validate input
+    if (typeof sectionNumber !== 'number' || sectionNumber < 0 || sectionNumber > 3) {
+      res.status(400).json({ message: "Invalid section number. Must be between 0 and 3." });
+      return;
+    }
+
+    if (!userId) {
+      res.status(401).json({ message: "User not authenticated" });
+      return;
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    // Initialize quizProgress if it doesn't exist
+    if (!user.quizProgress) {
+      user.quizProgress = {
+        currentSection: 0,
+        completed: false
+      };
+    }
+
+    // Update the current section to the next one (max 3)
+    const nextSection = Math.min(sectionNumber + 1, 3);
+    const isQuizCompleted = nextSection >= 3 && sectionNumber === 3; // Completed if moving from section 3
+
+    user.quizProgress = {
+      ...user.quizProgress,
+      currentSection: nextSection,
+      completed: isQuizCompleted
+    };
+
+    // Save the user with updated progress
+    await user.save();
+
+    res.status(200).json({
+      message: "Section finished successfully",
+      currentSection: user.quizProgress.currentSection,
+      completed: user.quizProgress.completed,
+      sectionCompleted: sectionNumber
+    });
+
+  } catch (error) {
+    console.error("Error finishing section:", error);
+    res.status(500).json({ message: "Error finishing section" });
   }
 };
 

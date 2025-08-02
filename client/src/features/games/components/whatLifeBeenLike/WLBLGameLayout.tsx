@@ -14,6 +14,7 @@ import {
   fetchSectionQuestions,
   submitQuestionResponse,
   getUserProgress,
+  finishSection,
 } from "../../../../services/api/assessment";
 import {
   Question,
@@ -326,7 +327,28 @@ const WLBLGameLayout = () => {
     carouselRef.current?.previous();
   };
 
-  const handleNext = () => {
+  const handleFinish = async () => {
+    try {
+      setIsSubmitting(true);
+      
+      // Call the finish section API with section number 0 (Life Stress Assessment)
+      const response = await finishSection(0);
+      
+      console.log("Section finished successfully:", response);
+      
+      // Optional: Show success message or handle any additional logic
+      // You could add a toast notification here if needed
+      
+    } catch (error) {
+      console.error("Error finishing section:", error);
+      // Optional: Show error message to user
+      // You could add an error toast here if needed
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleNext = async () => {
     const currentQuestion = displayQuestions[currentIndex];
     const currentAnswer = answers[currentQuestion._id];
 
@@ -340,6 +362,7 @@ const WLBLGameLayout = () => {
     }
 
     if (currentIndex === displayQuestions.length - 1) {
+      await handleFinish();
       navigate("/user/home?nextSectionTransition=true");
       return;
     }
@@ -370,7 +393,7 @@ const WLBLGameLayout = () => {
   };
 
   // Show loading spinner
-  if (isLoading) return <Loader/>;
+  if (isLoading) return <Loader />;
   if (error) return <div className="error-message">{error}</div>;
   if (displayQuestions.length === 0) return <div>No questions found</div>;
 

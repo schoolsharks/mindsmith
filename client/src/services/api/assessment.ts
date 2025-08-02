@@ -57,6 +57,29 @@ export const getUserProgress = async (sectionId: string) => {
   }
 };
 
+export const finishSection = async (sectionNumber: number) => {
+  try {
+    const response = await axios.post(
+      `/api/v1/assessment/finish-section`,
+      { sectionNumber },
+      { withCredentials: true }
+    );
+    
+    // Update the quiz progress in the store
+    if (response.data.currentSection !== undefined) {
+      store.dispatch(updateQuizProgress({
+        currentSection: response.data.currentSection,
+        completed: response.data.completed
+      }));
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error("Error finishing section:", error);
+    throw error;
+  }
+};
+
 // Legacy function - keeping for compatibility
 // export const submitAnswer = async (
 //   sectionId: string,
