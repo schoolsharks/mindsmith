@@ -23,6 +23,7 @@ import {
   CircleChevronLeft,
   CircleChevronRight,
 } from "lucide-react";
+import Loader from "../../../../components/ui/Loader";
 
 const FYFGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
@@ -241,7 +242,7 @@ const FYFGameLayout = () => {
     return !!answers[currentQuestionId];
   };
 
-  if (isLoading) return <div>Loading questions...</div>;
+  if (isLoading) return <Loader />;
   if (error) return <div className="error-message">{error}</div>;
   if (questions.length === 0) return <div>No questions found</div>;
 
@@ -331,7 +332,7 @@ const FYFGameLayout = () => {
                   alignItems={"center"}
                 >
                   <IconButton onClick={handlePrevious} sx={{ padding: 0 }}>
-                    <CircleChevronLeft size={30} color="#8DD1FF" />
+                    <CircleChevronLeft size={36} color="#8DD1FF" />
                   </IconButton>
 
                   <IconButton
@@ -346,9 +347,9 @@ const FYFGameLayout = () => {
                     // disabled={isSubmitting}
                   >
                     {currentIndex === questions.length - 1 ? (
-                      <CircleCheck size={30} color="#8DD1FF" />
+                      <CircleCheck size={36} color="#8DD1FF" />
                     ) : (
-                      <CircleChevronRight size={30} color="#8DD1FF" />
+                      <CircleChevronRight size={36} color="#8DD1FF" />
                     )}
                   </IconButton>
                 </Stack>

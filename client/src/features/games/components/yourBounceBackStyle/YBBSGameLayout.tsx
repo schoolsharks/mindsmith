@@ -23,6 +23,7 @@ import {
   CircleChevronLeft,
   CircleChevronRight,
 } from "lucide-react";
+import Loader from "../../../../components/ui/Loader";
 
 const YBBSGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
@@ -305,7 +306,7 @@ const YBBSGameLayout = () => {
     return !!answers[currentQuestionId];
   };
 
-  if (isLoading) return <div>Loading questions...</div>;
+  if (isLoading) return <Loader />;
   if (error) return <div className="error-message">{error}</div>;
   if (questions.length === 0) return <div>No questions found</div>;
 
@@ -381,7 +382,13 @@ const YBBSGameLayout = () => {
             bgcolor: game?.theme.secondary.main,
           }}
           items={questions.map((question) => (
-            <Stack key={question._id} padding={"18px"} width="100%" height={"100%"} justifyContent={"space-between"}>
+            <Stack
+              key={question._id}
+              padding={"18px"}
+              width="100%"
+              height={"100%"}
+              justifyContent={"space-between"}
+            >
               <QuestionRender
                 question={question}
                 game={game}
@@ -403,7 +410,7 @@ const YBBSGameLayout = () => {
                   }}
                   onClick={handlePrevious}
                 >
-                  <CircleChevronLeft size={30} color="#A4B56E" />
+                  <CircleChevronLeft size={36} color="#A4B56E" />
                 </IconButton>
 
                 {/* Next/Finish Button */}
@@ -416,9 +423,9 @@ const YBBSGameLayout = () => {
                   // disabled={isSubmitting}
                 >
                   {currentIndex === questions.length - 1 ? (
-                    <CircleCheck size={30} color="#A4B56E" />
+                    <CircleCheck size={36} color="#A4B56E" />
                   ) : (
-                    <CircleChevronRight size={30} color="#A4B56E" />
+                    <CircleChevronRight size={36} color="#A4B56E" />
                   )}
                 </IconButton>
               </Stack>

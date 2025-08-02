@@ -28,6 +28,7 @@ import {
   CircleChevronLeft,
   CircleChevronRight,
 } from "lucide-react";
+import Loader from "../../../../components/ui/Loader";
 
 const WLBLGameLayout = () => {
   const carouselRef = useRef<HorizontalCarouselRef>(null);
@@ -372,7 +373,7 @@ const WLBLGameLayout = () => {
   };
 
   // Show loading spinner
-  if (isLoading) return <div>Loading questions...</div>;
+  if (isLoading) return <Loader />;
   if (error) return <div className="error-message">{error}</div>;
   if (displayQuestions.length === 0) return <div>No questions found</div>;
 
@@ -467,7 +468,7 @@ const WLBLGameLayout = () => {
                 >
                   {/* Previous Button */}
                   <IconButton onClick={handlePrevious} sx={{ padding: 0 }}>
-                    <CircleChevronLeft size={30} color="#A4B56E" />
+                    <CircleChevronLeft size={36} color="#A4B56E" />
                   </IconButton>
 
                   {/* Next/Finish Button */}
@@ -480,9 +481,9 @@ const WLBLGameLayout = () => {
                     // disabled={isSubmitting}
                   >
                     {currentIndex === displayQuestions.length - 1 ? (
-                      <CircleCheck size={30} color="#A4B56E" />
+                      <CircleCheck size={36} color="#A4B56E" />
                     ) : (
-                      <CircleChevronRight size={30} color="#A4B56E" />
+                      <CircleChevronRight size={36} color="#A4B56E" />
                     )}
                   </IconButton>
                 </Stack>

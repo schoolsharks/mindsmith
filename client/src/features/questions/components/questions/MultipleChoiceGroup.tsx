@@ -53,7 +53,7 @@ const MultipleChoiceGroup: React.FC<MultipleChoiceGroupProps> = ({
         Select all that apply to your life experiences:
       </Typography> */}
       
-      <Stack spacing={2}>
+      <Stack spacing={1}>
         {questionGroup.questions.map((question) => {
           const isSelected = selectedOptions.has(question._id);
           

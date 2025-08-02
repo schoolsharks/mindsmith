@@ -33,7 +33,7 @@ const DidYouKnowOverlay = ({ open, onClose, fact }: DidYouKnowOverlayProps) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeInOut"}}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
         style={{
           position: "relative",
           maxWidth: "500px",
@@ -49,14 +49,14 @@ const DidYouKnowOverlay = ({ open, onClose, fact }: DidYouKnowOverlayProps) => {
           padding={"20px"}
           position="relative"
         >
-          <Stack direction={"row"} justifyContent={"flex-end"}>
+          <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
+            <Typography fontSize={"25px"} fontWeight={"700"}>
+              Did You Know...
+            </Typography>
             <IconButton onClick={onClose}>
               <X />
             </IconButton>
           </Stack>
-          <Typography fontSize={"25px"} fontWeight={"700"}>
-            Did You Know...
-          </Typography>
           <Typography fontSize={"20px"} fontWeight={"400"} marginTop={"10px"}>
             {fact}
           </Typography>

@@ -23,6 +23,7 @@ import {
   CircleChevronLeft,
   CircleChevronRight,
 } from "lucide-react";
+import Loader from "../../../../components/ui/Loader";
 
 const BBGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
@@ -274,7 +275,7 @@ const BBGameLayout = () => {
     return !!answers[currentQuestionId];
   };
 
-  if (isLoading) return <div>Loading questions...</div>;
+  if (isLoading) return <Loader />;
   if (error) return <div className="error-message">{error}</div>;
   if (questions.length === 0) return <div>No questions found</div>;
 
@@ -370,7 +371,7 @@ const BBGameLayout = () => {
                     handlePrevious();
                   }}
                 >
-                  <CircleChevronLeft size={30} color="#8DD1FF" />
+                  <CircleChevronLeft size={36} color="#8DD1FF" />
                 </IconButton>
 
                 <IconButton
@@ -384,9 +385,9 @@ const BBGameLayout = () => {
                   // disabled={isSubmitting}
                 >
                   {currentIndex === questions.length - 1 ? (
-                    <CircleCheck size={30} color="#8DD1FF" />
+                    <CircleCheck size={36} color="#8DD1FF" />
                   ) : (
-                    <CircleChevronRight size={30} color="#8DD1FF" />
+                    <CircleChevronRight size={36} color="#8DD1FF" />
                   )}
                 </IconButton>
               </Stack>

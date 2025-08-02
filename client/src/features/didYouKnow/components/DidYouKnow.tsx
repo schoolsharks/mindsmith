@@ -8,8 +8,9 @@ interface DidYouKnowProps {
 }
 
 const DidYouKnow = ({ onClose, fact }: DidYouKnowProps) => {
-  const defaultFact = "Your brain generates enough electricity to power a light bulb even when you're asleep?";
-  
+  const defaultFact =
+    "Your brain generates enough electricity to power a light bulb even when you're asleep?";
+
   return (
     <>
       <Box
@@ -18,14 +19,18 @@ const DidYouKnow = ({ onClose, fact }: DidYouKnowProps) => {
         padding={"20px"}
         marginTop={"130px"}
       >
-        <Stack direction={"row"} justifyContent={"flex-end"}>
+        <Stack
+          direction={"row"}
+          justifyContent={"space-between"}
+          alignItems={"center"}
+        >
+          <Typography fontSize={"25px"} fontWeight={"700"}>
+            Did You Know...
+          </Typography>
           <IconButton onClick={onClose}>
             <X />
           </IconButton>
         </Stack>
-        <Typography fontSize={"25px"} fontWeight={"700"}>
-          Did You Know...
-        </Typography>
         <Typography fontSize={"20px"} fontWeight={"400"} marginTop={"10px"}>
           {fact || defaultFact}
         </Typography>

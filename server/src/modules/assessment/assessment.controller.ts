@@ -131,9 +131,6 @@ export const submitResponse = async (req: Request, res: Response) => {
 
     const isCurrentSectionComplete =
       userResponse.answers.length >= totalQuestions;
-    console.log(
-      `User ${userId} answered ${userResponse.answers.length} questions out of ${totalQuestions} in section ${sectionId}. Section complete: ${isCurrentSectionComplete}`
-    );
     // If current section is complete, update user's quiz progress
     if (isCurrentSectionComplete) {
       const user = await User.findById(userId);
