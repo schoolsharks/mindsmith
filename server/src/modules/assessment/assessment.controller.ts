@@ -131,22 +131,28 @@ export const submitResponse = async (req: Request, res: Response) => {
 
     const isCurrentSectionComplete =
       userResponse.answers.length >= totalQuestions;
-    // If current section is complete, update user's quiz progress
+
     if (isCurrentSectionComplete) {
       const user = await User.findById(userId);
       if (user && user.quizProgress) {
-        const currentSection = user.quizProgress.currentSection || 0;
-        const nextSection = currentSection + 1;
-        const totalSections = 4; // Based on the 4 games/sections available
+        // Get all sections to determine the current section index
+        const sections = await Section.find().sort("order");
+        const completedSectionIndex = sections.findIndex(s => s._id.toString() === section._id.toString());
+        
+        if (completedSectionIndex === -1) {
+          throw new Error("Section not found in database");
+        }
+        
+        const totalSections = 4; // 0, 1, 2, 3
+        const nextSectionIndex = completedSectionIndex + 1;
 
-        // Update quiz progress
-        if (nextSection >= totalSections) {
-          // All sections completed
+        if (nextSectionIndex >= totalSections) {
+          // Just completed the last section (index 3)
           user.quizProgress.completed = true;
-          user.quizProgress.currentSection = totalSections - 1; // Keep at last section
+          user.quizProgress.currentSection = completedSectionIndex; // Keep at last section
         } else {
           // Move to next section
-          user.quizProgress.currentSection = nextSection;
+          user.quizProgress.currentSection = nextSectionIndex;
         }
 
         await user.save();

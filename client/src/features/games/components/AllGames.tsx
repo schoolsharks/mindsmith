@@ -21,20 +21,33 @@ const AllGames = () => {
   useEffect(() => {
     if (nextSectionTransition === "true") {
       if (quizProgress?.completed === false) {
+        // Start from the previous section for animation effect
         setCurrentSection(Math.max((quizProgress?.currentSection ?? 0) - 1, 0));
         setTimeout(() => {
+          // Then move to the current section
           setCurrentSection(quizProgress?.currentSection ?? 0);
+          // Clean up the URL parameter
           const newParams = new URLSearchParams(searchParams);
           newParams.delete("nextSectionTransition");
           navigate(`/user/home?${newParams.toString()}`, { replace: true });
         }, 1000);
       } else {
+        // Quiz is completed, show all sections
         setCurrentSection(4);
+        // Clean up the URL parameter even when quiz is completed
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete("nextSectionTransition");
+        navigate(`/user/home?${newParams.toString()}`, { replace: true });
       }
     } else {
-      setCurrentSection(quizProgress?.currentSection ?? 0);
+      // No transition, directly set to current section
+      if (quizProgress?.completed === true) {
+        setCurrentSection(4);
+      } else {
+        setCurrentSection(quizProgress?.currentSection ?? 0);
+      }
     }
-  }, [nextSectionTransition, quizProgress?.currentSection]);
+  }, [nextSectionTransition, quizProgress?.currentSection, quizProgress?.completed, searchParams, navigate]);
 
   return (
     <Stack direction={"row"} gap={"40px"} height={"100%"}>

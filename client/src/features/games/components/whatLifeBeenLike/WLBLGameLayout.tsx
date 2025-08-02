@@ -33,11 +33,10 @@ import Loader from "../../../../components/ui/Loader";
 const WLBLGameLayout = () => {
   const carouselRef = useRef<HorizontalCarouselRef>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [displayQuestions, setDisplayQuestions] = useState<
     (Question | QuestionGroup)[]
   >([]);
-  const originalQuestionsRef = useRef<Question[]>([]); // Store original DB questions
+  const originalQuestionsRef = useRef<Question[]>([]);
   const [answers, setAnswers] = useState<
     Record<
       string,
@@ -55,6 +54,15 @@ const WLBLGameLayout = () => {
   const game = games.find((game) => game.id === "what-life-been-like");
   const navigate = useNavigateWithSound();
   const sectionId = "Life Stress Assessment";
+
+  // Helper function to get current index from URL - single source of truth
+  const getCurrentIndex = () => {
+    const questionIndex = searchParams.get("question");
+    const index = questionIndex ? parseInt(questionIndex, 10) : 0;
+    return !isNaN(index) && index >= 0 && index < displayQuestions.length ? index : 0;
+  };
+
+  const currentIndex = getCurrentIndex();
 
   // Did You Know overlay logic
   const { isOverlayOpen, currentFact, closeOverlay } = useDidYouKnow(
@@ -92,54 +100,37 @@ const WLBLGameLayout = () => {
     return groupedQuestions;
   };
 
-  // Initialize current index from URL params
+  // Set initial question index when questions are loaded
   useEffect(() => {
-    const questionIndex = searchParams.get("question");
-    if (questionIndex) {
-      const index = parseInt(questionIndex, 10);
-      if (!isNaN(index) && index >= 0) {
-        setCurrentIndex(index);
+    if (displayQuestions.length > 0 && !searchParams.get("question")) {
+      // For WLBLGameLayout, we might want to start from the beginning or find first unanswered
+      let firstUnansweredIndex = -1;
+      for (let i = 0; i < displayQuestions.length; i++) {
+        if (!answers[displayQuestions[i]._id]) {
+          firstUnansweredIndex = i;
+          break;
+        }
       }
+
+      const targetIndex = firstUnansweredIndex !== -1 ? firstUnansweredIndex : 0;
+
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("question", targetIndex.toString());
+        return newParams;
+      }, { replace: true });
     }
-  }, [searchParams]);
+  }, [displayQuestions, answers, searchParams, setSearchParams]);
 
-  // Set initial index to first unanswered question or last question if all answered
-  // useEffect(() => {
-    // const questionIndex = searchParams.get("question");
-
-    // if (!questionIndex && displayQuestions.length > 0) {
-    //   let firstUnansweredIndex = -1;
-    //   for (let i = 0; i < displayQuestions.length; i++) {
-    //     if (!answers[displayQuestions[i]._id]) {
-    //       firstUnansweredIndex = i;
-    //       break;
-    //     }
-    //   }
-
-    //   const targetIndex =
-    //     firstUnansweredIndex !== -1
-    //       ? firstUnansweredIndex
-    //       : displayQuestions.length - 1;
-
-    //   if (targetIndex !== currentIndex) {
-    //     setCurrentIndex(targetIndex);
-    //     setTimeout(() => {
-    //       carouselRef.current?.goToSlide(targetIndex);
-    //     }, 100);
-    //   }
-    // }
-  // }, [displayQuestions, answers, searchParams, currentIndex]);
-
-  // Update URL when index changes
+  // Sync carousel with URL changes
   useEffect(() => {
     if (displayQuestions.length > 0) {
-      setSearchParams((prev) => {
-        const newParams = new URLSearchParams(prev);
-        newParams.set("question", currentIndex.toString());
-        return newParams;
-      });
+      const targetIndex = getCurrentIndex();
+      setTimeout(() => {
+        carouselRef.current?.goToSlide(targetIndex);
+      }, 100);
     }
-  }, [currentIndex, displayQuestions.length, setSearchParams]);
+  }, [searchParams, displayQuestions.length]);
 
   useEffect(() => {
     const loadQuestionsAndProgress = async () => {
@@ -231,20 +222,6 @@ const WLBLGameLayout = () => {
           setAnswers(existingAnswers);
         }
 
-        // Navigate to saved index after questions are loaded
-        const questionIndex = searchParams.get("question");
-        if (questionIndex && questionsForDisplay.length > 0) {
-          const index = parseInt(questionIndex, 10);
-          if (
-            !isNaN(index) &&
-            index >= 0 &&
-            index < questionsForDisplay.length
-          ) {
-            setTimeout(() => {
-              carouselRef.current?.goToSlide(index);
-            }, 100);
-          }
-        }
       } catch (err) {
         console.error("Failed to load questions:", err);
         setError("Failed to load questions. Please try again later.");
@@ -323,8 +300,13 @@ const WLBLGameLayout = () => {
   };
 
   const handlePrevious = () => {
-    if (carouselRef.current?.getCurrentIndex() === 0) return;
-    carouselRef.current?.previous();
+    if (currentIndex === 0) return;
+    
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("question", (currentIndex - 1).toString());
+      return newParams;
+    });
   };
 
   const handleNext = () => {
@@ -347,13 +329,27 @@ const WLBLGameLayout = () => {
       return;
     }
 
-    carouselRef.current?.next();
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("question", (currentIndex + 1).toString());
+      return newParams;
+    });
   };
 
   const handleCardChange = () => {
+    // Update URL when carousel changes (for manual swipe/touch navigation)
     setTimeout(() => {
       const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-      setCurrentIndex(currentIdx);
+      const currentUrlIndex = getCurrentIndex();
+      
+      // Only update URL if carousel index differs from URL index
+      if (currentIdx !== currentUrlIndex) {
+        setSearchParams(prev => {
+          const newParams = new URLSearchParams(prev);
+          newParams.set("question", currentIdx.toString());
+          return newParams;
+        });
+      }
     }, 0);
   };
 

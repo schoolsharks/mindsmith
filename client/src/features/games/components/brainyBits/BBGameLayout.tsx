@@ -28,7 +28,6 @@ import Loader from "../../../../components/ui/Loader";
 const BBGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<
     Record<string, { optionIndex: number; optionText: string }>
@@ -41,6 +40,15 @@ const BBGameLayout = () => {
   const navigate = useNavigateWithSound();
   const sectionId = "Comprehensive Brain Health Biomarkers";
 
+  // Helper function to get current index from URL - single source of truth
+  const getCurrentIndex = () => {
+    const questionIndex = searchParams.get("question");
+    const index = questionIndex ? parseInt(questionIndex, 10) : 0;
+    return !isNaN(index) && index >= 0 && index < questions.length ? index : 0;
+  };
+
+  const currentIndex = getCurrentIndex();
+
   // Did You Know overlay logic
   const { isOverlayOpen, currentFact, closeOverlay } = useDidYouKnow(
     "the-brainy-bits",
@@ -48,23 +56,9 @@ const BBGameLayout = () => {
     currentIndex
   );
 
-  // Initialize current index from URL params
+  // Set initial question index when questions are loaded
   useEffect(() => {
-    const questionIndex = searchParams.get("question");
-    if (questionIndex) {
-      const index = parseInt(questionIndex, 10);
-      if (!isNaN(index) && index >= 0) {
-        setCurrentIndex(index);
-      }
-    }
-  }, [searchParams]);
-
-  // Set initial index to first unanswered question or last question if all answered
-  useEffect(() => {
-    const questionIndex = searchParams.get("question");
-
-    // Only set initial index if no query parameter and we have questions and answers
-    if (!questionIndex && questions.length > 0) {
+    if (questions.length > 0 && !searchParams.get("question")) {
       // Find first unanswered question
       let firstUnansweredIndex = -1;
       for (let i = 0; i < questions.length; i++) {
@@ -80,25 +74,23 @@ const BBGameLayout = () => {
           ? firstUnansweredIndex
           : questions.length - 1;
 
-      if (targetIndex !== currentIndex) {
-        setCurrentIndex(targetIndex);
-        setTimeout(() => {
-          carouselRef.current?.goToSlide(targetIndex);
-        }, 100);
-      }
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("question", targetIndex.toString());
+        return newParams;
+      }, { replace: true });
     }
-  }, [questions, answers, searchParams, currentIndex]);
+  }, [questions, answers, searchParams, setSearchParams]);
 
-  // Update URL when index changes
+  // Sync carousel with URL changes
   useEffect(() => {
     if (questions.length > 0) {
-      setSearchParams((prev) => {
-        const newParams = new URLSearchParams(prev);
-        newParams.set("question", currentIndex.toString());
-        return newParams;
-      });
+      const targetIndex = getCurrentIndex();
+      setTimeout(() => {
+        carouselRef.current?.goToSlide(targetIndex);
+      }, 100);
     }
-  }, [currentIndex, questions.length, setSearchParams]);
+  }, [searchParams, questions.length]);
 
   const handleOptionSelect = async (
     questionId: string,
@@ -213,20 +205,6 @@ const BBGameLayout = () => {
 
         // setAnswers(initialAnswers);
 
-        // After questions are loaded, navigate to the saved index
-        const questionIndex = searchParams.get("question");
-        if (questionIndex && transformedQuestions.length > 0) {
-          const index = parseInt(questionIndex, 10);
-          if (
-            !isNaN(index) &&
-            index >= 0 &&
-            index < transformedQuestions.length
-          ) {
-            setTimeout(() => {
-              carouselRef.current?.goToSlide(index);
-            }, 100);
-          }
-        }
       } catch (err) {
         console.error("Failed to load questions:", err);
         setError("Failed to load questions. Please try again later.");
@@ -239,8 +217,13 @@ const BBGameLayout = () => {
   }, [sectionId]);
 
   const handlePrevious = () => {
-    if (carouselRef.current?.getCurrentIndex() === 0) return;
-    carouselRef.current?.previous();
+    if (currentIndex === 0) return;
+    
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("question", (currentIndex - 1).toString());
+      return newParams;
+    });
   };
 
   const handleEnded = () => {
@@ -259,13 +242,28 @@ const BBGameLayout = () => {
       handleEnded();
       return;
     }
-    carouselRef.current?.next();
+
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("question", (currentIndex + 1).toString());
+      return newParams;
+    });
   };
 
   const handleCardChange = () => {
+    // Update URL when carousel changes (for manual swipe/touch navigation)
     setTimeout(() => {
       const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-      setCurrentIndex(currentIdx);
+      const currentUrlIndex = getCurrentIndex();
+      
+      // Only update URL if carousel index differs from URL index
+      if (currentIdx !== currentUrlIndex) {
+        setSearchParams(prev => {
+          const newParams = new URLSearchParams(prev);
+          newParams.set("question", currentIdx.toString());
+          return newParams;
+        });
+      }
     }, 0);
   };
 
