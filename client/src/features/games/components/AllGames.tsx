@@ -21,26 +21,26 @@ const AllGames = () => {
   useEffect(() => {
     if (nextSectionTransition === "true") {
       if (quizProgress?.completed === false) {
-        // Start from the previous section for animation effect
+        
         setCurrentSection(Math.max((quizProgress?.currentSection ?? 0) - 1, 0));
         setTimeout(() => {
-          // Then move to the current section
+          
           setCurrentSection(quizProgress?.currentSection ?? 0);
-          // Clean up the URL parameter
+          
           const newParams = new URLSearchParams(searchParams);
           newParams.delete("nextSectionTransition");
           navigate(`/user/home?${newParams.toString()}`, { replace: true });
         }, 1000);
       } else {
-        // Quiz is completed, show all sections
+        
         setCurrentSection(4);
-        // Clean up the URL parameter even when quiz is completed
+        
         const newParams = new URLSearchParams(searchParams);
         newParams.delete("nextSectionTransition");
         navigate(`/user/home?${newParams.toString()}`, { replace: true });
       }
     } else {
-      // No transition, directly set to current section
+      
       if (quizProgress?.completed === true) {
         setCurrentSection(4);
       } else {
@@ -66,7 +66,7 @@ const AllGames = () => {
           <Stack position={"relative"}>
             <Stack
               sx={{
-                // alignItems: "center",
+                
                 justifyContent: "center",
                 position: "absolute",
                 width: "48px",
@@ -76,7 +76,7 @@ const AllGames = () => {
                 padding: "10px",
                 borderRadius: "50%",
 
-                // aspectRatio: "1",
+                
               }}
             >
               <Box component={"img"} src={game.icon} />
@@ -141,7 +141,7 @@ const AllGames = () => {
         <Stack>
           <Stack
             sx={{
-              // alignItems: "center",
+              
               justifyContent: "center",
               position: "absolute",
               width: "48px",
@@ -151,7 +151,7 @@ const AllGames = () => {
               padding: "10px",
               borderRadius: "50%",
 
-              // aspectRatio: "1",
+              
             }}
           >
             <Box component={"img"} src={starIcon} />
