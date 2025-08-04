@@ -16,7 +16,7 @@ const Home = () => {
           opacity: 0.8,
         }}
       >
-        No pressure — just notice what’s going on inside.
+        No pressure - just notice what’s going on inside.
       </Typography>
       <Box margin={"20px 0"} flex={1}>
         <AllGames />

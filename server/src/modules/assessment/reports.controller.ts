@@ -44,6 +44,32 @@ const findReportDataByPageName = (pageName: string) => {
   });
 };
 
+// Helper function to get the order index from reportData
+const getReportDataOrder = (pageName: string): number => {
+  const index = reportData.findIndex(data => {
+    const dataPageName = data.pageName.toLowerCase();
+    const searchName = pageName.toLowerCase();
+    
+    // Exact match
+    if (dataPageName === searchName) return true;
+    
+    // Check if one contains the other
+    if (dataPageName.includes(searchName) || searchName.includes(dataPageName)) return true;
+    
+    // Special case mappings for common variations
+    const mappings: { [key: string]: string } = {
+      'life stress assessment': 'life event stress scale analysis',
+      'life event stress scale analysis': 'life stress assessment'
+    };
+    
+    if (mappings[searchName] && dataPageName === mappings[searchName]) return true;
+    
+    return false;
+  });
+  
+  return index === -1 ? 999 : index; // Return high number for unmatched items
+};
+
 // Helper function to merge report data with page
 const mergeReportData = (page: ReportPage): ReportPage => {
   // For the first page (Life Stress Assessment), use section name
@@ -198,18 +224,19 @@ export const generateReportController = async (req: Request, res: Response) => {
           sectionOrder: "$order",
           subsectionOrder: "$subsections.order"
         }
-      },
-      // Sort by section order, then subsection order
-      {
-        $sort: {
-          sectionOrder: 1,
-          subsectionOrder: 1
-        }
       }
     ]);
 
     // Add the aggregated data to pages with merged report data
     const enrichedAggregatedData = aggregatedData.map((page: any) => mergeReportData(page));
+    
+    // Sort the enriched data according to reportData order
+    enrichedAggregatedData.sort((a, b) => {
+      const orderA = getReportDataOrder(a.pageName || a.title || a.section);
+      const orderB = getReportDataOrder(b.pageName || b.title || b.section);
+      return orderA - orderB;
+    });
+    
     pages.push(...enrichedAggregatedData);
 
     res.status(200).json({

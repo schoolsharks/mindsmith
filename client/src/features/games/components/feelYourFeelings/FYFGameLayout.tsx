@@ -307,9 +307,10 @@ const FYFGameLayout = () => {
           handleCardChange={handleCardChange}
           disableTouch={!isCurrentQuestionAnswered()}
           cardStyle={{
-            minHeight:"400px",
+            // minHeight:"455px",
             border: `2px solid ${game?.theme.secondary.main}`,
           }}
+          height={455}
           items={questions.map((question) => {
             const currentAnswer = answers[question._id];
             return (

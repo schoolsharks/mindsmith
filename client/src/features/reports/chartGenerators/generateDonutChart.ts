@@ -63,12 +63,11 @@ export const generateDonutChart = (
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
         ${
           mode === "score"
-            ? `<div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${currentScore}</div>
-          <div style="font-size: 16px; color: #000; font-weight: normal;">─────</div>
-          <div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${totalScore}</div>`
-            : `<div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${
-                ((currentScore * 100) / totalScore).toFixed(1)
-              }%</div>`
+            ? `<div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${currentScore}</div>`
+            : `<div style="font-size: 28px; font-weight: bold; color: #000; line-height: 1;">${(
+                (currentScore * 100) /
+                totalScore
+              ).toFixed(1)}%</div>`
         }
         </div>
       

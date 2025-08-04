@@ -1,5 +1,6 @@
 import { Typography, Box, Stack } from "@mui/material";
 import { useState } from "react";
+import DOMPurify from "dompurify";
 import { Game } from "../../../games/data/allGames";
 import { Question } from "../../types/questionTypes";
 
@@ -33,9 +34,14 @@ const OptionsQuestion: React.FC<QuestionProps> = ({
 
   return (
     <Stack flex={1}>
-      <Typography fontSize={"18px"} fontWeight={"500"} minHeight={"75px"}>
-        {question.text}
-      </Typography>
+      <Typography
+        fontSize={"18px"}
+        fontWeight={"500"}
+        minHeight={"75px"}
+        dangerouslySetInnerHTML={{ 
+          __html: DOMPurify.sanitize(question.text) 
+        }}
+      />
       <Stack>
         {question.options?.map((option, index) => (
           <Stack
@@ -79,9 +85,13 @@ const OptionsQuestion: React.FC<QuestionProps> = ({
                 />
               )}
             </Stack>
-            <Typography fontSize={"16px"} fontWeight={"500"}>
-              {option.text}
-            </Typography>
+            <Typography 
+              fontSize={"16px"} 
+              fontWeight={"500"}
+              dangerouslySetInnerHTML={{ 
+                __html: DOMPurify.sanitize(option.text) 
+              }}
+            />
           </Stack>
         ))}
       </Stack>

@@ -28,7 +28,7 @@ const Welcome: React.FC<WelcomeProps> = ({handleNextPage}) => {
           Welcome to BHP
         </Typography>
         <Typography fontSize={"20px"} fontWeight={"600"} marginTop={"12px"}>
-          A quick, gentle check-in for your mind.
+          A quick, gentle check-in for your brain.
         </Typography>
         <Typography fontSize={"18px"} fontWeight={"400"} marginTop={"10px"}>
           We'll ask a few questions about how you’ve been feeling, thinking, and

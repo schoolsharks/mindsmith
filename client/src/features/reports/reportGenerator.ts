@@ -5,6 +5,7 @@ import {
   generateAssessmentPageBySection,
 } from "./pageGenerators/assessmentPage.js";
 import { generateCoverPage } from "./pageGenerators/coverPage.js";
+import { generateFinalCTAPage } from "./pageGenerators/finalCTAPage.js";
 
 export interface ReportPage {
   section: string;
@@ -128,6 +129,12 @@ export const generateReportHTML = (
           </div>`
         )
         .join("")}
+
+
+      <!-- Final CTA Page -->
+      <div class="report-page">
+        ${generateFinalCTAPage()}
+      </div>
     </body>
     </html>
   `;

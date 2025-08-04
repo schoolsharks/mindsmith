@@ -33,7 +33,7 @@ const YBBSSplashScreen = () => {
         position={"relative"}
         zIndex={3}
       >
-        Let your heart be light by being present with each moment.
+        Let your heart be light by being present in each moment.
       </Typography>
       <Box
         component={"video"}
