@@ -10,7 +10,7 @@ const FYFSplashScreen = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate("/user/games/feel-your-feelings/game");
-    }, 3000);
+    }, 5000);
     return () => clearTimeout(timer);
   }, []);
   return (
