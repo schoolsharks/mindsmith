@@ -73,7 +73,7 @@ const DownloadButton = () => {
         {isLoading
           ? "Loading Data..."
           : isGenerating
-          ? `Generating Report... ${progress}%`
+          ? `Generating... ${progress}%`
           : "Download Report"}
       </ContainedButton>
       <ArrowRight
