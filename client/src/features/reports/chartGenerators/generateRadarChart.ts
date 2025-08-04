@@ -124,6 +124,8 @@ export const generateRadarChart = (data?: RadarDataPoint[]): string => {
 
   let dataPoints = "";
   let polygonPath = "";
+  let svgPolygonPoints = "";
+  
   for (let i = 0; i < numPoints; i++) {
     const angle = i * angleStep - 90;
     const radius = (chartData[i].value / 100) * maxRadius;
@@ -135,10 +137,18 @@ export const generateRadarChart = (data?: RadarDataPoint[]): string => {
     const xPercent = (x / size) * 100;
     const yPercent = (y / size) * 100;
 
+    // For CSS clip-path (legacy support)
     if (i === 0) {
       polygonPath = `${xPercent}% ${yPercent}%`;
     } else {
       polygonPath += `, ${xPercent}% ${yPercent}%`;
+    }
+
+    // For SVG polygon points
+    if (i === 0) {
+      svgPolygonPoints = `${x},${y}`;
+    } else {
+      svgPolygonPoints += ` ${x},${y}`;
     }
 
     dataPoints += `
@@ -154,21 +164,6 @@ export const generateRadarChart = (data?: RadarDataPoint[]): string => {
         z-index: 3;
       "></div>
     `;
-
-    // dataPoints += `
-    //   <div style="
-    //     position: absolute;
-    //     width: 2px;
-    //     height: ${radius}px;
-    //     background-color: ${color};
-    //     top: 50%;
-    //     left: 50%;
-    //     transform-origin: bottom center;
-    //     transform: translate(-50%, -100%) rotate(${angle}deg);
-    //     opacity: 0.8;
-    //     z-index: 2;
-    //   "></div>
-    // `;
   }
 
   let labels = "";
@@ -287,18 +282,21 @@ export const generateRadarChart = (data?: RadarDataPoint[]): string => {
           <!-- Grid lines -->
           ${gridLines}
           
-          <!-- Data polygon -->
-          <div style="
+          <!-- Data polygon using SVG (PDF compatible) -->
+          <svg style="
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            clip-path: polygon(${polygonPath});
-            opacity:50%;
-            background: radial-gradient(73.36% 100.64% at 14.63% 26.65%, #F50000 0%, #F56E36 55.31%, #A4B56E 77.66%, #F6DC6B 100%) ;
             z-index: 1;
-          "></div>
+          ">
+            <polygon 
+              points="${svgPolygonPoints}" 
+              fill="#F50000"
+              opacity="0.4"
+            />
+          </svg>
           
           <!-- Data points and lines -->
           ${dataPoints}

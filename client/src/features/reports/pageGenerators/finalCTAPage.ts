@@ -5,7 +5,7 @@ export const generateFinalCTAPage = () => {
     <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;">
         <div style="display:flex;gap:20px;">
             <div>
-                <img src="${finalCTAQR}" style="width:"100px;" />
+                <img src="${finalCTAQR}" style="width:170px;" />
             </div>
             <div style="padding:22px;background-color:#A4B56E2B;border-radius:10px; display:flex;flex-direction:column;justify-content:center;">
                 <h2 style="font-size:24px;font-weight:700;">Book a Therapy Consultation</h2>

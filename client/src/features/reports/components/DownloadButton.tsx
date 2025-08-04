@@ -1,51 +1,59 @@
 import { useState } from "react";
-import { generateReportHTML } from "../reportGenerator";
 import { reportsApi } from "../../../services/api/reportsApi";
 import ContainedButton from "../../../components/ui/ContainedTextInput";
 import { RootState } from "../../../app/store";
 import { useSelector } from "react-redux";
 import { Box } from "@mui/material";
 import { ArrowRight } from "lucide-react";
+import { generateAndDownloadPDF, downloadPDFWithObjectURL } from "../utils/pdfGenerator";
 
 
 const DownloadButton = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const user = useSelector((state: RootState) => state.auth.user);
   const quizProgress = user?.quizProgress;
 
+  const handleProgress = (progressValue: number) => {
+    setProgress(Math.round(progressValue));
+  };
+
   const handleLoadDataAndDownload = async () => {
     setIsLoading(true);
+    setProgress(0);
 
     try {
+      // Fetch report data
       const data = await reportsApi.getReport();
 
       setIsGenerating(true);
+      setIsLoading(false);
+      setProgress(5); // Data fetched
 
-      const printWindow = window.open("", "_blank");
-      const htmlContent = generateReportHTML(data.data, data.userInfo);
-
-      if (printWindow) {
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-      } else {
-        throw new Error("Failed to open a new window for printing.");
+      // Try primary PDF generation method first
+      try {
+        await generateAndDownloadPDF(data.data, data.userInfo, handleProgress);
+      } catch (primaryError) {
+        console.warn("Primary PDF generation failed, trying fallback method:", primaryError);
+        
+        // Reset progress for fallback method
+        setProgress(0);
+        
+        // Fallback to alternative download method for better mobile compatibility
+        await downloadPDFWithObjectURL(data.data, data.userInfo, handleProgress);
       }
 
-      setTimeout(() => {
-        printWindow.focus();
-        printWindow.print();
-
-        setTimeout(() => {
-          printWindow.close();
-        }, 1000);
-      }, 500);
     } catch (error: any) {
       console.error("Error generating report:", error);
-      alert(`Error generating report: ${error.message}. Please try again.`);
+      
+      // Show user-friendly error message
+      const errorMessage = error.message || "Unknown error occurred";
+      alert(`Error generating report: ${errorMessage}. Please check your internet connection and try again.`);
     } finally {
       setIsLoading(false);
       setIsGenerating(false);
+      setProgress(0);
     }
   };
 
@@ -65,7 +73,7 @@ const DownloadButton = () => {
         {isLoading
           ? "Loading Data..."
           : isGenerating
-          ? "Opening Print Dialog..."
+          ? `Generating Report... ${progress}%`
           : "Download Report"}
       </ContainedButton>
       <ArrowRight
