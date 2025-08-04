@@ -118,11 +118,16 @@ const SemicircleMeterChart = ({
         {labels.map((label, index) => (
           <Box
             key={`indicator-${index}`}
+            onClick={() => handleClick(index)}
             sx={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               width: "60%",
+              cursor: "pointer",
+              "&:hover": {
+                opacity: 0.8,
+              },
             }}
           >
             <Box

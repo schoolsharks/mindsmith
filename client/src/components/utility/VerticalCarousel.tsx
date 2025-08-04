@@ -56,46 +56,38 @@ const VerticalCarousel = forwardRef<VerticalCarouselRef, VerticalCarouselProps>(
     const [startTime, setStartTime] = useState<number | null>(null);
 
     const goToNext = () => {
-      if (isTransitioning) return;
+      if (isTransitioning || currentIndex >= items.length - 1) return;
 
       setIsTransitioning(true);
-      handleCardChange();
-      setCurrentIndex((prevIndex) => {
-        const nextIndex = prevIndex + 1;
-        // return nextIndex >= items.length ? 0 : nextIndex;
-        return nextIndex ;
-      });
+      setCurrentIndex((prevIndex) => prevIndex + 1);
 
       setTimeout(() => {
         setIsTransitioning(false);
+        handleCardChange();
       }, speed);
     };
 
     const goToPrevious = () => {
-      if (isTransitioning) return;
+      if (isTransitioning || currentIndex <= 0) return;
 
       setIsTransitioning(true);
-      handleCardChange();
-
-      setCurrentIndex((prevIndex) => {
-        const nextIndex = prevIndex - 1;
-        return nextIndex < 0 ? items.length - 1 : nextIndex;
-      });
+      setCurrentIndex((prevIndex) => prevIndex - 1);
 
       setTimeout(() => {
         setIsTransitioning(false);
+        handleCardChange();
       }, speed);
     };
 
     const goToSlide = (index: number) => {
-      if (isTransitioning || index === currentIndex) return;
+      if (isTransitioning || index === currentIndex || index < 0 || index >= items.length) return;
 
       setIsTransitioning(true);
       setCurrentIndex(index);
-      handleCardChange();
 
       setTimeout(() => {
         setIsTransitioning(false);
+        handleCardChange();
       }, speed);
     };
 
