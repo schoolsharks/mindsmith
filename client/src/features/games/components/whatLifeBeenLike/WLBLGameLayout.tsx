@@ -1,6 +1,6 @@
 import { Box, LinearProgress, Stack, Typography } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/what-life-been-like.webp";
 import Page from "../../../../components/layout/Page";
 import HorizontalCarousel, {
@@ -9,7 +9,6 @@ import HorizontalCarousel, {
 import { games } from "../../data/allGames";
 import QuestionRender from "../../../questions/components/QuestionRender";
 import IconButton from "@mui/material/IconButton";
-import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 import {
   fetchSectionQuestions,
   submitQuestionResponse,
@@ -53,7 +52,8 @@ const WLBLGameLayout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const game = games.find((game) => game.id === "what-life-been-like");
-  const navigate = useNavigateWithSound();
+  // const navigate = useNavigateWithSound();
+  const navigate = useNavigate();
   const sectionId = "Life Stress Assessment";
 
   // Did You Know overlay logic
@@ -330,15 +330,12 @@ const WLBLGameLayout = () => {
   const handleFinish = async () => {
     try {
       setIsSubmitting(true);
-      
+
       // Call the finish section API with section number 0 (Life Stress Assessment)
       const response = await finishSection(0);
-      
+      navigate("/user/home?nextSectionTransition=true");
+
       console.log("Section finished successfully:", response);
-      
-      // Optional: Show success message or handle any additional logic
-      // You could add a toast notification here if needed
-      
     } catch (error) {
       console.error("Error finishing section:", error);
       // Optional: Show error message to user
@@ -363,7 +360,6 @@ const WLBLGameLayout = () => {
 
     if (currentIndex === displayQuestions.length - 1) {
       await handleFinish();
-      navigate("/user/home?nextSectionTransition=true");
       return;
     }
 

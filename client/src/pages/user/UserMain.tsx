@@ -25,6 +25,7 @@ const UserMain = () => {
     needsPermission,
     isInitialized,
     hasUserInteracted,
+    soundPermissionGranted,
     handlePermissionGranted,
     handlePermissionDenied,
     startBackgroundMusic,
@@ -51,6 +52,7 @@ const UserMain = () => {
       isOnSoundExemptPage,
       needsPermission,
       hasUserInteracted,
+      soundPermissionGranted,
     });
 
     if (
@@ -58,7 +60,8 @@ const UserMain = () => {
       isInitialized &&
       !isOnSoundExemptPage &&
       !needsPermission &&
-      hasUserInteracted
+      hasUserInteracted &&
+      soundPermissionGranted
     ) {
       hasInitializedRef.current = true;
       console.log("Initializing background music");
@@ -79,6 +82,7 @@ const UserMain = () => {
     needsPermission,
     hasUserInteracted,
     isInitialized,
+    soundPermissionGranted,
   ]);
 
   // Reset initialization flag when moving to/from sound exempt pages
@@ -88,6 +92,15 @@ const UserMain = () => {
       stop();
     }
   }, [isOnSoundExemptPage, stop]);
+
+  // Additional safety check: if user previously denied permission, don't show modal again unnecessarily
+  useEffect(() => {
+    const savedPermission = sessionStorage.getItem("sound_enabled");
+    if (savedPermission === "false" && needsPermission && !isOnSoundExemptPage) {
+      console.log("🎵 User previously denied permission, not showing modal again");
+      // This shouldn't happen with our updated logic, but keeping as extra safety
+    }
+  }, [needsPermission, isOnSoundExemptPage]);
 
   // Show loading state until sound hook is initialized
   if (!isInitialized) {

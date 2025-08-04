@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Box, Typography, Stack } from "@mui/material";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import PinIcon from "../../assets/icons/pin.webp";
@@ -21,8 +21,6 @@ const SemicircleMeterChart = ({
   const [currentIndex, setCurrentIndex] = useState<number | undefined>(
     selectedIndex
   );
-  const [isDragging, setIsDragging] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const colors = [
     "#69e287", // Green
@@ -35,97 +33,12 @@ const SemicircleMeterChart = ({
     onChange?.(index);
   };
 
-  const getIndexFromAngle = (clientX: number, clientY: number) => {
-    if (!containerRef.current) return currentIndex ?? 0;
-
-    const rect = containerRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height * 0.8; // Semicircle center is at 80% height
-
-    // Calculate angle from center
-    const deltaX = clientX - centerX;
-    const deltaY = centerY - clientY; // Invert Y axis
-
-    let angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-
-    // Normalize angle to 0-180 range (semicircle)
-    if (angle < 0) angle += 360;
-    if (angle > 180) angle = angle > 270 ? 0 : 180;
-
-    // Reverse the angle mapping so left-to-right movement works correctly
-    // Invert the angle: 180 degrees becomes 0, 0 degrees becomes 180
-    const reversedAngle = 180 - angle;
-
-    // Map angle to section index
-    const sectionAngle = 180 / labels.length;
-    const adjustedAngle = reversedAngle + sectionAngle / 2; // Offset to center sections
-    const index = Math.floor(adjustedAngle / sectionAngle);
-
-    return Math.max(0, Math.min(index, labels.length - 1));
-  };
-
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-    const newIndex = getIndexFromAngle(clientX, clientY);
-    setCurrentIndex(newIndex);
-    onChange?.(newIndex);
-  };
-
-  const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDragging) return;
-
-    e.preventDefault();
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-    const newIndex = getIndexFromAngle(clientX, clientY);
-    setCurrentIndex(newIndex);
-    onChange?.(newIndex);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
-
-  // Add global event listeners for drag
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      e.preventDefault();
-      handleDragMove(e as any);
-    };
-    const handleMouseUp = () => handleDragEnd();
-    const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      handleDragMove(e as any);
-    };
-    const handleTouchEnd = () => handleDragEnd();
-
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.addEventListener("touchmove", handleTouchMove, {
-        passive: false,
-      });
-      document.addEventListener("touchend", handleTouchEnd);
-    }
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
-    };
-  }, [isDragging]);
-
   useEffect(() => {
     setCurrentIndex(selectedIndex);
   }, [selectedIndex]);
 
   return (
     <Box
-      ref={containerRef}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -134,10 +47,7 @@ const SemicircleMeterChart = ({
         width: "100%",
         height: 300, // Increased height to accommodate new elements
         position: "relative",
-        cursor: isDragging ? "grabbing" : "grab",
       }}
-      onMouseDown={handleDragStart}
-      onTouchStart={handleDragStart}
     >
       {/* The semicircle meter */}
       <ResponsiveContainer width="100%" height="80%">
@@ -165,11 +75,10 @@ const SemicircleMeterChart = ({
                 key={`cell-${index}`}
                 fill={colors[index]}
                 stroke="none"
-                onClick={() => !isDragging && handleClick(index)}
+                onClick={() => handleClick(index)}
                 style={{
                   cursor: "pointer",
                   outline: "none",
-                  pointerEvents: isDragging ? "none" : "auto",
                 }}
               />
             ))}

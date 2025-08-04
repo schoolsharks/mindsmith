@@ -6,7 +6,11 @@ const useNavigateWithSound = () => {
   const { playOnce } = useSound();
 
   const navigateWithSound = (to: string | Partial<Location>, options?: any) => {
-    playOnce("TRANSITION_1");
+    try {
+      playOnce("TRANSITION_1");
+    } catch (error) {
+      console.error("Error playing sound:", error);
+    }
     return navigate(to, options);
   };
   return navigateWithSound;

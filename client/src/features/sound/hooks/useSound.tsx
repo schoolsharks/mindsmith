@@ -90,19 +90,20 @@ const useSound = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentSound, setCurrentSound] = useState<SoundKey | null>(null);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [soundPermissionGranted, setSoundPermissionGranted] = useState<boolean>(false);
 
   // Initialize permission state on mount
   useEffect(() => {
     const initializePermissions = async () => {
       console.log("🔊 Initializing sound permissions...");
-      const savedPermission = localStorage.getItem(SOUND_ENABLED_KEY);
-      console.log("🔊 Saved permission:", savedPermission);
+      const savedPermission = sessionStorage.getItem(SOUND_ENABLED_KEY);
       
       if (savedPermission === "false") {
         // User previously denied permission
         console.log("🔊 User previously denied permission");
         setNeedsPermission(false);
         setHasUserInteracted(true);
+        setSoundPermissionGranted(false);
         setIsInitialized(true);
         return;
       }
@@ -115,10 +116,12 @@ const useSound = () => {
           console.log("🔊 Autoplay works, no permission needed");
           setNeedsPermission(false);
           setHasUserInteracted(true);
+          setSoundPermissionGranted(true);
         } else {
           console.log("🔊 Autoplay blocked, permission needed again");
           setNeedsPermission(true);
           setHasUserInteracted(false);
+          setSoundPermissionGranted(false);
         }
       } else {
         // No previous permission, check if autoplay is supported
@@ -128,10 +131,11 @@ const useSound = () => {
           console.log("🔊 Autoplay works, no permission needed");
           setNeedsPermission(false);
           setHasUserInteracted(true);
+          setSoundPermissionGranted(true);
         } else {
-          console.log("🔊 Autoplay blocked, permission needed");
           setNeedsPermission(true);
           setHasUserInteracted(false);
+          setSoundPermissionGranted(false);
         }
       }
       
@@ -193,6 +197,12 @@ const useSound = () => {
       console.log(
         `Attempting to play sound: ${soundKey}, volume: ${volume}, loop: ${loop}`
       );
+
+      // Don't play any sounds if user has explicitly denied permission
+      if (!soundPermissionGranted) {
+        console.log("Sound permission denied by user, not playing any sounds");
+        return;
+      }
 
       if (loop && globalManager.isLoopSoundPlaying(soundKey)) {
         console.log(
@@ -283,7 +293,7 @@ const useSound = () => {
         }
       }
     },
-    [globalManager]
+    [globalManager, soundPermissionGranted]
   );
 
   const playInLoop = useCallback(
@@ -315,7 +325,8 @@ const useSound = () => {
     console.log("User granted audio permission");
     setHasUserInteracted(true);
     setNeedsPermission(false);
-    localStorage.setItem(SOUND_ENABLED_KEY, "true");
+    setSoundPermissionGranted(true);
+    sessionStorage.setItem(SOUND_ENABLED_KEY, "true");
 
     if (pendingSound) {
       console.log(`Playing pending sound: ${pendingSound.soundKey}`);
@@ -333,29 +344,46 @@ const useSound = () => {
 
   const handlePermissionDenied = useCallback(() => {
     console.log("User denied audio permission");
-    localStorage.setItem(SOUND_ENABLED_KEY, "false");
+    sessionStorage.setItem(SOUND_ENABLED_KEY, "false");
     setNeedsPermission(false);
     setHasUserInteracted(true);
+    setSoundPermissionGranted(false);
     setPendingSound(null);
-    // Don't play any pending sounds when permission is denied
-  }, []);
+    // Stop any currently playing sounds when permission is denied
+    globalManager.stopAllSounds();
+  }, [globalManager]);
 
   // Function to start background music (can be called after permission is granted)
   const startBackgroundMusic = useCallback((soundKey: SoundKey = "BGM_1", volume: number = 0.5) => {
-    if (hasUserInteracted && !needsPermission) {
+    if (soundPermissionGranted && hasUserInteracted && !needsPermission) {
       console.log(`Starting background music: ${soundKey}`);
       playInLoop(soundKey, volume);
     } else {
-      console.log("Cannot start background music - permission not granted or user hasn't interacted");
+      console.log("Cannot start background music - permission not granted or user hasn't interacted", {
+        soundPermissionGranted,
+        hasUserInteracted,
+        needsPermission
+      });
     }
-  }, [hasUserInteracted, needsPermission, playInLoop]);
+  }, [soundPermissionGranted, hasUserInteracted, needsPermission, playInLoop]);
 
   // Function to retry playing sounds manually
   const retryPendingSound = useCallback(() => {
-    if (pendingSound && hasUserInteracted) {
+    if (pendingSound && hasUserInteracted && soundPermissionGranted) {
       playSound(pendingSound.soundKey, pendingSound.volume, pendingSound.loop);
     }
-  }, [pendingSound, hasUserInteracted, playSound]);
+  }, [pendingSound, hasUserInteracted, soundPermissionGranted, playSound]);
+
+  // Function to reset sound permission (useful for debugging or user preference changes)
+  const resetSoundPermission = useCallback(() => {
+    console.log("Resetting sound permission state");
+    sessionStorage.removeItem(SOUND_ENABLED_KEY);
+    setNeedsPermission(true);
+    setHasUserInteracted(false);
+    setSoundPermissionGranted(false);
+    setPendingSound(null);
+    globalManager.stopAllSounds();
+  }, [globalManager]);
 
   return {
     needsPermission,
@@ -364,6 +392,7 @@ const useSound = () => {
     isPlaying,
     currentSound,
     isInitialized,
+    soundPermissionGranted,
     playInLoop,
     playOnce,
     stop,
@@ -372,6 +401,7 @@ const useSound = () => {
     retryPendingSound,
     checkAutoplaySupport,
     startBackgroundMusic,
+    resetSoundPermission,
   };
 };
 
