@@ -28,6 +28,7 @@ import Loader from "../../../../components/ui/Loader";
 const YBBSGameLayout = () => {
   const carouselRef = useRef<VerticalCarouselRef>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<
     Record<string, { optionIndex: number; optionText: string }>
@@ -40,15 +41,6 @@ const YBBSGameLayout = () => {
   const navigate = useNavigateWithSound();
   const sectionId = "Resilience & Coping Mechanisms";
 
-  // Helper function to get current index from URL - single source of truth
-  const getCurrentIndex = () => {
-    const questionIndex = searchParams.get("question");
-    const index = questionIndex ? parseInt(questionIndex, 10) : 0;
-    return !isNaN(index) && index >= 0 && index < questions.length ? index : 0;
-  };
-
-  const currentIndex = getCurrentIndex();
-
   // Did You Know overlay logic
   const { isOverlayOpen, currentFact, closeOverlay } = useDidYouKnow(
     "your-best-bouncing-self",
@@ -56,53 +48,38 @@ const YBBSGameLayout = () => {
     currentIndex
   );
 
-  // Set initial question index when questions are loaded
+  // Initialize current index from URL params
   useEffect(() => {
-    if (questions.length > 0 && !searchParams.get("question")) {
-      // Find first unanswered question
-      let firstUnansweredIndex = -1;
-      for (let i = 0; i < questions.length; i++) {
-        if (!answers[questions[i]._id]) {
-          firstUnansweredIndex = i;
-          break;
-        }
+    const questionIndex = searchParams.get("question");
+    if (questionIndex) {
+      const index = parseInt(questionIndex, 10);
+      if (!isNaN(index) && index >= 0) {
+        setCurrentIndex(index);
       }
-
-      // If all questions are answered, go to last question, otherwise go to first unanswered
-      const targetIndex =
-        firstUnansweredIndex !== -1
-          ? firstUnansweredIndex
-          : questions.length - 1;
-
-      setSearchParams(prev => {
-        const newParams = new URLSearchParams(prev);
-        newParams.set("question", targetIndex.toString());
-        return newParams;
-      }, { replace: true });
     }
-  }, [questions, answers, searchParams, setSearchParams]);
+  }, [searchParams]);
 
-  // Sync carousel with URL changes
+  // Update URL when index changes
   useEffect(() => {
     if (questions.length > 0) {
-      const targetIndex = getCurrentIndex();
-      setTimeout(() => {
-        carouselRef.current?.goToSlide(targetIndex);
-      }, 100);
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("question", currentIndex.toString());
+        return newParams;
+      });
     }
-  }, [searchParams, questions.length]);
+  }, [currentIndex, questions.length, setSearchParams]);
 
   const handleOptionSelect = async (
     questionId: string,
     optionIndex: number,
     _optionText?: string
   ) => {
-    // For YBBS, we need to get the score from the option
+    // Get the option text from the question
     const question = questions.find((q) => q._id === questionId);
-    // const score = question?.options[optionIndex]?.score || 0;
+    const optionText = question?.options[optionIndex]?.text || "";
 
     // Update local state immediately
-    const optionText = question?.options[optionIndex]?.text || "";
     setAnswers((prev) => ({
       ...prev,
       [questionId]: { optionIndex, optionText },
@@ -118,39 +95,10 @@ const YBBSGameLayout = () => {
       console.log(`Successfully submitted answer for question ${questionId}`);
     } catch (error) {
       console.error("Failed to submit answer:", error);
-      // Optionally show a toast or error message to user
-      // For now, we'll keep the local state but you might want to revert it
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  // const handleScoreChange = async (
-  //   questionId: string,
-  //   selectedIndex: number,
-  //   score: number
-  // ) => {
-  //   // Update local state immediately
-  //   setAnswers((prev) => ({
-  //     ...prev,
-  //     [questionId]: { optionIndex: selectedIndex, score },
-  //   }));
-
-  //   // Submit to backend
-  //   try {
-  //     setIsSubmitting(true);
-  //     await submitQuestionResponse(sectionId, {
-  //       questionId,
-  //       optionIndex: selectedIndex,
-  //     });
-  //     console.log(`Successfully submitted answer for question ${questionId}`);
-  //   } catch (error) {
-  //     console.error("Failed to submit answer:", error);
-  //     // Optionally show a toast or error message to user
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
 
   useEffect(() => {
     const loadQuestionsAndProgress = async () => {
@@ -178,13 +126,8 @@ const YBBSGameLayout = () => {
           options: q.options,
           type: q.questionType,
           rawOptions: q.options,
-          // onChange: (selectedIndex: number) => {
-          //   const score = q.options[selectedIndex].score;
-          //   handleScoreChange(q._id, selectedIndex, score);
-          // },
           onSelectWithIndex: (optionIndex: number, optionText: string) =>
             handleOptionSelect(q._id, optionIndex, optionText),
-          // defaultAnswer: q.options[1].score // Middle option score
         }));
 
         setQuestions(transformedQuestions);
@@ -209,29 +152,20 @@ const YBBSGameLayout = () => {
           setAnswers(existingAnswers);
         }
 
-        // const initialAnswers: AnswerRecord = {};
-        // transformedQuestions.forEach((q: any) => {
-        //   initialAnswers[q._id] = { optionIndex: 1, score: q.defaultAnswer };
-        // });
-
-        // if (progressData?.exists && progressData.answeredQuestions) {
-        //   progressData.answeredQuestions.forEach((answer: any) => {
-        //     const question = transformedQuestions.find(
-        //       (q: any) => q._id === answer.questionId
-        //     );
-        //     if (question && question.rawOptions[answer.optionIndex]) {
-        //       initialAnswers[answer.questionId] = {
-        //         optionIndex: answer.optionIndex,
-        //         score: question.rawOptions[answer.optionIndex].score,
-        //       };
-        //     }
-        //   });
-        // }
-
-        // console.log("Initial answers set:", initialAnswers);
-
-        // setAnswers(initialAnswers);
-
+        // Navigate to saved index after questions are loaded
+        const questionIndex = searchParams.get("question");
+        if (questionIndex && transformedQuestions.length > 0) {
+          const index = parseInt(questionIndex, 10);
+          if (
+            !isNaN(index) &&
+            index >= 0 &&
+            index < transformedQuestions.length
+          ) {
+            setTimeout(() => {
+              carouselRef.current?.goToSlide(index);
+            }, 100);
+          }
+        }
       } catch (err) {
         console.error("Failed to load questions:", err);
         setError("Failed to load questions. Please try again later.");
@@ -244,13 +178,8 @@ const YBBSGameLayout = () => {
   }, [sectionId]);
 
   const handlePrevious = () => {
-    if (currentIndex === 0) return;
-    
-    setSearchParams(prev => {
-      const newParams = new URLSearchParams(prev);
-      newParams.set("question", (currentIndex - 1).toString());
-      return newParams;
-    });
+    if (carouselRef.current?.getCurrentIndex() === 0) return;
+    carouselRef.current?.previous();
   };
 
   const handleEnded = () => {
@@ -258,9 +187,10 @@ const YBBSGameLayout = () => {
   };
 
   const handleNext = () => {
-    const currentQuestionId = questions[currentIndex]?._id;
+    const currentQuestion = questions[currentIndex];
+    const currentAnswer = answers[currentQuestion?._id];
 
-    if (!answers[currentQuestionId]) {
+    if (!currentAnswer) {
       alert("Please select an option before proceeding");
       return;
     }
@@ -270,34 +200,22 @@ const YBBSGameLayout = () => {
       return;
     }
 
-    setSearchParams(prev => {
-      const newParams = new URLSearchParams(prev);
-      newParams.set("question", (currentIndex + 1).toString());
-      return newParams;
-    });
+    carouselRef.current?.next();
   };
 
   const handleCardChange = () => {
     // Update URL when carousel changes (for manual swipe/touch navigation)
     setTimeout(() => {
       const currentIdx = carouselRef.current?.getCurrentIndex() ?? 0;
-      const currentUrlIndex = getCurrentIndex();
-      
-      // Only update URL if carousel index differs from URL index
-      if (currentIdx !== currentUrlIndex) {
-        setSearchParams(prev => {
-          const newParams = new URLSearchParams(prev);
-          newParams.set("question", currentIdx.toString());
-          return newParams;
-        });
-      }
+      setCurrentIndex(currentIdx);
     }, 0);
   };
 
   // Function to check if current question is answered
   const isCurrentQuestionAnswered = () => {
-    const currentQuestionId = questions[currentIndex]?._id;
-    return !!answers[currentQuestionId];
+    const currentQuestion = questions[currentIndex];
+    const currentAnswer = answers[currentQuestion?._id];
+    return !!currentAnswer;
   };
 
   if (isLoading) return <Loader />;

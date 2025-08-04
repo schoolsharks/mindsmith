@@ -1,6 +1,6 @@
 // MultipleChoiceGroup.tsx
 import { Typography, Box, Stack } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Game } from "../../../games/data/allGames";
 import {  QuestionGroup } from "../../types/questionTypes";
 
@@ -20,10 +20,18 @@ const MultipleChoiceGroup: React.FC<MultipleChoiceGroupProps> = ({
   const [selectedOptions, setSelectedOptions] = useState<Set<string>>(
     new Set(selectedQuestionIds)
   );
+  const prevSelectedQuestionIdsRef = useRef<string[]>(selectedQuestionIds);
 
   // Update local state when props change
   useEffect(() => {
-    setSelectedOptions(new Set(selectedQuestionIds));
+    // Only update if the arrays are actually different
+    const arraysEqual = (a: string[], b: string[]) => 
+      a.length === b.length && a.every((val, index) => val === b[index]);
+    
+    if (!arraysEqual(selectedQuestionIds, prevSelectedQuestionIdsRef.current)) {
+      setSelectedOptions(new Set(selectedQuestionIds));
+      prevSelectedQuestionIdsRef.current = selectedQuestionIds;
+    }
   }, [selectedQuestionIds]);
 
   // Handle option selection/deselection

@@ -1,5 +1,5 @@
 import { Box, LinearProgress, Stack, Typography } from "@mui/material";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import cornerGraphic from "../../../../assets/images/gameLayoutGraphics/what-life-been-like.webp";
 import Page from "../../../../components/layout/Page";
@@ -282,7 +282,7 @@ const WLBLGameLayout = () => {
     }
   };
 
-  const handleGroupSelection = async (
+  const handleGroupSelection = useCallback(async (
     groupId: string,
     selectedQuestionIds: string[]
   ) => {
@@ -320,7 +320,7 @@ const WLBLGameLayout = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [displayQuestions, sectionId]);
 
   const handlePrevious = () => {
     if (carouselRef.current?.getCurrentIndex() === 0) return;
