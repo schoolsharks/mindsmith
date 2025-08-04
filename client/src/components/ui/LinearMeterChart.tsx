@@ -258,7 +258,7 @@ const LinearMeterChart: React.FC<LinearMeterChartProps> = ({
           src={needleIcon}
           sx={{
             position: "absolute",
-            left: `${needlePosition}px`,
+            left: `${needlePosition+20}px`,
             top: "40px",
             width: 12,
             transform: "translateX(-50%)",
