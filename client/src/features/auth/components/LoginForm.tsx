@@ -86,7 +86,7 @@ const LoginForm = () => {
       // Call login thunk
       const result = await dispatch(
         loginUser({
-          email: formValues.email,
+          email: formValues.email.toLowerCase(),
         })
       );
 

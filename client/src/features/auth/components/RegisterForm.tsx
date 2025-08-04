@@ -94,7 +94,7 @@ const RegisterForm = () => {
       // 1. First create the user (without payment)
       const userResponse = await authApi.register({
         name: formValues.name,
-        email: formValues.email,
+        email: formValues.email.toLowerCase(),
         contact: formValues.contact,
       });
 

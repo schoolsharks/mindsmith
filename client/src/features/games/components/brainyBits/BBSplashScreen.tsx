@@ -44,8 +44,8 @@ const BBSplashScreen = () => {
       <Box
         component={"img"}
         src={mainAnimation}
-        width={"100%"}
-        sx={{ position: "absolute", top: 0, left: 0 }}
+        width={"90%"}
+        sx={{ position: "absolute", top: 0, left: "50%",transform: "translateX(-50%)", zIndex: 2 }}
       />
       <Typography
         fontSize={"20px"}
@@ -53,7 +53,7 @@ const BBSplashScreen = () => {
         // marginTop={"8px"}
         position={"relative"}
         zIndex={3}
-        marginTop="410px"
+        marginTop="430px"
       >
         Even when it’s hard, be grateful for every moment of your life.
       </Typography>
