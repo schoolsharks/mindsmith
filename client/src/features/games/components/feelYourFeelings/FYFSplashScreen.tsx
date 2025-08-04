@@ -33,16 +33,16 @@ const FYFSplashScreen = () => {
         sx={{ position: "absolute", top: -100, left: 0 }}
       />
       <Box
-        marginTop={"auto"}
+        margin={"auto 0 10px"}
         position={"relative"}
         zIndex={1}
         textAlign={"center"}
         padding={"24px"}
       >
-        <Typography color="#FF8F91">
+        <Typography color="#FF8F91" lineHeight={"20px"}>
           Think about the last 2 weeks and answer the questions in this section.{" "}
         </Typography>
-        <Typography fontSize={"12px"} color="#00000080">
+        <Typography fontSize={"12px"} marginTop={"8px"} color="#00000080">
           Note: Substances include Tobacco, Alcohol, Cannabis along with other
           recreational drugs.
         </Typography>

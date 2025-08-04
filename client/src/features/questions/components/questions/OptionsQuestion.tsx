@@ -42,7 +42,7 @@ const OptionsQuestion: React.FC<QuestionProps> = ({
           __html: DOMPurify.sanitize(question.text) 
         }}
       />
-      <Stack>
+      <Stack marginTop={"auto"}>
         {question.options?.map((option, index) => (
           <Stack
             direction={"row"}

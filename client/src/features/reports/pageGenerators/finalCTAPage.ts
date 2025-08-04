@@ -7,7 +7,7 @@ export const generateFinalCTAPage = () => {
             <div>
                 <img src="${finalCTAQR}" style="width:"100px;" />
             </div>
-            <div style="padding:22px;background-color:#A4B56E2B;border-radius:10px;">
+            <div style="padding:22px;background-color:#A4B56E2B;border-radius:10px; display:flex;flex-direction:column;justify-content:center;">
                 <h2 style="font-size:24px;font-weight:700;">Book a Therapy Consultation</h2>
                 <p style="font-size:18px;font-weight:500;">Scan the QR to connect with a qualified mental health expert who can guide you through next steps.</p>
             </div>
