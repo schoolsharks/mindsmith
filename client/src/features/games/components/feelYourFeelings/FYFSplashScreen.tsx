@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Page from "../../../../components/layout/Page";
 // import mainGraphic from "../../../../assets/images/gameIntroScreenGraphics/feelYourFeeling/main-graphic.webp";
 import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/feelYourFeeling/main-animation.webm";
@@ -11,11 +11,10 @@ const FYFSplashScreen = () => {
     const timer = setTimeout(() => {
       navigate("/user/games/feel-your-feelings/game");
     }, 3000);
-
     return () => clearTimeout(timer);
   }, []);
   return (
-    <Page sx={{ overflow: "hidden", }}>
+    <Page sx={{ overflow: "hidden" }}>
       {/* <Box component={"img"} src={mainGraphic} width={"100%"} /> */}
       <Box
         component={"video"}
@@ -23,9 +22,18 @@ const FYFSplashScreen = () => {
         autoPlay
         muted
         width={"100%"}
-        sx={{position: "absolute", top: -64, left: 0}}
+        sx={{ position: "absolute", top: -100, left: 0 }}
         // height={"100%"}
       />
+      <Box marginTop={"auto"} position={"relative"} zIndex={1} textAlign={"center"} padding={"24px"}>
+        <Typography color="#FF8F91">
+          Think about the last 2 weeks and answer the questions in this section.{" "}
+        </Typography>
+        <Typography fontSize={"12px"} color="#00000080">
+          Note: Substances include Tobacco, Alcohol, Cannabis along with other
+          recreational drugs.
+        </Typography>
+      </Box>
     </Page>
   );
 };

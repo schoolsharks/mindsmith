@@ -13,14 +13,13 @@ const WLBLSplashScreen = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navitateWithSound("/user/games/what-life-been-like/game");
-    }, 3000);
-
+    }, 5000);
     return () => clearTimeout(timer);
   }, []);
   return (
     <Page sx={{ alignItems: "center" }}>
       <Box position={"relative"} marginTop={"100px"}>
-        <BgDiamonds positions={positions2} animation/>
+        <BgDiamonds positions={positions2} animation />
         <Box
           component={"img"}
           className="expanding-effect"
@@ -54,6 +53,15 @@ const WLBLSplashScreen = () => {
       </Box>
       <Typography marginTop={"120px"} fontSize={"30px"} fontWeight={"600"}>
         Breathe in
+      </Typography>
+      <Typography
+        color="#A4B56E"
+        fontWeight={"500"}
+        margin="6px 24px"
+        textAlign={"center"}
+      >
+        Think about last 12 months and check all the boxes that apply to you to
+        the best of your knowledge.
       </Typography>
     </Page>
   );
