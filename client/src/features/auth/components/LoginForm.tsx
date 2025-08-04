@@ -142,7 +142,7 @@ const LoginForm = () => {
           tncPageRoute={tncPageRoute}
           setTncAccepted={setTncAccepted}
         />
-        <Box marginTop={"10px"} textAlign="left">
+        <Box margin={"10px"} textAlign="left">
           <Typography variant="body2" component="span">
             New User?{" "}
             <Link

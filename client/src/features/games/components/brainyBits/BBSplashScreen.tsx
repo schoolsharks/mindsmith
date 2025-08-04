@@ -1,7 +1,8 @@
 import { Box, Typography } from "@mui/material";
 import Page from "../../../../components/layout/Page";
 // import mainGraphic from "../../../../assets/images/gameIntroScreenGraphics/brainyBits/main-graphic.webp";
-import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/brainyBits/main-animation.webm";
+// import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/brainyBits/main-animation.webm";
+import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/brainyBits/main-animation.gif";
 import { useEffect } from "react";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 
@@ -26,7 +27,7 @@ const BBSplashScreen = () => {
       >
         Gratitude
       </Typography>
-      <Box
+      {/* <Box
         component={"video"}
         src={mainAnimation}
         autoPlay
@@ -39,6 +40,12 @@ const BBSplashScreen = () => {
           height: "100%",
           zIndex: 2,
         }}
+      /> */}
+      <Box
+        component={"img"}
+        src={mainAnimation}
+        width={"100%"}
+        sx={{ position: "absolute", top: 0, left: 0 }}
       />
       <Typography
         fontSize={"20px"}
@@ -46,7 +53,7 @@ const BBSplashScreen = () => {
         // marginTop={"8px"}
         position={"relative"}
         zIndex={3}
-        marginTop="400px"
+        marginTop="410px"
       >
         Even when it’s hard, be grateful for every moment of your life.
       </Typography>

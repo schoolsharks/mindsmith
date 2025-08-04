@@ -1,7 +1,8 @@
 import { Box, Typography } from "@mui/material";
 import Page from "../../../../components/layout/Page";
-import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/yourBounceBackStyle/main_animation.webm";
+// import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/yourBounceBackStyle/main_animation.webm";
 // import mainGraphic from "../../../../assets/images/gameIntroScreenGraphics/yourBounceBackStyle/main-graphic.webp";
+import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/yourBounceBackStyle/main_animation.gif";
 import { useEffect } from "react";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 
@@ -10,7 +11,7 @@ const YBBSSplashScreen = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate("/user/games/your-bounce-back-style/game");
-    }, 3000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -35,13 +36,25 @@ const YBBSSplashScreen = () => {
       >
         Let your heart be light by being present in each moment.
       </Typography>
-      <Box
+      {/* <Box
         component={"video"}
         src={mainAnimation}
         autoPlay
         muted
         width={"100%"}
         height={"100%"}
+        sx={{
+          position: "absolute",
+          bottom: "0",
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 2,
+        }}
+      /> */}
+      <Box
+        component={"img"}
+        src={mainAnimation}
+        width={"80%"}
         sx={{
           position: "absolute",
           bottom: "0",

@@ -1,7 +1,8 @@
 import { Box, Typography } from "@mui/material";
 import Page from "../../../../components/layout/Page";
 // import mainGraphic from "../../../../assets/images/gameIntroScreenGraphics/feelYourFeeling/main-graphic.webp";
-import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/feelYourFeeling/main-animation.webm";
+// import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/feelYourFeeling/main-animation.webm";
+import mainAnimation from "../../../../assets/images/gameIntroScreenGraphics/feelYourFeeling/main-animation.gif";
 import { useEffect } from "react";
 import useNavigateWithSound from "../../../sound/hooks/useNavigateWithSound";
 
@@ -16,7 +17,7 @@ const FYFSplashScreen = () => {
   return (
     <Page sx={{ overflow: "hidden" }}>
       {/* <Box component={"img"} src={mainGraphic} width={"100%"} /> */}
-      <Box
+      {/* <Box
         component={"video"}
         src={mainAnimation}
         autoPlay
@@ -24,8 +25,20 @@ const FYFSplashScreen = () => {
         width={"100%"}
         sx={{ position: "absolute", top: -100, left: 0 }}
         // height={"100%"}
+      /> */}
+      <Box
+        component={"img"}
+        src={mainAnimation}
+        width={"100%"}
+        sx={{ position: "absolute", top: -100, left: 0 }}
       />
-      <Box marginTop={"auto"} position={"relative"} zIndex={1} textAlign={"center"} padding={"24px"}>
+      <Box
+        marginTop={"auto"}
+        position={"relative"}
+        zIndex={1}
+        textAlign={"center"}
+        padding={"24px"}
+      >
         <Typography color="#FF8F91">
           Think about the last 2 weeks and answer the questions in this section.{" "}
         </Typography>
