@@ -60,8 +60,7 @@ const WLBLSplashScreen = () => {
         margin="6px 24px"
         textAlign={"center"}
       >
-        Think about last 12 months and check all the boxes that apply to you to
-        the best of your knowledge.
+        Reflect on the last 12 months and select all that apply. If none are relevant, click next.
       </Typography>
     </Page>
   );
