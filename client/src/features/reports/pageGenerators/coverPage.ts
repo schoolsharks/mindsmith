@@ -84,7 +84,7 @@ export const generateCoverPage = (params: BrainHealthReportParams): string => {
     
     <!-- Footer -->
     <div style="padding: 20px 40px; border-top: 1px solid #ddd; background-color: #f8f9fa; font-size: 12px; color: #666; text-align: center;">
-        MindSmith Health, C-79/E 1st Floor, DLF Phase 1, Sec 26, Gurgaon, Haryana<br>
+        MindSmith Health, G7A/6 1st Floor, DLF Phase 1, Sec-26, Gurgaon, Haryana<br>
         For Appointments contact: 9810968272
     </div>
 </div>`;
