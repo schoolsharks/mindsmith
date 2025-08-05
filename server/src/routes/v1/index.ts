@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { fetchUser, login, register } from "../../modules/auth/auth.controller";
+import { fetchUser, login, register, verifyOTP } from "../../modules/auth/auth.controller";
 import {
   createOrder,
   verifyPayment,
@@ -18,6 +18,7 @@ router.post(
   register as express.RequestHandler
 ); // This should now work
 router.post("/auth/login", login as express.RequestHandler);
+router.post("/auth/verify-otp", verifyOTP as express.RequestHandler);
 router.get(
   "/auth/fetch-user",
   authenticateUser,

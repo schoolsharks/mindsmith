@@ -338,8 +338,7 @@ const WLBLGameLayout = () => {
       console.log("Section finished successfully:", response);
     } catch (error) {
       console.error("Error finishing section:", error);
-      // Optional: Show error message to user
-      // You could add an error toast here if needed
+   
     } finally {
       setIsSubmitting(false);
     }

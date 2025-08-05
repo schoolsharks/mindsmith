@@ -144,6 +144,66 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+export const verifyOTP = async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
+
+    // Find user by email (for now, we'll simulate OTP verification)
+    const user = await User.findOne({
+      email,
+      paymentStatus: "completed",
+    });
+
+    if (!user) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        message: "User not found or payment not completed",
+      });
+    }
+
+    // TODO: Add actual OTP verification logic here
+    // For now, we'll accept any 6-digit OTP as valid
+    if (!otp || otp.length !== 6) {
+      return res.status(httpStatus.BAD_REQUEST).json({
+        message: "Invalid OTP format",
+      });
+    }
+
+    // Generate access token
+    const accessToken = jwt.sign(
+      { id: user._id, role: "USER" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: "7d" }
+    );
+
+    // Set cookie with token
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "developement",
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    res.status(httpStatus.OK).json({
+      message: "OTP verified successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        contact: user.contact,
+        paymentStatus: user.paymentStatus,
+        quizProgress: user.quizProgress,
+      },
+      accessToken,
+    });
+  } catch (error: any) {
+    console.error("Verify OTP error:", error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: "Error verifying OTP",
+      error: error.message,
+    });
+  }
+};
+
 export const fetchUser = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -162,7 +222,15 @@ export const fetchUser = async (req: Request, res: Response) => {
       });
     }
 
+    // Generate access token for consistency with login response
+    const accessToken = jwt.sign(
+      { id: user._id, role: "USER" },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: "7d" }
+    );
+
     res.status(httpStatus.OK).json({
+      message: "User fetched successfully",
       user: {
         _id: user._id,
         name: user.name,
@@ -171,6 +239,7 @@ export const fetchUser = async (req: Request, res: Response) => {
         paymentStatus: user.paymentStatus,
         quizProgress: user.quizProgress,
       },
+      accessToken,
     });
   } catch (error: any) {
     console.error("Fetch user error:", error);

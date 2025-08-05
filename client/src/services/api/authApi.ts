@@ -10,6 +10,11 @@ export interface LoginRequest {
   email: string;
 }
 
+export interface VerifyOTPRequest {
+  email: string;
+  otp: string;
+}
+
 export interface AuthResponse {
   message: string;
   user: {
@@ -34,6 +39,11 @@ export const authApi = {
 
   login: async (data: LoginRequest): Promise<AuthResponse> => {
     const response = await axiosBaseApi.post("/auth/login", data);
+    return response.data;
+  },
+
+  verifyOTP: async (data: VerifyOTPRequest): Promise<AuthResponse> => {
+    const response = await axiosBaseApi.post("/auth/verify-otp", data);
     return response.data;
   },
 

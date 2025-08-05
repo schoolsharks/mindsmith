@@ -73,6 +73,24 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// Async thunk for verifyOTP
+export const verifyOTP = createAsyncThunk(
+  "auth/verifyOTP",
+  async (
+    otpData: { email: string; otp: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await authApi.verifyOTP(otpData);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "OTP verification failed"
+      );
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -152,6 +170,25 @@ const authSlice = createSlice({
         }
       )
       .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // Verify OTP
+      .addCase(verifyOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        verifyOTP.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.loading = false;
+          state.isAuthenticated = true;
+          state.user = action.payload.user;
+          state.accessToken = action.payload.accessToken;
+          state.error = null;
+        }
+      )
+      .addCase(verifyOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
