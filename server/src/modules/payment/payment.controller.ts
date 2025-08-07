@@ -10,8 +10,8 @@ import mongoose from "mongoose";
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const { userId } = req.body;
-    // const fixedAmount = 2500 * 100; // ₹2500 in paise
-    const fixedAmount = 1 * 100; // ₹1 in paise
+    const fixedAmount = 2500 * 100; // ₹2500 in paise
+    // const fixedAmount = 1 * 100; // ₹1 in paise
 
     // Validate userId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
