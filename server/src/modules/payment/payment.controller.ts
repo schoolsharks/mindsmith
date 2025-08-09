@@ -24,6 +24,9 @@ export const createOrder = async (req: Request, res: Response) => {
       currency: "INR",
       receipt: `msm_${userId}`, // msm = Mind Smith
       payment_capture: 1,
+      notes: {
+        source: "Mindsmith BHP Webapp",
+      },
     };
 
     const order = await razorpay.orders.create(options);
